@@ -60,6 +60,7 @@
 import { reactive, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { api } from '../api';
+import { useTTS } from '../composables/useTTS';
 
 const router = useRouter();
 const form = reactive({
@@ -71,18 +72,8 @@ const form = reactive({
 });
 const isFetching = ref(false);
 
-// 🔊 朗读功能
-function speak(text: string) {
-    if (!text) return;
-    if (window.speechSynthesis.speaking) {
-        window.speechSynthesis.cancel();
-    }
-    const utterance = new SpeechSynthesisUtterance(text);
-    utterance.lang = 'en-US';
-    utterance.rate = 0.85;
-    utterance.pitch = 1.0;
-    window.speechSynthesis.speak(utterance);
-}
+// TTS 发音
+const { speak } = useTTS();
 
 // 📖 获取音标（调用后端词典 API）
 async function fetchPhonetic() {

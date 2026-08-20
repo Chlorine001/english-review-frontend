@@ -50,80 +50,58 @@
         </div>
     </div>
 </template>
-
 <script setup lang="ts">
 import { ref, onMounted, computed } from 'vue';
 import { useRouter } from 'vue-router';
-import { api } from '../api';
+import { api } from '@/api';
+import { useTTS } from '@/composables/useTTS';
 
+// 路由
 const router = useRouter();
+
+// TTS 发音
+const { speak } = useTTS();
+
+// 复习数据
 const reviews = ref<any[]>([]);
 const currentIndex = ref(0);
 const showAnswer = ref(false);
 
+// 当前句子（计算属性）
 const currentSentence = computed(() => reviews.value[currentIndex.value] || {});
 
+// 加载今日复习列表
 async function loadReviews() {
     try {
         reviews.value = await api.getTodayReviews();
     } catch (e) {
+        // 如果 token 失效或其他错误，跳回登录页
         router.push('/login');
     }
 }
-// 预加载语音列表（Chrome 必须）
+
+
+// 提交评分
+async function handleRating(rating: string) {
+    const review = reviews.value[currentIndex.value];
+    if (!review) return;
+
+    try {
+        await api.submitAnswer(review.review_id, rating);
+        // 移动到下一个
+        currentIndex.value++;
+        showAnswer.value = false;
+    } catch (e) {
+        alert('提交评分失败，请重试');
+    }
+}
+
 onMounted(() => {
-    // 如果语音列表为空，等待加载完成
-    if (window.speechSynthesis.getVoices().length === 0) {
-        window.speechSynthesis.onvoiceschanged = () => {
-            window.speechSynthesis.getVoices(); // 触发加载
-        };
+    loadReviews();
+    // 预加载语音（可选）
+    if (window.speechSynthesis && window.speechSynthesis.getVoices().length === 0) {
+        window.speechSynthesis.onvoiceschanged = () => window.speechSynthesis.getVoices();
     }
 });
 
-async function handleRating(rating: string) {
-    const review = reviews.value[currentIndex.value];
-    await api.submitAnswer(review.review_id, rating);
-    currentIndex.value++;
-    showAnswer.value = false;
-}
-
-// 🔊 内置语音优化版（挑选最佳声音 + 自然参数）
-function speak(text: string) {
-    if (!text) return;
-    if (window.speechSynthesis.speaking) {
-        window.speechSynthesis.cancel();
-    }
-
-    // 等一小段时间让 cancel 生效
-    setTimeout(() => {
-        const utterance = new SpeechSynthesisUtterance(text);
-        utterance.lang = 'en-US';
-
-        // 让语速慢一点、音调低一点，听起来更像“朗读”而非“机器人”
-        utterance.rate = 0.85;   // 0.7~1.0 之间比较自然
-        utterance.pitch = 0.95;  // 稍微低一点更柔和
-        utterance.volume = 1;
-
-        // 从系统所有声音里挑最自然的
-        const voices = window.speechSynthesis.getVoices();
-        // 优先级: Google 在线 > 系统美式女声 > 任何美式 > 任何英文
-        const preferred =
-            voices.find(v => v.lang === 'en-US' && v.name.includes('Google')) ||
-            voices.find(v => v.lang === 'en-US' && v.name.includes('Samantha')) ||
-            voices.find(v => v.lang === 'en-US' && v.name.includes('Zira')) ||
-            voices.find(v => v.lang === 'en-US' && v.name.includes('David')) ||
-            voices.find(v => v.lang === 'en-US') ||
-            voices.find(v => v.lang.startsWith('en'));
-
-        if (preferred) {
-            utterance.voice = preferred;
-            console.log('✅ 当前使用语音:', preferred.name);
-        } else {
-            console.warn('⚠️ 未找到英文语音，使用默认');
-        }
-
-        window.speechSynthesis.speak(utterance);
-    }, 50);
-}
-onMounted(loadReviews);
 </script>
