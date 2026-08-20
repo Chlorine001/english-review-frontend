@@ -3,7 +3,7 @@
     <!-- 顶部导航栏（包含切换按钮） -->
     <header
       class="flex justify-between items-center p-4 border-b border-gray-200 dark:border-[#3d3f5e] bg-white dark:bg-[#2d2f44]">
-      <div class="text-lg font-semibold text-gray-800 dark:text-white"><a href="/">📚 英语复习</a></div>
+      <div class="text-lg font-semibold text-gray-800 dark:text-white"><a href="/">📚 LexiScribe · 智能英语精炼</a></div>
       <button @click="toggleDarkMode"
         class="px-3 py-1 rounded border border-gray-300 dark:border-[#5a5d7a] text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-[#3d3f5e] transition-colors">
         {{ isDark ? '☀️ 浅色' : '🌙 深色' }}
