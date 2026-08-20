@@ -1,7 +1,7 @@
 <template>
     <div class="max-w-2xl mx-auto p-4">
         <div class="flex justify-between items-center mb-6">
-            <h1 class="text-3xl font-bold text-gray-900 dark:text-white">📚 LexiScribe</h1>
+            <h1 class="text-3xl font-bold text-gray-900 dark:text-white">{{ title }}</h1>
             <button @click="logout" class="btn-danger">退出登录</button>
         </div>
 
@@ -30,6 +30,8 @@
 import { ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { api } from '../api';
+
+const title = import.meta.env.VITE_HOME_TITLE || '📚 LexiScribe';
 
 const router = useRouter();
 const stats = ref({ today: 0, total: 0 });

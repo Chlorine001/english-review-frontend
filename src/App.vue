@@ -3,7 +3,7 @@
     <!-- 顶部导航栏（包含切换按钮） -->
     <header
       class="flex justify-between items-center p-4 border-b border-gray-200 dark:border-[#3d3f5e] bg-white dark:bg-[#2d2f44]">
-      <div class="text-lg font-semibold text-gray-800 dark:text-white"><a href="/">📚 LexiScribe · 智能英语精炼</a></div>
+      <div class="text-lg font-semibold text-gray-800 dark:text-white"><a href="/">{{ appTitle}}</a></div>
       <button @click="toggleDarkMode"
         class="px-3 py-1 rounded border border-gray-300 dark:border-[#5a5d7a] text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-[#3d3f5e] transition-colors">
         {{ isDark ? '☀️ 浅色' : '🌙 深色' }}
@@ -19,6 +19,9 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
+
+// ---------- 从环境变量读取应用标题 ----------
+const appTitle = import.meta.env.VITE_APP_TITLE || '📚 LexiScribe · 智能英语精炼';
 
 // 从 localStorage 读取用户偏好，如果没有则默认为 false（浅色）
 const isDark = ref(false);
@@ -51,4 +54,6 @@ onMounted(() => {
   }
   updateDarkClass();
 });
+
+
 </script>
