@@ -1,0 +1,68 @@
+<template>
+    <div class="min-h-screen flex items-center justify-center bg-gray-50">
+        <div class="w-full max-w-md p-8 bg-white rounded-lg shadow">
+            <h2 class="text-2xl font-bold text-center mb-6">注册</h2>
+            <div v-if="errorMessage" class="mb-4 p-2 bg-red-100 text-red-800 rounded">
+                {{ errorMessage }}
+            </div>
+            <form @submit.prevent="handleRegister">
+                <div class="mb-4">
+                    <label class="block text-sm font-medium mb-1">邮箱</label>
+                    <input v-model="email" type="email" required class="w-full border rounded px-3 py-2" />
+                </div>
+                <div class="mb-6">
+                    <label class="block text-sm font-medium mb-1">密码</label>
+                    <input v-model="password" type="password" required class="w-full border rounded px-3 py-2" />
+                </div>
+                <button type="submit"
+                    class="w-full bg-indigo-600 text-white py-2 rounded hover:bg-indigo-700">注册</button>
+            </form>
+            <p class="mt-4 text-sm text-center">
+                已有账号？<router-link to="/login" class="text-indigo-600 underline">去登录</router-link>
+            </p>
+        </div>
+    </div>
+</template>
+
+<script setup lang="ts">
+import { ref } from 'vue';
+import { useRouter } from 'vue-router';
+import { api } from '../api';
+
+const router = useRouter();
+const email = ref('');
+const password = ref('');
+const errorMessage = ref('');
+
+// 优化错误消息，动态提取数字
+function formatErrorMessage(msg: string): string {
+    // 密码太短：尝试提取数字
+    const match = msg.match(/>=(\d+)|minimum[:\s]+(\d+)/i);
+    if (match) {
+        const num = match[1] || match[2];
+        return `密码长度至少为 ${num} 个字符`;
+    }
+    // 邮箱格式错误
+    if (msg.includes('email') && (msg.includes('invalid') || msg.includes('format'))) {
+        return '邮箱格式不正确';
+    }
+    // 邮箱已存在
+    if (msg.includes('already exists')) {
+        return '该邮箱已被注册';
+    }
+    // 其他错误，返回原消息
+    return msg;
+}
+
+async function handleRegister() {
+    errorMessage.value = '';
+    try {
+        const res = await api.register(email.value, password.value);
+        localStorage.setItem('token', res.token);
+        router.push('/');
+    } catch (e: any) {
+        const raw = e.message || '注册失败，请检查网络';
+        errorMessage.value = formatErrorMessage(raw);
+    }
+}
+</script>
