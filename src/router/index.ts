@@ -1,9 +1,10 @@
 import { createRouter, createWebHistory } from 'vue-router';
-import Login from '../views/Login.vue';
+import Login from '@/views/Login.vue';
 import Register from '../views/Register.vue';
 import Dashboard from '../views/Dashboard.vue';
 import Review from '../views/Review.vue';
 import AddSentence from '../views/AddSentence.vue';
+import Library from '../views/Library.vue';
 
 const routes = [
   { path: '/login', component: Login },
@@ -11,6 +12,7 @@ const routes = [
   { path: '/', component: Dashboard, meta: { requiresAuth: true } },
   { path: '/review', component: Review, meta: { requiresAuth: true } },
   { path: '/add', component: AddSentence, meta: { requiresAuth: true } },
+  { path: '/library', component: Library, meta: { requiresAuth: true } },
 ];
 
 const router = createRouter({

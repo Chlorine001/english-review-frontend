@@ -298,3 +298,79 @@ code {
 		border-right-color: var(--border);
 	}
 }
+
+/* ---------- 自定义组件类（含深色适配） ---------- */
+@layer components {
+	/* 页面背景（浅色/深色） */
+	.page-bg {
+		@apply bg-gray-50 dark:bg-[#1a1b2e] transition-colors duration-300;
+	}
+
+	/* 卡片 */
+	.card {
+		@apply bg-white dark:bg-[#2d2f44] border border-gray-200 dark:border-[#3d3f5e] rounded-lg shadow-sm;
+	}
+
+	/* 卡片内部标题 */
+	.card-title {
+		@apply text-lg font-medium text-gray-900 dark:text-white;
+	}
+
+	/* 卡片正文 */
+	.card-text {
+		@apply text-gray-700 dark:text-gray-300;
+	}
+
+	/* 次级文字（备注、来源等） */
+	.card-meta {
+		@apply text-sm text-gray-500 dark:text-gray-400;
+	}
+
+	/* 主要按钮（用于“开始复习”等） */
+	.btn-primary {
+		@apply px-6 py-3 bg-indigo-600 dark:bg-indigo-500 text-white rounded-lg text-center 
+           hover:bg-indigo-700 dark:hover:bg-indigo-600 transition-colors;
+	}
+
+	/* 次要按钮（用于“添加句子”、“句子库”等） */
+	.btn-secondary {
+		@apply px-6 py-3 bg-white dark:bg-[#2d2f44] border border-gray-300 dark:border-[#3d3f5e] 
+           rounded-lg text-center hover:bg-gray-50 dark:hover:bg-[#3d3f5e] transition-colors 
+           text-gray-700 dark:text-gray-200;
+	}
+
+	/* 危险按钮（删除、退出等） */
+	.btn-danger {
+		@apply px-4 py-2 text-sm text-red-600 dark:text-red-400 border border-red-300 dark:border-red-700 
+           rounded-lg hover:bg-red-50 dark:hover:bg-red-900/30 transition-colors;
+	}
+
+	/* 评分按钮（Again / Hard / Good / Easy） */
+	.btn-rating {
+		@apply px-4 py-2 rounded hover:bg-opacity-80 transition-colors;
+	}
+	.btn-rating-again {
+		@apply bg-red-100 dark:bg-red-900/40 text-red-800 dark:text-red-300 hover:bg-red-200 dark:hover:bg-red-800/50;
+	}
+	.btn-rating-hard {
+		@apply bg-yellow-100 dark:bg-yellow-900/40 text-yellow-800 dark:text-yellow-300 hover:bg-yellow-200 dark:hover:bg-yellow-800/50;
+	}
+	.btn-rating-good {
+		@apply bg-green-100 dark:bg-green-900/40 text-green-800 dark:text-green-300 hover:bg-green-200 dark:hover:bg-green-800/50;
+	}
+	.btn-rating-easy {
+		@apply bg-blue-100 dark:bg-blue-900/40 text-blue-800 dark:text-blue-300 hover:bg-blue-200 dark:hover:bg-blue-800/50;
+	}
+
+	/* 输入框 */
+	.input-field {
+		@apply w-full border border-gray-300 dark:border-[#3d3f5e] rounded px-3 py-2 
+           bg-white dark:bg-[#2d2f44] text-gray-900 dark:text-white 
+           focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400;
+	}
+
+	/* 文本域（和 input-field 类似，但可单独控制高度） */
+	.textarea-field {
+		@apply input-field resize-y;
+	}
+}

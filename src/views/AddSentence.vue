@@ -1,34 +1,29 @@
 <template>
     <div class="max-w-xl mx-auto p-4">
-        <h2 class="text-2xl font-bold mb-4">添加句子</h2>
+        <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-4">添加句子</h2>
         <form @submit.prevent="submit">
-            <!-- 英文句子 -->
             <div class="mb-4">
-                <label class="block text-sm font-medium mb-1">英文句子 *</label>
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">英文句子 *</label>
                 <div class="flex items-start gap-2">
-                    <textarea v-model="form.content" rows="3" class="flex-1 border rounded px-3 py-2"
-                        required></textarea>
+                    <textarea v-model="form.content" rows="3" class="textarea-field" required></textarea>
                     <button type="button" @click="speak(form.content)"
-                        class="mt-1 text-2xl hover:text-indigo-600 transition-colors" title="朗读句子">
-                        🔊
-                    </button>
+                        class="mt-1 text-2xl hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">🔊</button>
                 </div>
             </div>
 
-            <!-- 中文含义 -->
             <div class="mb-4">
-                <label class="block text-sm font-medium mb-1">中文含义</label>
-                <input v-model="form.translation" class="w-full border rounded px-3 py-2" />
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">中文含义</label>
+                <input v-model="form.translation" class="input-field" />
             </div>
+
 
             <!-- 发音/音标（带自动获取按钮） -->
             <div class="mb-4">
-                <label class="block text-sm font-medium mb-1">发音/音标</label>
+                <label class="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300 mb-1">发音/音标</label>
                 <div class="flex gap-2">
-                    <input v-model="form.pronunciation" class="flex-1 border rounded px-3 py-2"
-                        placeholder="例如 /ˈwʌndərɪŋ/ 或留空" />
+                    <input v-model="form.pronunciation" class="input-field" placeholder="例如 /ˈwʌndərɪŋ/ 或留空" />
                     <button type="button" @click="fetchPhonetic"
-                        class="px-3 py-2 bg-gray-100 border rounded hover:bg-gray-200 text-sm whitespace-nowrap"
+                        class="px-3 py-2 bg-gray-100 border rounded hover:bg-gray-200 text-sm whitespace-nowrap btn-secondary"
                         :disabled="isFetching">
                         {{ isFetching ? '查询中...' : '📖 获取音标' }}
                     </button>
@@ -38,20 +33,18 @@
 
             <!-- 备注 -->
             <div class="mb-4">
-                <label class="block text-sm font-medium mb-1">备注</label>
-                <textarea v-model="form.notes" rows="2" class="w-full border rounded px-3 py-2"></textarea>
+                <label class="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300 mb-1">备注</label>
+                <textarea v-model="form.notes" rows="2" class="input-field"></textarea>
             </div>
 
             <!-- 来源 -->
             <div class="mb-4">
-                <label class="block text-sm font-medium mb-1">来源</label>
-                <input v-model="form.source" class="w-full border rounded px-3 py-2" />
+                <label class="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300 mb-1">来源</label>
+                <input v-model="form.source" class="input-field" />
             </div>
 
-            <button type="submit" class="px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700">
-                保存
-            </button>
-            <router-link to="/" class="ml-4 text-gray-600 underline">取消</router-link>
+            <button type="submit" class="btn-primary">保存</button>
+            <button class="ml-4 btn-secondary"><a href="/">取消</a></button>
         </form>
     </div>
 </template>
