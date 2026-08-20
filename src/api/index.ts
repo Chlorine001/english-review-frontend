@@ -8,22 +8,34 @@ async function request<T>(endpoint: string, options: RequestInit = {}): Promise<
     ...(options.headers || {}),
   };
   const res = await fetch(`${API_BASE}${endpoint}`, { ...options, headers });
+
+  // ✅ 新增：处理 401 未授权（Token 过期或无效）
+  if (res.status === 401) {
+    // 清除本地 Token
+    localStorage.removeItem('token');
+    // 如果当前不在登录页或注册页，弹窗并跳转
+    const { pathname } = window.location;
+    if (pathname !== '/login' && pathname !== '/register') {
+      alert('登录已过期，请重新登录');  // 弹窗提示
+      window.location.href = '/login';
+    }
+    // 抛出错误，让调用方知道请求失败
+    throw new Error('登录已过期，请重新登录');
+  }
+
   if (!res.ok) {
+    // 尝试解析错误消息
     let errorMessage = '请求失败，请稍后重试';
     try {
-      const errorData = await res.json();
-      // 如果后端返回了 error.message，取它
-      if (errorData.error) {
-        if (typeof errorData.error === 'string') {
-          errorMessage = errorData.error;
-        } else if (typeof errorData.error === 'object' && errorData.error.message) {
-          errorMessage = errorData.error.message;
-        } else if (errorData.message) {
-          errorMessage = errorData.message;
-        }
+      const errData = await res.json();
+      if (errData.error) {
+        // 如果后端返回的是字符串或对象
+        errorMessage = typeof errData.error === 'string' ? errData.error : errData.error.message || errorMessage;
+      } else if (errData.message) {
+        errorMessage = errData.message;
       }
     } catch {
-      // 如果响应不是 JSON，忽略
+      // 无法解析 JSON，使用默认消息
     }
     throw new Error(errorMessage);
   }
