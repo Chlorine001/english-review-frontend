@@ -11,15 +11,11 @@ async function request<T>(endpoint: string, options: RequestInit = {}): Promise<
 
   // ✅ 新增：处理 401 未授权（Token 过期或无效）
   if (res.status === 401) {
-    // 清除本地 Token
     localStorage.removeItem('token');
-    // 如果当前不在登录页或注册页，弹窗并跳转
-    const { pathname } = window.location;
-    if (pathname !== '/login' && pathname !== '/register') {
-      alert('登录已过期，请重新登录');  // 弹窗提示
-      window.location.href = '/login';
-    }
-    // 抛出错误，让调用方知道请求失败
+    // 使用更优雅的提示方式（如 Toast 或 Notification）
+    // 如果你的项目有 UI 库，改用 notification.error()
+    console.warn('登录已过期，请重新登录');
+    window.location.href = '/login';
     throw new Error('登录已过期，请重新登录');
   }
 
