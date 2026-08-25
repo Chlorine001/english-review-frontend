@@ -1,6 +1,7 @@
 import { defineConfig, loadEnv } from 'vite'
 import vue from '@vitejs/plugin-vue'
-import path from 'path'
+import path from 'path';
+const __dirname = import.meta.dirname; // 直接使用
 
 export default defineConfig(({ mode }) => {
   // 加载环境变量（第三个参数 '' 表示加载所有变量，不限前缀）

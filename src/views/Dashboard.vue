@@ -21,7 +21,7 @@
         <div class="flex flex-col sm:flex-row gap-4">
             <router-link to="/review" class="btn-primary">🚀 开始复习</router-link>
             <router-link to="/add" class="btn-secondary">➕ 添加句子</router-link>
-            <!-- <router-link to="/library" class="btn-secondary">📖 句子库</router-link> -->
+            <router-link to="/library" class="btn-secondary">📖 句子库</router-link>
         </div>
     </div>
 </template>
