@@ -49,20 +49,66 @@
                 <button type="submit" class="flex-1 btn-primary" :disabled="submitting">
                     {{ submitting ? '保存中...' : '保存' }}
                 </button>
-                <button type="button" class="flex-1 btn-secondary" @click="$router.push('/')" :disabled="submitting">
+                <button type="button" class="flex-1 btn-secondary" @click="router.push('/')" :disabled="submitting">
                     取消
                 </button>
             </div>
         </form>
 
-        <!-- 隐藏的文件选择器（保存后弹出） -->
-        <input ref="fileInput" type="file" accept="audio/*" @change="handleFileSelect" class="hidden" />
 
-        <!-- 上传进度与状态 -->
-        <div v-if="uploadProgress > 0 && uploadProgress < 100" class="mt-4">
-            <progress :value="uploadProgress" max="100" class="w-full" />
+        <!-- ====== 上传音频模态框 ====== -->
+        <div v-if="showUploadModal" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+            <div class="bg-white dark:bg-gray-800 rounded-lg p-6 max-w-sm w-full shadow-xl">
+                <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-2">📢 上传音频（可选）</h3>
+                <p class="text-sm text-gray-600 dark:text-gray-300 mb-4">
+                    为句子添加发音音频，方便复习时聆听。
+                </p>
+                <!-- <input ref="modalFileInput" type="file" accept="audio/*" @change="handleModalFileSelect" class="block w-full text-sm text-gray-500 dark:text-gray-300
+                   file:mr-4 file:py-2 file:px-4
+                   file:rounded file:border-0
+                   file:text-sm file:font-semibold
+                   file:bg-indigo-50 file:text-indigo-700
+                   dark:file:bg-indigo-900 dark:file:text-indigo-200
+                   hover:file:bg-indigo-100 dark:hover:file:bg-indigo-800" /> -->
+                <!-- 自定义选择按钮 -->
+                <!-- 隐藏的文件输入 -->
+                <input ref="modalFileInput" type="file" accept="audio/*" @change="handleModalFileSelect"
+                    class="hidden" />
+                <button type="button" @click="modalFileInput?.click()"
+                    class="w-full py-2 px-4 border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg hover:border-indigo-500 dark:hover:border-indigo-400 transition-colors text-gray-500 dark:text-gray-400"
+                    :disabled="uploadingFile">
+                    📁 选择音频文件
+                </button>
+                <!-- 已选文件信息 -->
+                <div v-if="selectedFile" class="mt-2 text-sm text-gray-600 dark:text-gray-300">
+                    📄 {{ selectedFile.name }} ({{ (selectedFile.size / 1024).toFixed(1) }} KB)
+                </div>
+                <div v-else class="mt-2 text-sm text-gray-400">
+                    未选择任何文件
+                </div>
+
+                <!-- 进度条 -->
+                <div v-if="uploadProgress > 0 && uploadProgress < 100" class="mt-3">
+                    <progress :value="uploadProgress" max="100" class="w-full" />
+                    <p class="text-xs text-gray-500 text-center">{{ uploadProgress }}%</p>
+                </div>
+
+                <!-- 上传成功状态 -->
+                <div v-if="uploaded" class="mt-2 text-green-600 dark:text-green-400 text-sm">
+                    ✅ 上传成功
+                </div>
+                <div class="flex gap-2 mt-4">
+                    <button @click="triggerModalUpload" class="flex-1 btn-primary"
+                        :disabled="uploadingFile || uploaded || !selectedFile">
+                        {{ uploadingFile ? '上传中...' : uploaded ? '✅ 已上传' : '上传' }}
+                    </button>
+                    <button @click="skipUpload" class="flex-1 btn-secondary" :disabled="uploadingFile">
+                        跳过
+                    </button>
+
+                </div>
+            </div>
         </div>
-        <div v-if="uploaded" class="mt-2 text-green-600 dark:text-green-400">✅ 音频上传成功</div>
     </div>
 </template>
 
@@ -140,22 +186,58 @@ async function submit() {
         newSentenceId.value = result.id;
         // 保存成功提示
         alert('✅ 句子保存成功！');
-        
-        // 弹出音频上传选择器
-        await nextTick();
-        triggerFilePicker();
+        // 打开模态框（提交按钮保持禁用）
+        showUploadModal.value = true;
+        uploaded.value = false;
+        uploadProgress.value = 0;
+        selectedFile.value = null;
+        if (modalFileInput.value) modalFileInput.value.value = '';
     } catch (e: any) {
         alert('❌ 保存失败：' + (e.message || '未知错误'));
-    } finally {
-        submitting.value = false;
+        submitting.value = false; // 失败则解锁
     }
 }
 
-function triggerFilePicker() {
-    // 如果用户确认上传，则触发文件选择
-    if (confirm('句子已保存！是否现在上传音频？\n（点击“确定”选择音频文件，取消则跳过）')) {
-        fileInput.value?.click();
+// ===== 模态框上传逻辑 =====
+async function uploadAudio() {
+    if (!selectedFile.value || !newSentenceId.value) return;
+
+    uploadingFile.value = true;
+    uploadProgress.value = 0;
+    uploaded.value = false;
+
+    try {
+        await api.uploadAudio(newSentenceId.value, selectedFile.value, (p) => {
+            uploadProgress.value = p;
+        });
+        uploaded.value = true;
+        alert('✅ 音频上传成功！');
+    } catch (e: any) {
+        alert('❌ 音频上传失败：' + (e.message || '未知错误'));
+    } finally {
+        uploadingFile.value = false;
     }
+}
+
+function handleModalFileSelect(e: Event) {
+    const input = e.target as HTMLInputElement;
+    if (!input.files || input.files.length === 0) {
+        input.value = '';
+        return;
+    }
+    selectedFile.value = input.files[0];
+    uploadAudio();
+    input.value = ''; // 重置
+}
+
+function triggerModalUpload() {
+    if (uploadingFile.value || uploaded.value) return;
+    modalFileInput.value?.click();
+}
+
+function skipUpload() {
+    showUploadModal.value = false;
+    submitting.value = false; // 解锁提交按钮
 }
 
 function handleFileSelect(e: Event) {
@@ -171,32 +253,32 @@ function handleFileSelect(e: Event) {
     input.value = '';
 }
 
-async function uploadAudio() {
-    if (!selectedFile.value || !newSentenceId.value) return;
-    uploadProgress.value = 0;
-    uploaded.value = false;
-    try {
-        await api.uploadAudio(newSentenceId.value, selectedFile.value, (p) => {
-            uploadProgress.value = p;
-        });
-        uploaded.value = true;
+// async function uploadAudio() {
+//     if (!selectedFile.value || !newSentenceId.value) return;
+//     uploadProgress.value = 0;
+//     uploaded.value = false;
+//     try {
+//         await api.uploadAudio(newSentenceId.value, selectedFile.value, (p) => {
+//             uploadProgress.value = p;
+//         });
+//         uploaded.value = true;
 
-        // 可选：加载音频 URL 以便播放
-        await loadAudioUrl();
-    } catch (e: any) {
-        alert('上传失败：' + e.message);
-    }
-}
+//         // 可选：加载音频 URL 以便播放
+//         await loadAudioUrl();
+//     } catch (e: any) {
+//         alert('上传失败：' + e.message);
+//     }
+// }
 
-async function loadAudioUrl() {
-    if (!newSentenceId.value) return;
-    try {
-        const { url } = await api.getAudioUrl(newSentenceId.value);
-        audioUrl.value = url;
-    } catch {
-        // 没有音频，忽略
-    }
-}
+// async function loadAudioUrl() {
+//     if (!newSentenceId.value) return;
+//     try {
+//         const { url } = await api.getAudioUrl(newSentenceId.value);
+//         audioUrl.value = url;
+//     } catch {
+//         // 没有音频，忽略
+//     }
+// }
 </script>
 
 <style scoped>
