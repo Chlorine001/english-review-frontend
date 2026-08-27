@@ -1,5 +1,12 @@
+import axios from 'axios';
+
 const baseURL = import.meta.env.VITE_API_BASE_URL;
 const API_BASE = baseURL + '/api';
+
+const axiosInstance = axios.create({
+  baseURL: API_BASE,
+  withCredentials: true,
+});
 
 async function request<T>(endpoint: string, options: RequestInit = {}, skipAuthRedirect: boolean = false): Promise<T> {
   const headers: HeadersInit = {
@@ -93,29 +100,45 @@ export const api = {
   getAudioUrl: (sentenceId: number) =>
     request<{ url: string }>(`/sentences/${sentenceId}/audio-url`),
 
-  // 上传音频（用 FormData，支持进度）
+  // // 上传音频（用 FormData，支持进度）
+  // uploadAudio: (sentenceId: number, file: File, onProgress?: (percent: number) => void) => {
+  //   const formData = new FormData();
+  //   formData.append('audio', file);
+  //   return new Promise<{ success: boolean; key: string }>((resolve, reject) => {
+  //     const xhr = new XMLHttpRequest();
+  //     xhr.withCredentials = true;
+  //     xhr.open('POST', `/api/sentences/${sentenceId}/audio`);
+  //     xhr.upload.addEventListener('progress', (e) => {
+  //       if (e.lengthComputable && onProgress) {
+  //         onProgress(Math.round((e.loaded / e.total) * 100));
+  //       }
+  //     });
+  //     xhr.onload = () => {
+  //       if (xhr.status === 200) {
+  //         resolve(JSON.parse(xhr.responseText));
+  //       } else {
+  //         reject(new Error(xhr.statusText || '上传失败'));
+  //       }
+  //     };
+  //     xhr.onerror = () => reject(new Error('网络错误'));
+  //     xhr.send(formData);
+  //   });
+  // },
+
   uploadAudio: (sentenceId: number, file: File, onProgress?: (percent: number) => void) => {
     const formData = new FormData();
     formData.append('audio', file);
-    return new Promise<{ success: boolean; key: string }>((resolve, reject) => {
-      const xhr = new XMLHttpRequest();
-      xhr.open('POST', `/api/sentences/${sentenceId}/audio`);
-      xhr.withCredentials = true;
-      xhr.upload.addEventListener('progress', (e) => {
-        if (e.lengthComputable && onProgress) {
-          onProgress(Math.round((e.loaded / e.total) * 100));
+
+    return axiosInstance.post(`/sentences/${sentenceId}/audio`, formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+      onUploadProgress: (progressEvent) => {
+        if (progressEvent.total && onProgress) {
+          onProgress(Math.round((progressEvent.loaded * 100) / progressEvent.total));
         }
-      });
-      xhr.onload = () => {
-        if (xhr.status === 200) {
-          resolve(JSON.parse(xhr.responseText));
-        } else {
-          reject(new Error(xhr.statusText || '上传失败'));
-        }
-      };
-      xhr.onerror = () => reject(new Error('网络错误'));
-      xhr.send(formData);
-    });
+      },
+    }).then(res => res.data);
   },
+
 };
+
 
