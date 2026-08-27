@@ -25,10 +25,20 @@
       </p>
     </div>
   </div>
+  <!-- 右下角后端状态指示器 -->
+  <div
+    class="fixed bottom-4 right-4 flex items-center gap-2 px-3 py-1.5 rounded-full shadow-md bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm text-sm">
+    <span class="w-2.5 h-2.5 rounded-full" :class="{
+      'bg-green-500': backendStatus === 'online',
+      'bg-red-500': backendStatus === 'offline',
+      'bg-yellow-500 animate-pulse': backendStatus === 'checking',
+    }"></span>
+    <span class="text-gray-700 dark:text-gray-300">{{ statusText }}</span>
+  </div>
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref, computed, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { api } from '../api';
 
@@ -36,6 +46,17 @@ const router = useRouter();
 const email = ref('');
 const password = ref('');
 const errorMessage = ref('');
+
+// 后端状态
+const backendStatus = ref<'checking' | 'online' | 'offline'>('checking');
+
+const statusText = computed(() => {
+  switch (backendStatus.value) {
+    case 'online': return '后端服务正常';
+    case 'offline': return '后端服务不可用';
+    default: return '检测中…';
+  }
+});
 
 async function handleLogin() {
   errorMessage.value = '';
@@ -51,4 +72,30 @@ async function handleLogin() {
     errorMessage.value = msg;
   }
 }
+
+// 健康检测
+async function checkBackendHealth() {
+  try {
+    const baseURL = import.meta.env.VITE_API_BASE_URL;
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 8000);
+
+    const response = await fetch(`${baseURL}/`, {
+      signal: controller.signal,
+      method: 'GET',
+      // 允许任何状态码，只要请求能被处理即认为在线
+    });
+    clearTimeout(timeoutId);
+
+    // 只要服务器有响应（即使 404/401），都视为在线
+    backendStatus.value = 'online';
+  } catch {
+    // 网络错误或超时
+    backendStatus.value = 'offline';
+  }
+}
+
+onMounted(() => {
+  checkBackendHealth();
+});
 </script>
