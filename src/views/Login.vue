@@ -27,7 +27,8 @@
   </div>
   <!-- 右下角后端状态指示器 -->
   <div
-    class="fixed bottom-4 right-4 flex items-center gap-2 px-3 py-1.5 rounded-full shadow-md bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm text-sm">
+    class="fixed bottom-4 right-4 flex items-center gap-2 px-3 py-1.5 rounded-full shadow-md bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm text-sm cursor-pointer select-none hover:bg-gray-100 dark:hover:bg-gray-700/80 transition"
+    @click="checkBackendHealth">
     <span class="w-2.5 h-2.5 rounded-full" :class="{
       'bg-green-500': backendStatus === 'online',
       'bg-red-500': backendStatus === 'offline',
@@ -76,11 +77,12 @@ async function handleLogin() {
 // 健康检测
 async function checkBackendHealth() {
   try {
+    backendStatus.value = 'checking';
     const baseURL = import.meta.env.VITE_API_BASE_URL;
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 8000);
-
-    const response = await fetch(`${baseURL}/`, {
+    const timeoutId = setTimeout(() => controller.abort(), 5000);
+    
+    await fetch(`${baseURL}/`, {
       signal: controller.signal,
       method: 'GET',
       // 允许任何状态码，只要请求能被处理即认为在线
