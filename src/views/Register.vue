@@ -60,8 +60,8 @@ function formatErrorMessage(msg: string): string {
 async function handleRegister() {
     errorMessage.value = '';
     try {
-        const res = await api.register(email.value, password.value);
-        localStorage.setItem('token', res.token);
+        await api.register(email.value, password.value);
+        localStorage.setItem('isLoggedIn', 'true');
         router.push('/');
     } catch (e: any) {
         const raw = e.message || '注册失败，请检查网络';

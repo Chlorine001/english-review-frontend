@@ -43,9 +43,19 @@ async function loadStats() {
     }
 }
 
-function logout() {
-    localStorage.removeItem('token');
-    router.push('/login');
+async function logout() {
+    try {
+        await api.logout();
+        // 清除本地登录标志
+        localStorage.removeItem('isLoggedIn');
+        // 跳转到登录页
+        router.push('/login');
+    } catch (err) {
+        console.error('登出失败', err);
+        // 即使后端报错，也可以清除本地状态，让用户重新登录
+        localStorage.removeItem('isLoggedIn');
+        router.push('/login');
+    }
 }
 
 onMounted(loadStats);

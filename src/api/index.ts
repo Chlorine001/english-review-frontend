@@ -1,23 +1,26 @@
-const baseURL = import.meta.env.VITE_API_BASE_URL; 
+const baseURL = import.meta.env.VITE_API_BASE_URL;
 const API_BASE = baseURL + '/api';
 
-async function request<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
-  const token = localStorage.getItem('token');
+async function request<T>(endpoint: string, options: RequestInit = {}, skipAuthRedirect: boolean = false): Promise<T> {
   const headers: HeadersInit = {
     'Content-Type': 'application/json',
-    ...(token && { Authorization: `Bearer ${token}` }),
     ...(options.headers || {}),
   };
-  const res = await fetch(`${API_BASE}${endpoint}`, { ...options, headers });
+  const res = await fetch(`${API_BASE}${endpoint}`, {
+    ...options,
+    credentials: 'include', // 关键：携带 Cookie
+    headers,
+  });
 
   // ✅ 新增：处理 401 未授权（Token 过期或无效）
   if (res.status === 401) {
-    localStorage.removeItem('token');
     // 使用更优雅的提示方式（如 Toast 或 Notification）
     // 如果你的项目有 UI 库，改用 notification.error()
-    console.warn('登录已过期，请重新登录');
-    window.location.href = '/login';
-    throw new Error('登录已过期，请重新登录');
+    if (!skipAuthRedirect) {
+      console.warn('登录已过期，请重新登录');
+      // window.location.href = '/login';
+      throw new Error('登录已过期，请重新登录');
+    }
   }
 
   if (!res.ok) {
@@ -45,12 +48,13 @@ export const api = {
     request<{ token: string; user: { id: number; email: string } }>('/auth/register', {
       method: 'POST',
       body: JSON.stringify({ email, password }),
-    }),
+    }, true),
   login: (email: string, password: string) =>
     request<{ token: string; user: { id: number; email: string } }>('/auth/login', {
       method: 'POST',
       body: JSON.stringify({ email, password }),
-    }),
+    }, true),
+  logout: () => request('/auth/logout', { method: 'POST' }),
 
   // 句子
   addSentence: (data: { content: string; translation?: string; pronunciation?: string; notes?: string; source?: string }) =>
@@ -84,5 +88,34 @@ export const api = {
     request<{ success: boolean }>(`/sentences/${id}`, {
       method: 'DELETE',
     }),
+
+  // 获取音频的预签名 URL
+  getAudioUrl: (sentenceId: number) =>
+    request<{ url: string }>(`/sentences/${sentenceId}/audio-url`),
+
+  // 上传音频（用 FormData，支持进度）
+  uploadAudio: (sentenceId: number, file: File, onProgress?: (percent: number) => void) => {
+    const formData = new FormData();
+    formData.append('audio', file);
+    return new Promise<{ success: boolean; key: string }>((resolve, reject) => {
+      const xhr = new XMLHttpRequest();
+      xhr.open('POST', `/api/sentences/${sentenceId}/audio`);
+      xhr.withCredentials = true;
+      xhr.upload.addEventListener('progress', (e) => {
+        if (e.lengthComputable && onProgress) {
+          onProgress(Math.round((e.loaded / e.total) * 100));
+        }
+      });
+      xhr.onload = () => {
+        if (xhr.status === 200) {
+          resolve(JSON.parse(xhr.responseText));
+        } else {
+          reject(new Error(xhr.statusText || '上传失败'));
+        }
+      };
+      xhr.onerror = () => reject(new Error('网络错误'));
+      xhr.send(formData);
+    });
+  },
 };
 

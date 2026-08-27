@@ -62,13 +62,16 @@ const statusText = computed(() => {
 async function handleLogin() {
   errorMessage.value = '';
   try {
-    const res = await api.login(email.value, password.value);
-    localStorage.setItem('token', res.token);
+    await api.login(email.value, password.value);
+    localStorage.setItem('isLoggedIn', 'true');
     router.push('/');
   } catch (e: any) {
     let msg = e.message || '登录失败，请检查网络';
     if (msg.includes('too_small') || msg.includes('密码')) {
       msg = '用户名或密码错误！';
+    }
+    if (msg.includes('Invalid email address')) {
+      msg = '邮箱格式有误！';
     }
     errorMessage.value = msg;
   }
