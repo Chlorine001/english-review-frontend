@@ -1,9 +1,10 @@
 <template>
-    <div class="max-w-xl mx-auto p-4">
+    <div class="max-w-xl mx-auto p-4 pb-24 overflow-y-auto h-screen">
         <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-4">添加句子</h2>
         <form @submit.prevent="submit">
             <div class="mb-4">
-                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">英文句子 *</label>
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">英文句子 <span
+                        class="text-red-500 dark:text-red-400">*</span></label>
                 <div class="flex items-start gap-2">
                     <textarea v-model="form.content" rows="3" class="textarea-field" required></textarea>
                     <button type="button" @click="speak(form.content)"
@@ -43,14 +44,30 @@
                 <input v-model="form.source" class="input-field" />
             </div>
 
-            <button type="submit" class="btn-primary">保存</button>
-            <button class="ml-4 btn-secondary"><a href="/">取消</a></button>
+            <!-- 提交按钮区域 -->
+            <div class="flex gap-4 mt-8">
+                <button type="submit" class="flex-1 btn-primary" :disabled="submitting">
+                    {{ submitting ? '保存中...' : '保存' }}
+                </button>
+                <button type="button" class="flex-1 btn-secondary" @click="$router.push('/')" :disabled="submitting">
+                    取消
+                </button>
+            </div>
         </form>
+
+        <!-- 隐藏的文件选择器（保存后弹出） -->
+        <input ref="fileInput" type="file" accept="audio/*" @change="handleFileSelect" class="hidden" />
+
+        <!-- 上传进度与状态 -->
+        <div v-if="uploadProgress > 0 && uploadProgress < 100" class="mt-4">
+            <progress :value="uploadProgress" max="100" class="w-full" />
+        </div>
+        <div v-if="uploaded" class="mt-2 text-green-600 dark:text-green-400">✅ 音频上传成功</div>
     </div>
 </template>
 
 <script setup lang="ts">
-import { reactive, ref } from 'vue';
+import { reactive, ref, nextTick } from 'vue';
 import { useRouter } from 'vue-router';
 import { api } from '../api';
 import { useTTS } from '../composables/useTTS';
@@ -64,7 +81,19 @@ const form = reactive({
     source: '',
 });
 const isFetching = ref(false);
+const newSentenceId = ref<number | null>(null);
+const selectedFile = ref<File | null>(null);
+const uploadProgress = ref(0);
+const uploaded = ref(false);
+const audioUrl = ref('');
 
+const showUploadModal = ref(false);
+const modalFileInput = ref<HTMLInputElement | null>(null);
+const uploadingFile = ref(false);
+
+// 引用隐藏的文件输入
+const fileInput = ref<HTMLInputElement | null>(null);
+const submitting = ref(false);
 // TTS 发音
 const { speak } = useTTS();
 
@@ -96,11 +125,87 @@ async function fetchPhonetic() {
 }
 
 async function submit() {
+    // 如果正在提交，直接返回
+    if (submitting.value) return;
+
+    // 简单校验
+    if (!form.content.trim()) {
+        alert('请输入英文句子');
+        return;
+    }
+
+    submitting.value = true;
     try {
-        await api.addSentence(form);
-        router.push('/');
+        const result = await api.addSentence(form);
+        newSentenceId.value = result.id;
+        // 保存成功提示
+        alert('✅ 句子保存成功！');
+        
+        // 弹出音频上传选择器
+        await nextTick();
+        triggerFilePicker();
     } catch (e: any) {
-        alert(e.message || '保存失败');
+        alert('❌ 保存失败：' + (e.message || '未知错误'));
+    } finally {
+        submitting.value = false;
+    }
+}
+
+function triggerFilePicker() {
+    // 如果用户确认上传，则触发文件选择
+    if (confirm('句子已保存！是否现在上传音频？\n（点击“确定”选择音频文件，取消则跳过）')) {
+        fileInput.value?.click();
+    }
+}
+
+function handleFileSelect(e: Event) {
+    const input = e.target as HTMLInputElement;
+    if (!input.files || input.files.length === 0) {
+        // 用户取消选择，重置 input 以便再次触发
+        input.value = '';
+        return;
+    }
+    selectedFile.value = input.files[0];
+    uploadAudio();
+    // 重置 input 值，以便下次选择同一个文件也能触发 change
+    input.value = '';
+}
+
+async function uploadAudio() {
+    if (!selectedFile.value || !newSentenceId.value) return;
+    uploadProgress.value = 0;
+    uploaded.value = false;
+    try {
+        await api.uploadAudio(newSentenceId.value, selectedFile.value, (p) => {
+            uploadProgress.value = p;
+        });
+        uploaded.value = true;
+
+        // 可选：加载音频 URL 以便播放
+        await loadAudioUrl();
+    } catch (e: any) {
+        alert('上传失败：' + e.message);
+    }
+}
+
+async function loadAudioUrl() {
+    if (!newSentenceId.value) return;
+    try {
+        const { url } = await api.getAudioUrl(newSentenceId.value);
+        audioUrl.value = url;
+    } catch {
+        // 没有音频，忽略
     }
 }
 </script>
+
+<style scoped>
+/* 确保页面滚动条可见 */
+.h-screen {
+    height: 100vh;
+}
+
+.overflow-y-auto {
+    overflow-y: auto;
+}
+</style>
