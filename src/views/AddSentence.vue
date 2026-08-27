@@ -19,7 +19,7 @@
 
             <!-- 发音/音标（带自动获取按钮） -->
             <div class="mb-4">
-                <label class="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300 mb-1">发音/音标</label>
+                <label class="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">发音/音标</label>
                 <div class="flex gap-2">
                     <input v-model="form.pronunciation" class="input-field" placeholder="例如 /ˈwʌndərɪŋ/ 或留空" />
                     <button type="button" @click="fetchPhonetic"
@@ -33,13 +33,13 @@
 
             <!-- 备注 -->
             <div class="mb-4">
-                <label class="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300 mb-1">备注</label>
+                <label class="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">备注</label>
                 <textarea v-model="form.notes" rows="2" class="input-field"></textarea>
             </div>
 
             <!-- 来源 -->
             <div class="mb-4">
-                <label class="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300 mb-1">来源</label>
+                <label class="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">来源</label>
                 <input v-model="form.source" class="input-field" />
             </div>
 
