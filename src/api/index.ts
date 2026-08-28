@@ -25,7 +25,7 @@ async function request<T>(endpoint: string, options: RequestInit = {}, skipAuthR
     // 如果你的项目有 UI 库，改用 notification.error()
     if (!skipAuthRedirect) {
       console.warn('登录已过期，请重新登录');
-      // window.location.href = '/login';
+      window.location.href = '/login';
       throw new Error('登录已过期，请重新登录');
     }
   }
@@ -96,35 +96,7 @@ export const api = {
       method: 'DELETE',
     }),
 
-  // 获取音频的预签名 URL
-  getAudioUrl: (sentenceId: number) =>
-    request<{ url: string }>(`/sentences/${sentenceId}/audio-url`),
-
   // // 上传音频（用 FormData，支持进度）
-  // uploadAudio: (sentenceId: number, file: File, onProgress?: (percent: number) => void) => {
-  //   const formData = new FormData();
-  //   formData.append('audio', file);
-  //   return new Promise<{ success: boolean; key: string }>((resolve, reject) => {
-  //     const xhr = new XMLHttpRequest();
-  //     xhr.withCredentials = true;
-  //     xhr.open('POST', `/api/sentences/${sentenceId}/audio`);
-  //     xhr.upload.addEventListener('progress', (e) => {
-  //       if (e.lengthComputable && onProgress) {
-  //         onProgress(Math.round((e.loaded / e.total) * 100));
-  //       }
-  //     });
-  //     xhr.onload = () => {
-  //       if (xhr.status === 200) {
-  //         resolve(JSON.parse(xhr.responseText));
-  //       } else {
-  //         reject(new Error(xhr.statusText || '上传失败'));
-  //       }
-  //     };
-  //     xhr.onerror = () => reject(new Error('网络错误'));
-  //     xhr.send(formData);
-  //   });
-  // },
-
   uploadAudio: (sentenceId: number, file: File, onProgress?: (percent: number) => void) => {
     const formData = new FormData();
     formData.append('audio', file);
