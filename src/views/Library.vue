@@ -41,6 +41,10 @@
                         </button>
                     </div>
                 </div>
+                <!-- 音频播放器独立一行（在 flex 容器外） -->
+                <div v-if="sentence.audio_path" class="mt-3">
+                    <audio controls :src="audioUrls[sentence.id]" crossorigin="use-credentials" class="w-full" />
+                </div>
             </div>
         </div>
 
@@ -99,6 +103,7 @@ async function loadSentences() {
         const params: any = { sort: sortOrder.value };
         if (searchQuery.value) params.search = searchQuery.value;
         sentences.value = await api.getSentences(params);
+        loadAudioForSentences()
     } catch (e) {
         console.error('加载句子失败', e);
     } finally {
@@ -134,6 +139,16 @@ async function deleteSentence(id: number) {
         alert('删除失败');
     }
 }
+const audioUrls = ref<Record<number, string>>({});
+
+// 在加载句子列表后，为每个句子加载音频（可选，可延迟加载）
+function loadAudioForSentences() {
+    const baseURL = import.meta.env.VITE_API_BASE_URL;
+    sentences.value.forEach(s => {
+        audioUrls.value[s.id] = `${baseURL}/api/sentences/${s.id}/audio`;
+    });
+}
 
 onMounted(loadSentences);
+
 </script>
