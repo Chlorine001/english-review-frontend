@@ -3,8 +3,23 @@
         <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-4">今日复习</h2>
 
         <!-- 无复习内容 -->
-        <div v-if="reviews.length === 0" class="text-gray-500 dark:text-gray-400">
-            今天没有需要复习的句子 🎉
+        <div v-if="reviews.length === 0" class="text-center py-10">
+            <div v-if="reviews.length === 0" class="text-center py-10">
+                <div class="text-6xl mb-4">🎯</div>
+                <p class="text-gray-500 dark:text-gray-400 text-lg">今天没有需要复习的句子</p>
+                <p class="text-sm text-gray-400 dark:text-gray-500 mt-1">你已经完成了今日所有任务，去添加新句子吧！</p>
+
+                <div class="mt-6 flex flex-col sm:flex-row items-center justify-center gap-3">
+                    <router-link to="/add"
+                        class="px-6 py-2.5 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors text-sm font-medium">
+                        ➕ 添加句子
+                    </router-link>
+                    <router-link to="/"
+                        class="px-6 py-2.5 text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 transition-colors text-sm">
+                        返回首页
+                    </router-link>
+                </div>
+            </div>
         </div>
 
         <!-- 有复习内容 -->
@@ -57,9 +72,13 @@
         </div>
 
         <!-- 全部完成 -->
+        <!-- 全部完成 -->
         <div v-else class="text-center py-10">
-            <p class="text-green-600 dark:text-green-400 text-xl">所有复习已完成 🎉</p>
-            <router-link to="/" class="mt-4 inline-block text-indigo-600 dark:text-indigo-400 underline">
+            <div class="text-6xl mb-4">🎉</div>
+            <p class="text-green-600 dark:text-green-400 text-2xl font-bold">所有复习已完成！</p>
+            <p class="text-gray-500 dark:text-gray-400 mt-2">太棒了，今天的目标全部达成 🏆</p>
+            <router-link to="/"
+                class="mt-6 inline-block px-6 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors">
                 返回首页
             </router-link>
         </div>
