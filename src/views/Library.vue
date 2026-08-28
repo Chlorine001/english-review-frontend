@@ -151,8 +151,8 @@
                 </div>
                 <!-- 对话框底部按钮 -->
                 <div class="flex justify-end gap-2 mt-4 border-t pt-4">
-                    <button @click="saveEdit" class="btn-primary">保存</button>
-                    <button @click="closeEdit" class="btn-secondary">取消</button>
+                    <button @click="saveEdit" class="btn-primary" :disabled="editUploading">保存</button>
+                    <button @click="closeEdit" class="btn-secondary" :disabled="editUploading">取消</button>
                 </div>
             </div>
         </div>
@@ -220,6 +220,8 @@ function editSentence(sentence: any) {
 
 function closeEdit() {
     editingSentence.value = false;
+    editUploaded.value = false;
+    editSelectedFile.value = null;
 }
 
 async function saveEdit() {
@@ -232,13 +234,38 @@ async function saveEdit() {
     }
 }
 
+
 async function deleteSentence(id: number) {
     if (!confirm('确定要删除这个句子吗？')) return;
     try {
+        // 1️⃣ 先尝试删除音频（如果有）
+        try {
+            await api.deleteAudio(id);
+        } catch (audioError: any) {
+            // 如果音频不存在（404），视为正常，继续删除句子
+            // 注意：根据你的 API 返回，404 可能表现为错误消息包含 '404' 或状态码
+            if (audioError.message?.includes('No audio to delete') || audioError.status === 404) {
+                // 音频不存在，忽略
+            } else {
+                // 其他错误（如网络、权限等），停止删除
+                throw new Error('删除音频失败：' + (audioError.message || '未知错误'));
+            }
+        }
+
+        // 2️⃣ 删除句子
         await api.deleteSentence(id);
+
+        // 3️⃣ 刷新列表
         await loadSentences();
-    } catch (e) {
-        alert('删除失败');
+
+        // 4️⃣ 如果当前编辑的正是被删除的句子，关闭编辑对话框
+        if (editForm.value.id === id) {
+            closeEdit();
+        }
+
+        alert('✅ 删除成功');
+    } catch (e: any) {
+        alert('❌ 删除失败：' + (e.message || '未知错误'));
     }
 }
 const audioUrls = ref<Record<number, string>>({});
@@ -308,6 +335,7 @@ async function removeAudio() {
         if (updated) {
             editForm.value = { ...updated };
         }
+        editUploaded.value = false;
         alert('✅ 音频已删除');
     } catch (e: any) {
         alert('❌ 删除失败：' + (e.message || '未知错误'));
