@@ -111,6 +111,11 @@ export const api = {
     }).then(res => res.data);
   },
 
+  deleteAudio: (sentenceId: number) =>
+    request<{ success: boolean }>(`/sentences/${sentenceId}/audio`, {
+      method: 'DELETE',
+    }),
+
 };
 
 
