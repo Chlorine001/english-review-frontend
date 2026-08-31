@@ -1,5 +1,5 @@
 <template>
-    <div class="max-w-4xl mx-auto p-4">
+    <div class="max-w-4xl mx-auto p-4 pb-24 overflow-y-auto h-screen">
         <div class="flex flex-wrap items-center justify-between gap-4 mb-6">
             <h2 class="text-2xl font-bold text-gray-900 dark:text-white">📖 句子库</h2>
             <div class="flex flex-wrap gap-2">

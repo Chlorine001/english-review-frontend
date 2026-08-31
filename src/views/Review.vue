@@ -1,5 +1,5 @@
 <template>
-    <div class="max-w-xl mx-auto p-4">
+    <div class="max-w-xl mx-auto p-4 pb-24 overflow-y-auto h-screen">
         <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-4">今日复习</h2>
 
         <!-- 无复习内容 -->
