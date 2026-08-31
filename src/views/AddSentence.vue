@@ -57,18 +57,18 @@
         <!-- ====== 上传音频模态框 ====== -->
         <div v-if="showUploadModal" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
             <div class="bg-white dark:bg-gray-800 rounded-lg p-6 max-w-sm w-full shadow-xl">
-                <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-2">📢 上传音频（可选）</h3>
+                <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-2">📢 上传媒体（可选）</h3>
                 <p class="text-sm text-gray-600 dark:text-gray-300 mb-4">
-                    为句子添加发音音频，方便复习时聆听。
+                    为句子添加媒体，方便深刻理解。
                 </p>
                 <!-- 隐藏的文件输入 -->
-                <input ref="modalFileInput" type="file" accept="audio/*" @change="handleModalFileSelect"
-                    class="hidden" />
+                <input ref="modalFileInput" type="file" :accept="MEDIA_ACCEPT"
+                    @change="handleModalFileSelect" class="hidden" />
                 <!-- 自定义选择按钮 -->
                 <button type="button" @click="modalFileInput?.click()"
                     class="w-full py-2 px-4 border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg hover:border-indigo-500 dark:hover:border-indigo-400 transition-colors text-gray-500 dark:text-gray-400"
                     :disabled="uploadingFile">
-                    📁 选择音频文件
+                    📁 选择媒体文件
                 </button>
                 <!-- 已选文件信息 -->
                 <div v-if="selectedFile" class="mt-2 text-sm text-gray-600 dark:text-gray-300">
@@ -108,6 +108,7 @@ import { reactive, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { api } from '../api';
 // import { useTTS } from '../composables/useTTS';
+import { ALLOWED_MEDIA_TYPES, ALLOWED_MEDIA_EXTS, DEFAULT_MAX_FILE_SIZE, MEDIA_ACCEPT } from '@/constants';
 
 const router = useRouter();
 const form = reactive({
@@ -213,6 +214,21 @@ function handleModalFileSelect(e: Event) {
         input.value = '';
         return;
     }
+
+    const file = input.files[0];
+    const ext = file.name.split('.').pop()?.toLowerCase();
+    if (!ALLOWED_MEDIA_TYPES.includes(file.type) || !ext || !ALLOWED_MEDIA_EXTS.includes(ext)) {
+        alert(`仅支持 ${ALLOWED_MEDIA_EXTS.join(', ')} 格式`);
+        input.value = '';
+        return;
+    }
+    if (file.size > DEFAULT_MAX_FILE_SIZE) {
+        alert(`文件大小不能超过 ${DEFAULT_MAX_FILE_SIZE / 1024 / 1024}MB`);
+        input.value = '';
+        return;
+    }
+
+
     selectedFile.value = input.files[0];
     // 允许再次选择同一个文件
     input.value = '';

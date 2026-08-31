@@ -121,18 +121,18 @@
                 <!-- ====== 音频管理区域（与 AddSentence 风格一致） ====== -->
                 <!-- ====== 音频管理区域（优化布局版） ====== -->
                 <div class="border-t pt-4 mt-4">
-                    <h4 class="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">📢 音频文件</h4>
+                    <h4 class="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">📢 媒体文件</h4>
 
                     <!-- 情况 1：已有音频 -->
                     <div v-if="editForm.audio_path">
                         <div class="flex flex-col gap-2 bg-gray-50 dark:bg-gray-700/30 rounded-lg p-3">
-                            <!-- 播放器 -->
-                            <audio controls :src="audioUrls[editForm.id]" class="w-full h-10" />
-                            <!-- 文件名 -->
-                            <span class="text-sm text-gray-600 dark:text-gray-300 text-center truncate">
-                                {{ editForm.audio_original_name || editForm.audio_path?.split('/').pop() || '音频' }}
-                            </span>
-                            <!-- 操作按钮组 -->
+                            <MediaPlayer :src="audioUrls[editForm.id]" :file-format="editForm.audio_format || ''"
+                                :file-name="editForm.audio_original_name || ''" show-info video-class="max-h-48" />
+                            <!-- 文件名和操作按钮保持不变 -->
+                            <!-- <span class="text-sm text-gray-600 dark:text-gray-300 text-center truncate">
+                                {{ editForm.audio_original_name || editForm.audio_path?.split('/').pop() || '媒体文件' }}
+                            </span> -->
+
                             <div class="flex justify-center gap-2">
                                 <button @click="removeAudio"
                                     class="px-3 py-1 text-sm text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300 border border-red-300 dark:border-red-700 rounded hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors">
@@ -147,13 +147,14 @@
                         </div>
 
                         <!-- 替换时显示的文件选择（隐藏） -->
-                        <input ref="editFileInput" type="file" accept="audio/*" @change="handleEditFileSelect"
-                            class="hidden" />
+                        <input ref="editFileInput" type="file" :accept="MEDIA_ACCEPT"
+                            @change="handleEditFileSelect" class="hidden" />
                     </div>
 
                     <!-- 情况 2：无音频 -->
                     <div v-else>
-                        <input ref="editFileInput" type="file" accept="audio/*" @change="handleEditFileSelect"
+                        <input ref="editFileInput" type="file" :accept="MEDIA_ACCEPT"
+                            @change="handleEditFileSelect"
                             class="hidden" />
                         <button type="button" @click="editFileInput?.click()"
                             class="w-full py-3 px-4 border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg hover:border-indigo-500 dark:hover:border-indigo-400 transition-colors text-gray-500 dark:text-gray-400 hover:text-indigo-600 dark:hover:text-indigo-400"
@@ -202,7 +203,8 @@
 <script setup lang="ts">
 import { ref, onMounted, computed } from 'vue';
 import { api } from '@/api';
-
+import MediaPlayer from '@/composables/MediaPlayer.vue';
+import { ALLOWED_MEDIA_TYPES, ALLOWED_MEDIA_EXTS, DEFAULT_MAX_FILE_SIZE, MEDIA_ACCEPT } from '@/constants';
 // 类型定义
 interface Sentence {
     id: number;
@@ -418,6 +420,18 @@ async function triggerEditUpload() {
 function handleEditFileSelect(e: Event) {
     const input = e.target as HTMLInputElement;
     if (!input.files || input.files.length === 0) {
+        input.value = '';
+        return;
+    }
+    const file = input.files[0];
+    const ext = file.name.split('.').pop()?.toLowerCase();
+    if (!ALLOWED_MEDIA_TYPES.includes(file.type) || !ext || !ALLOWED_MEDIA_EXTS.includes(ext)) {
+        alert(`仅支持 ${ALLOWED_MEDIA_EXTS.join(', ')} 格式`);
+        input.value = '';
+        return;
+    }
+    if (file.size > DEFAULT_MAX_FILE_SIZE) {
+        alert(`文件大小不能超过 ${DEFAULT_MAX_FILE_SIZE / 1024 / 1024}MB`);
         input.value = '';
         return;
     }

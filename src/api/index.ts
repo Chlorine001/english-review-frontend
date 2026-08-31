@@ -104,7 +104,7 @@ export const api = {
     request<ListResponse<Sentence>>(
       '/sentences' + (params ? '?' + new URLSearchParams(params as any) : '')
     ),
-  
+
   // 更新句子
   updateSentence: (id: number, data: any) =>
     request<{ success: boolean }>(`/sentences/${id}`, {
@@ -121,7 +121,7 @@ export const api = {
   // 上传音频（用 FormData，支持进度）
   uploadAudio: (sentenceId: number, file: File, onProgress?: (percent: number) => void) => {
     const formData = new FormData();
-    formData.append('audio', file);
+    formData.append('media', file);
 
     return axiosInstance.post(`/sentences/${sentenceId}/audio`, formData, {
       headers: { 'Content-Type': 'multipart/form-data' },
