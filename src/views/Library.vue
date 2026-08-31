@@ -52,9 +52,22 @@
         </div>
 
         <!-- 分页 -->
-        <div class="flex items-center justify-between border-t border-gray-200 dark:border-gray-700 pt-4 mt-4">
-            <div class="text-sm text-gray-500 dark:text-gray-400">
-                共 {{ totalItems }} 条，第 {{ currentPage }} / {{ totalPages }} 页
+        <div v-if="totalPages > 0"
+            class="flex flex-wrap items-center justify-between gap-3 border-t border-gray-200 dark:border-gray-700 pt-4 mt-4">
+            <div class="flex flex-wrap items-center gap-3 text-sm text-gray-500 dark:text-gray-400">
+                <span>共 {{ totalItems }} 条</span>
+                <span>第 {{ currentPage }} / {{ totalPages }} 页</span>
+                <div class="flex items-center gap-1">
+                    <label class="text-sm">每页</label>
+                    <select v-model="pageSize" @change="onPageSizeChange"
+                        class="input-field w-auto min-w-[4rem] py-1 px-2 text-sm">
+                        <option :value="5">5</option>
+                        <option :value="10">10</option>
+                        <option :value="20">20</option>
+                        <option :value="30">30</option>
+                    </select>
+                    <span class="text-sm">条</span>
+                </div>
             </div>
             <div class="flex gap-1">
                 <button @click="goToPage(currentPage - 1)" :disabled="currentPage <= 1"
@@ -230,6 +243,10 @@ const sortOrder = ref('created_at_desc');
 
 const editingSentence = ref(false);
 
+function onPageSizeChange() {
+    currentPage.value = 1;     // 切换每页条数时回到第一页
+    loadSentences();
+}
 
 async function loadSentences() {
     loading.value = true;
