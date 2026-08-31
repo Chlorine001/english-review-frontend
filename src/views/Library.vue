@@ -3,9 +3,10 @@
         <div class="flex flex-wrap items-center justify-between gap-4 mb-6">
             <h2 class="text-2xl font-bold text-gray-900 dark:text-white">📖 句子库</h2>
             <div class="flex flex-wrap gap-2">
-                <input v-model="searchQuery" @input="loadSentences" placeholder="搜索句子..."
+                <input v-model="searchQuery" @input="() => { currentPage = 1; loadSentences(); }" placeholder="搜索句子..."
                     class="input-field w-40 sm:w-auto" />
-                <select v-model="sortOrder" @change="loadSentences" class="input-field w-32 sm:w-auto">
+                <select v-model="sortOrder" @change="() => { currentPage = 1; loadSentences(); }"
+                    class="input-field w-32 sm:w-auto">
                     <option value="created_at_desc">最新添加</option>
                     <option value="created_at_asc">最早添加</option>
                     <option value="content_asc">按句子 A-Z</option>
@@ -24,13 +25,15 @@
                 <div class="flex justify-between items-start">
                     <div class="flex-1">
                         <p class="card-title">{{ sentence.content }}</p>
-                        <p class="card-text" v-if="sentence.translation">{{ sentence.translation }}</p>
+                        <p class="card-text" v-if="sentence.translation">翻译：{{ sentence.translation }}</p>
                         <div class="card-meta mt-1">
-                            <span v-if="sentence.pronunciation">/{{ sentence.pronunciation }}/</span>
+                            <span v-if="sentence.pronunciation">/{{ sentence.pronunciation }}/</span><br>
                             <span v-if="sentence.source" class="ml-2">来源：{{ sentence.source }}</span>
                         </div>
                     </div>
                     <div class="flex gap-2 ml-4">
+                        <!-- 👇 新增音频标识 -->
+                        <span v-if="sentence.audio_path" class="ml-2 text-indigo-500" title="有音频">🎧</span>
                         <button @click="editSentence(sentence)"
                             class="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 text-sm">
                             ✏️
@@ -45,6 +48,30 @@
                 <!-- <div v-if="sentence.audio_path" class="mt-3">
                     <audio controls :src="audioUrls[sentence.id]" crossorigin="use-credentials" class="w-full" />
                 </div> -->
+            </div>
+        </div>
+
+        <!-- 分页 -->
+        <div class="flex items-center justify-between border-t border-gray-200 dark:border-gray-700 pt-4 mt-4">
+            <div class="text-sm text-gray-500 dark:text-gray-400">
+                共 {{ totalItems }} 条，第 {{ currentPage }} / {{ totalPages }} 页
+            </div>
+            <div class="flex gap-1">
+                <button @click="goToPage(currentPage - 1)" :disabled="currentPage <= 1"
+                    class="px-3 py-1 rounded border border-gray-300 dark:border-gray-600 text-sm disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-100 dark:hover:bg-gray-700">
+                    上一页
+                </button>
+                <template v-for="(p, idx) in pageNumbers" :key="idx">
+                    <button v-if="typeof p === 'number'" @click="goToPage(p)"
+                        :class="['px-3 py-1 rounded border text-sm', p === currentPage ? 'bg-indigo-600 text-white border-indigo-600' : 'border-gray-300 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700']">
+                        {{ p }}
+                    </button>
+                    <span v-else class="px-2 py-1 text-gray-500 dark:text-gray-400">…</span>
+                </template>
+                <button @click="goToPage(currentPage + 1)" :disabled="currentPage >= totalPages"
+                    class="px-3 py-1 rounded border border-gray-300 dark:border-gray-600 text-sm disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-100 dark:hover:bg-gray-700">
+                    下一页
+                </button>
             </div>
         </div>
 
@@ -160,7 +187,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, computed } from 'vue';
 import { api } from '@/api';
 
 // 类型定义
@@ -192,24 +219,88 @@ const editForm = ref<Sentence>({
     audio_original_name: null,
 });
 
+const currentPage = ref(1);
+const pageSize = ref(5);          // 每页条数
+const totalItems = ref(0);
+const totalPages = ref(0);
+
 const loading = ref(false);
 const searchQuery = ref('');
 const sortOrder = ref('created_at_desc');
 
 const editingSentence = ref(false);
 
+
 async function loadSentences() {
     loading.value = true;
     try {
-        const params: any = { sort: sortOrder.value };
+        const params = {
+            sort: sortOrder.value,
+            search: searchQuery.value,
+            page: currentPage.value,
+            limit: pageSize.value,
+        };
         if (searchQuery.value) params.search = searchQuery.value;
-        sentences.value = await api.getSentences(params);
+        const res = await api.getSentences(params);
+        // 假设返回格式：{ data: [...], total: 100 }
+        sentences.value = res.data;
+        totalItems.value = res.total;
+        totalPages.value = Math.ceil(res.total / pageSize.value);
+        // 如果当前页超出总页数，自动跳到最后一页
+        if (currentPage.value > totalPages.value && totalPages.value > 0) {
+            currentPage.value = totalPages.value;
+            await loadSentences(); // 重新加载
+        }
         loadAudioForSentences()
     } catch (e) {
         console.error('加载句子失败', e);
     } finally {
         loading.value = false;
     }
+}
+
+function goToPage(page: number) {
+    if (page < 1 || page > totalPages.value) return;
+    currentPage.value = page;
+    loadSentences();
+}
+
+
+const pageNumbers = computed(() => {
+    const total = totalPages.value;
+    const current = currentPage.value;
+    const delta = 2;
+    const range = [];
+    const rangeWithDots: (number | string)[] = [];
+    let l: number | undefined;
+
+    for (let i = 1; i <= total; i++) {
+        if (i === 1 || i === total || (i >= current - delta && i <= current + delta)) {
+            range.push(i);
+        }
+    }
+
+    range.forEach((i) => {
+        if (l) {
+            if (i - l === 2) {
+                rangeWithDots.push(l + 1);
+            } else if (i - l !== 1) {
+                rangeWithDots.push('...');
+            }
+        }
+        rangeWithDots.push(i);
+        l = i;
+    });
+
+    return rangeWithDots;
+});
+
+// 在加载句子列表后，为每个句子加载音频（可选，可延迟加载）
+function loadAudioForSentences() {
+    const baseURL = import.meta.env.VITE_API_BASE_URL;
+    sentences.value.forEach(s => {
+        audioUrls.value[s.id] = `${baseURL}/api/sentences/${s.id}/audio`;
+    });
 }
 
 // 编辑函数
@@ -270,13 +361,6 @@ async function deleteSentence(id: number) {
 }
 const audioUrls = ref<Record<number, string>>({});
 
-// 在加载句子列表后，为每个句子加载音频（可选，可延迟加载）
-function loadAudioForSentences() {
-    const baseURL = import.meta.env.VITE_API_BASE_URL;
-    sentences.value.forEach(s => {
-        audioUrls.value[s.id] = `${baseURL}/api/sentences/${s.id}/audio`;
-    });
-}
 
 // 音频编辑相关
 const editFileInput = ref<HTMLInputElement | null>(null);

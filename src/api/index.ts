@@ -8,6 +8,26 @@ const axiosInstance = axios.create({
   withCredentials: true,
 });
 
+// 句子数据结构（与你的后端字段一致）
+interface Sentence {
+  id: number;
+  content: string;
+  translation?: string;
+  pronunciation?: string;
+  notes?: string;
+  source?: string;
+  audio_path?: string | null;
+  audio_format?: string | null;
+  audio_duration?: number | null;
+  audio_original_name: string | null;
+}
+
+// 分页响应通用结构
+interface ListResponse<T> {
+  data: T[];
+  total: number;
+}
+
 async function request<T>(endpoint: string, options: RequestInit = {}, skipAuthRedirect: boolean = false): Promise<T> {
   const headers: HeadersInit = {
     'Content-Type': 'application/json',
@@ -19,7 +39,7 @@ async function request<T>(endpoint: string, options: RequestInit = {}, skipAuthR
     headers,
   });
 
-  // ✅ 新增：处理 401 未授权（Token 过期或无效）
+  // ✅ 处理 401 未授权（Token 过期或无效）
   if (res.status === 401) {
     // 使用更优雅的提示方式（如 Toast 或 Notification）
     // 如果你的项目有 UI 库，改用 notification.error()
@@ -79,24 +99,26 @@ export const api = {
   getStats: () => request<{ today: number; total: number }>('/stats'),
 
 
-  // 新增：获取所有句子
-  getSentences: (params?: { search?: string; sort?: string }) =>
-    request<any[]>('/sentences' + (params ? '?' + new URLSearchParams(params) : '')),
-
-  // 新增：更新句子
+  // 获取所有句子
+  getSentences: (params?: { search?: string; sort?: string; page?: number; limit?: number }) =>
+    request<ListResponse<Sentence>>(
+      '/sentences' + (params ? '?' + new URLSearchParams(params as any) : '')
+    ),
+  
+  // 更新句子
   updateSentence: (id: number, data: any) =>
     request<{ success: boolean }>(`/sentences/${id}`, {
       method: 'PUT',
       body: JSON.stringify(data),
     }),
 
-  // 新增：删除句子
+  // 删除句子
   deleteSentence: (id: number) =>
     request<{ success: boolean }>(`/sentences/${id}`, {
       method: 'DELETE',
     }),
 
-  // // 上传音频（用 FormData，支持进度）
+  // 上传音频（用 FormData，支持进度）
   uploadAudio: (sentenceId: number, file: File, onProgress?: (percent: number) => void) => {
     const formData = new FormData();
     formData.append('audio', file);
