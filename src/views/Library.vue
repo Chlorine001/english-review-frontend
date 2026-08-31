@@ -42,9 +42,9 @@
                     </div>
                 </div>
                 <!-- 音频播放器独立一行（在 flex 容器外） -->
-                <div v-if="sentence.audio_path" class="mt-3">
+                <!-- <div v-if="sentence.audio_path" class="mt-3">
                     <audio controls :src="audioUrls[sentence.id]" crossorigin="use-credentials" class="w-full" />
-                </div>
+                </div> -->
             </div>
         </div>
 
