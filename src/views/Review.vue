@@ -1,5 +1,5 @@
 <template>
-    <div class="max-w-xl mx-auto p-4 pb-24 overflow-y-auto h-screen">
+    <div class="max-w-xl mx-auto p-4 pb-32 overflow-y-auto h-screen">
         <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-4">今日复习</h2>
 
         <!-- 无复习内容 -->
@@ -28,11 +28,11 @@
                 <!-- 句子内容 + 发音按钮 -->
                 <div class="flex items-start justify-between">
                     <p class="card-title flex-1">{{ currentSentence.content }}</p>
-                    <button @click="speak(currentSentence.content)"
+                    <!-- <button @click="speak(currentSentence.content)"
                         class="ml-2 text-2xl hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors"
                         title="朗读句子">
                         🔊
-                    </button>
+                    </button> -->
                 </div>
 
                 <!-- 音频播放器（如果有音频） -->
@@ -88,13 +88,13 @@
 import { ref, onMounted, computed } from 'vue';
 import { useRouter } from 'vue-router';
 import { api } from '@/api';
-import { useTTS } from '@/composables/useTTS';
+// import { useTTS } from '@/composables/useTTS';
 
 // 路由
 const router = useRouter();
 
-// TTS 发音
-const { speak } = useTTS();
+// // TTS 发音
+// const { speak } = useTTS();
 
 // 复习数据
 const reviews = ref<any[]>([]);
