@@ -36,10 +36,15 @@
                 </div>
 
                 <!-- 音频播放器（如果有音频） -->
-                <div v-if="currentSentence.audio_path" class="mt-3">
-                    <audio controls :src="audioUrls[currentSentence.id]" class="w-full h-10"
+                <!-- <div v-if="currentSentence.media_path" class="mt-3">
+                    <audio controls :src="mediaUrls[currentSentence.id]" class="w-full h-10"
                         crossorigin="use-credentials" />
+                </div> -->
+                <div class="flex flex-col gap-2 bg-gray-50 dark:bg-gray-700/30 rounded-lg p-3">
+                    <MediaPlayer :src="mediaUrls[currentSentence.id]" :file-format="currentSentence.media_format || ''"
+                        :file-name="currentSentence.media_original_name || ''" show-info video-class="max-h-48" />
                 </div>
+
                 <!-- 答案区域 -->
                 <div v-if="showAnswer" class="mt-4">
                     <p class="card-text">{{ currentSentence.translation }}</p>
@@ -89,6 +94,7 @@ import { ref, onMounted, computed } from 'vue';
 import { useRouter } from 'vue-router';
 import { api } from '@/api';
 // import { useTTS } from '@/composables/useTTS';
+import MediaPlayer from '@/composables/MediaPlayer.vue';
 
 // 路由
 const router = useRouter();
@@ -110,8 +116,8 @@ async function loadReviews() {
         reviews.value = await api.getTodayReviews();
         // 为每个有音频的句子缓存 URL
         reviews.value.forEach((review: any) => {
-            if (review.audio_path) {
-                loadAudioUrl(review.id);
+            if (review.media_path) {
+                loadMediaUrl(review.id);
             }
         });
     } catch (e) {
@@ -121,14 +127,14 @@ async function loadReviews() {
 }
 
 // 在 Review.vue 的 script 中
-const audioUrls = ref<Record<number, string>>({});
+const mediaUrls = ref<Record<number, string>>({});
 
 // 加载音频 URL 的函数
-function loadAudioUrl(sentenceId: number) {
-    if (audioUrls.value[sentenceId]) return; // 已缓存则跳过
+function loadMediaUrl(sentenceId: number) {
+    if (mediaUrls.value[sentenceId]) return; // 已缓存则跳过
     // 直接使用 API 路径
     const baseURL = import.meta.env.VITE_API_BASE_URL;
-    audioUrls.value[sentenceId] = `${baseURL}/api/sentences/${sentenceId}/audio`;
+    mediaUrls.value[sentenceId] = `${baseURL}/api/sentences/${sentenceId}/media`;
 }
 
 // 提交评分

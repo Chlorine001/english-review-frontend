@@ -188,7 +188,7 @@ async function submit() {
 }
 
 // ===== 模态框上传逻辑 =====
-async function uploadAudio() {
+async function uploadMedia() {
     if (!selectedFile.value || !newSentenceId.value) return;
 
     uploadingFile.value = true;
@@ -196,7 +196,7 @@ async function uploadAudio() {
     uploaded.value = false;
 
     try {
-        await api.uploadAudio(newSentenceId.value, selectedFile.value, (p) => {
+        await api.uploadMedia(newSentenceId.value, selectedFile.value, (p) => {
             uploadProgress.value = p;
         });
         uploaded.value = true;
@@ -240,7 +240,7 @@ function triggerModalUpload() {
         return;
     }
     // 开始上传
-    uploadAudio();
+    uploadMedia();
     // modalFileInput.value?.click();
 }
 

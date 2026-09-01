@@ -33,7 +33,7 @@
                     </div>
                     <div class="flex gap-2 ml-4">
                         <!-- 👇 新增音频标识 -->
-                        <span v-if="sentence.audio_path" class="ml-2 text-indigo-500" title="有音频">🎧</span>
+                        <span v-if="sentence.media_path" class="ml-2 text-indigo-500" title="有音频">🎧</span>
                         <button @click="editSentence(sentence)"
                             class="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 text-sm">
                             ✏️
@@ -44,10 +44,6 @@
                         </button>
                     </div>
                 </div>
-                <!-- 音频播放器独立一行（在 flex 容器外） -->
-                <!-- <div v-if="sentence.audio_path" class="mt-3">
-                    <audio controls :src="audioUrls[sentence.id]" crossorigin="use-credentials" class="w-full" />
-                </div> -->
             </div>
         </div>
 
@@ -124,17 +120,17 @@
                     <h4 class="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">📢 媒体文件</h4>
 
                     <!-- 情况 1：已有音频 -->
-                    <div v-if="editForm.audio_path">
+                    <div v-if="editForm.media_path">
                         <div class="flex flex-col gap-2 bg-gray-50 dark:bg-gray-700/30 rounded-lg p-3">
-                            <MediaPlayer :src="audioUrls[editForm.id]" :file-format="editForm.audio_format || ''"
-                                :file-name="editForm.audio_original_name || ''" show-info video-class="max-h-48" />
+                            <MediaPlayer :src="mediaUrls[editForm.id]" :file-format="editForm.media_format || ''"
+                                :file-name="editForm.media_original_name || ''" show-info video-class="max-h-48" />
                             <!-- 文件名和操作按钮保持不变 -->
                             <!-- <span class="text-sm text-gray-600 dark:text-gray-300 text-center truncate">
-                                {{ editForm.audio_original_name || editForm.audio_path?.split('/').pop() || '媒体文件' }}
+                                {{ editForm.media_original_name || editForm.media_path?.split('/').pop() || '媒体文件' }}
                             </span> -->
 
                             <div class="flex justify-center gap-2">
-                                <button @click="removeAudio"
+                                <button @click="removeMedia"
                                     class="px-3 py-1 text-sm text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300 border border-red-300 dark:border-red-700 rounded hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors">
                                     🗑️ 删除
                                 </button>
@@ -164,7 +160,7 @@
                     </div>
 
                     <!-- 已选文件信息（替换或无音频时显示） -->
-                    <div v-if="editSelectedFile && !editForm.audio_path"
+                    <div v-if="editSelectedFile && !editForm.media_path"
                         class="mt-2 text-sm text-gray-600 dark:text-gray-300">
                         📄 {{ editSelectedFile.name }} ({{ (editSelectedFile.size / 1024).toFixed(1) }} KB)
                     </div>
@@ -213,10 +209,9 @@ interface Sentence {
     pronunciation?: string;
     notes?: string;
     source?: string;
-    audio_path?: string | null;
-    audio_format?: string | null;
-    audio_duration?: number | null;
-    audio_original_name: string | null,
+    media_path?: string | null;
+    media_format?: string | null;
+    media_original_name: string | null,
 }
 
 // 状态
@@ -228,10 +223,9 @@ const editForm = ref<Sentence>({
     pronunciation: '',
     notes: '',
     source: '',
-    audio_path: null,
-    audio_format: null,
-    audio_duration: null,
-    audio_original_name: null,
+    media_path: null,
+    media_format: null,
+    media_original_name: null,
 });
 
 const currentPage = ref(1);
@@ -270,7 +264,7 @@ async function loadSentences() {
             currentPage.value = totalPages.value;
             await loadSentences(); // 重新加载
         }
-        loadAudioForSentences()
+        loadMediaForSentences()
     } catch (e) {
         console.error('加载句子失败', e);
     } finally {
@@ -315,10 +309,10 @@ const pageNumbers = computed(() => {
 });
 
 // 在加载句子列表后，为每个句子加载音频（可选，可延迟加载）
-function loadAudioForSentences() {
+function loadMediaForSentences() {
     const baseURL = import.meta.env.VITE_API_BASE_URL;
     sentences.value.forEach(s => {
-        audioUrls.value[s.id] = `${baseURL}/api/sentences/${s.id}/audio`;
+        mediaUrls.value[s.id] = `${baseURL}/api/sentences/${s.id}/media`;
     });
 }
 
@@ -350,15 +344,15 @@ async function deleteSentence(id: number) {
     try {
         // 1️⃣ 先尝试删除音频（如果有）
         try {
-            await api.deleteAudio(id);
-        } catch (audioError: any) {
+            await api.deleteMedia(id);
+        } catch (mediaError: any) {
             // 如果音频不存在（404），视为正常，继续删除句子
             // 注意：根据你的 API 返回，404 可能表现为错误消息包含 '404' 或状态码
-            if (audioError.message?.includes('No audio to delete') || audioError.status === 404) {
+            if (mediaError.message?.includes('No media to delete') || mediaError.status === 404) {
                 // 音频不存在，忽略
             } else {
                 // 其他错误（如网络、权限等），停止删除
-                throw new Error('删除音频失败：' + (audioError.message || '未知错误'));
+                throw new Error('删除音频失败：' + (mediaError.message || '未知错误'));
             }
         }
 
@@ -378,7 +372,7 @@ async function deleteSentence(id: number) {
         alert('❌ 删除失败：' + (e.message || '未知错误'));
     }
 }
-const audioUrls = ref<Record<number, string>>({});
+const mediaUrls = ref<Record<number, string>>({});
 
 
 // 音频编辑相关
@@ -396,12 +390,12 @@ async function triggerEditUpload() {
     editUploaded.value = false;
 
     try {
-        await api.uploadAudio(editForm.value.id, editSelectedFile.value, (p) => {
+        await api.uploadMedia(editForm.value.id, editSelectedFile.value, (p) => {
             editUploadProgress.value = p;
         });
         editUploaded.value = true;
         alert('✅ 音频上传成功！');
-        // 刷新句子列表，更新 audio_path
+        // 刷新句子列表，更新 media_path
         await loadSentences();
         const updated = sentences.value.find(s => s.id === editForm.value.id);
         if (updated) {
@@ -441,10 +435,10 @@ function handleEditFileSelect(e: Event) {
     editUploadProgress.value = 0;
 }
 
-async function removeAudio() {
+async function removeMedia() {
     if (!confirm('确定删除该音频吗？')) return;
     try {
-        await api.deleteAudio(editForm.value.id);
+        await api.deleteMedia(editForm.value.id);
         await loadSentences();
         const updated = sentences.value.find(s => s.id === editForm.value.id);
         if (updated) {

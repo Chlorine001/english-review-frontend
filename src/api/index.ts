@@ -16,10 +16,9 @@ interface Sentence {
   pronunciation?: string;
   notes?: string;
   source?: string;
-  audio_path?: string | null;
-  audio_format?: string | null;
-  audio_duration?: number | null;
-  audio_original_name: string | null;
+  media_path?: string | null;
+  media_format?: string | null;
+  media_original_name: string | null;
 }
 
 // 分页响应通用结构
@@ -119,11 +118,11 @@ export const api = {
     }),
 
   // 上传音频（用 FormData，支持进度）
-  uploadAudio: (sentenceId: number, file: File, onProgress?: (percent: number) => void) => {
+  uploadMedia: (sentenceId: number, file: File, onProgress?: (percent: number) => void) => {
     const formData = new FormData();
     formData.append('media', file);
 
-    return axiosInstance.post(`/sentences/${sentenceId}/audio`, formData, {
+    return axiosInstance.post(`/sentences/${sentenceId}/media`, formData, {
       headers: { 'Content-Type': 'multipart/form-data' },
       onUploadProgress: (progressEvent) => {
         if (progressEvent.total && onProgress) {
@@ -133,8 +132,8 @@ export const api = {
     }).then(res => res.data);
   },
 
-  deleteAudio: (sentenceId: number) =>
-    request<{ success: boolean }>(`/sentences/${sentenceId}/audio`, {
+  deleteMedia: (sentenceId: number) =>
+    request<{ success: boolean }>(`/sentences/${sentenceId}/media`, {
       method: 'DELETE',
     }),
 
