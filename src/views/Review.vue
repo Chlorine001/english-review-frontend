@@ -26,28 +26,22 @@
         <div v-else-if="currentIndex < reviews.length">
             <div class="card p-6">
                 <!-- 句子内容 + 发音按钮 -->
-                <div class="flex items-start justify-between">
-                    <p class="card-title flex-1">{{ currentSentence.content }}</p>
-                    <!-- <button @click="speak(currentSentence.content)"
-                        class="ml-2 text-2xl hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors"
-                        title="朗读句子">
-                        🔊
-                    </button> -->
+                <div>
+                    <div v-if="currentSentence.media_path" class="flex items-start justify-between">
+                        <MediaPlayer :src="mediaUrls[currentSentence.id]"
+                            :file-format="currentSentence.media_format || ''"
+                             show-info video-class="max-h-48" />
+                    </div>
+                    <div v-else class="flex flex-col gap-2 bg-gray-50 dark:bg-gray-700/30 rounded-lg p-3">
+                        <p class="card-title flex-1">{{ currentSentence.content }}</p>
+                    </div>
                 </div>
-
-                <!-- 音频播放器（如果有音频） -->
-                <!-- <div v-if="currentSentence.media_path" class="mt-3">
-                    <audio controls :src="mediaUrls[currentSentence.id]" class="w-full h-10"
-                        crossorigin="use-credentials" />
-                </div> -->
-                <div class="flex flex-col gap-2 bg-gray-50 dark:bg-gray-700/30 rounded-lg p-3">
-                    <MediaPlayer :src="mediaUrls[currentSentence.id]" :file-format="currentSentence.media_format || ''"
-                        :file-name="currentSentence.media_original_name || ''" show-info video-class="max-h-48" />
-                </div>
-
                 <!-- 答案区域 -->
                 <div v-if="showAnswer" class="mt-4">
-                    <p class="card-text">{{ currentSentence.translation }}</p>
+                    <div v-if="currentSentence.media_path">
+                        <p class="card-text">原文：{{ currentSentence.content }}</p>
+                    </div>
+                    <p class="card-text">翻译：{{ currentSentence.translation }}</p>
                     <p class="card-meta" v-if="currentSentence.pronunciation">
                         /{{ currentSentence.pronunciation }}/
                     </p>
@@ -154,10 +148,10 @@ async function handleRating(rating: string) {
 
 onMounted(() => {
     loadReviews();
-    // 预加载语音
-    if (window.speechSynthesis && window.speechSynthesis.getVoices().length === 0) {
-        window.speechSynthesis.onvoiceschanged = () => window.speechSynthesis.getVoices();
-    }
+    // // 预加载语音
+    // if (window.speechSynthesis && window.speechSynthesis.getVoices().length === 0) {
+    //     window.speechSynthesis.onvoiceschanged = () => window.speechSynthesis.getVoices();
+    // }
 });
 
 </script>
