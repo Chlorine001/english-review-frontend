@@ -62,11 +62,12 @@ async function handleRegister() {
     errorMessage.value = '';
     try {
         await api.register(email.value, password.value);
-        localStorage.setItem('isLoggedIn', 'true');
-        router.push('/');
+        // 注册成功后，发送验证码
+        await api.sendVerification(email.value);
+        // 跳转到验证页面
+        router.push({ path: '/verify-email', query: { email: email.value } });
     } catch (e: any) {
-        const raw = e.message || '注册失败，请检查网络';
-        errorMessage.value = formatErrorMessage(raw);
+        errorMessage.value = formatErrorMessage(e.message || '注册失败，请检查网络');
     }
 }
 </script>

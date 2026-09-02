@@ -137,6 +137,18 @@ export const api = {
       method: 'DELETE',
     }),
 
+  sendVerification: (email: string) =>
+    request<{ success: boolean }>('/auth/send-verification', {
+      method: 'POST',
+      body: JSON.stringify({ email }),
+    }),
+
+  verifyEmail: (email: string, code: string) =>
+    request<{ success: boolean }>('/auth/verify-email', {
+      method: 'POST',
+      body: JSON.stringify({ email, code }),
+    }),
+
 };
 
 

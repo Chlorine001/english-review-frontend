@@ -67,6 +67,7 @@ async function handleLogin() {
     localStorage.setItem('isLoggedIn', 'true');
     router.push('/');
   } catch (e: any) {
+    // 解析错误信息
     let msg = e.message || '登录失败，请检查网络';
     if (msg.includes('too_small') || msg.includes('密码')) {
       msg = '用户名或密码错误！';
@@ -74,6 +75,15 @@ async function handleLogin() {
     if (msg.includes('Invalid email address')) {
       msg = '邮箱格式有误！';
     }
+    // 检查是否是邮箱未验证
+    if (msg.includes('邮箱未验证') || msg.includes('EMAIL_NOT_VERIFIED')) {
+      // 跳转到验证页面，并携带邮箱
+      msg = '邮箱未验证，⏳ 正在跳转至验证页面...';
+      setTimeout(() => {
+        router.push({ path: '/verify-email', query: { email: email.value } });
+      }, 2000);
+    }
+    // 其他错误提示
     errorMessage.value = msg;
   }
 }
