@@ -80,7 +80,7 @@ async function verify() {
         successMessage.value = '✅ 验证成功！即将跳转登录...';
         setTimeout(() => {
             router.push('/login');
-        }, 3000);
+        }, 1000);
     } catch (e: any) {
         errorMessage.value = e.message || '验证失败，请重试';
     } finally {
