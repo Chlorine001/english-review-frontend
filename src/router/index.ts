@@ -6,6 +6,7 @@ import Review from '../views/Review.vue';
 import AddSentence from '../views/AddSentence.vue';
 import Library from '../views/Library.vue';
 import VerifyEmail from '../views/VerifyEmail.vue';
+import Profile from '@/views/Profile.vue';
 
 const routes = [
   { path: '/login', component: Login },
@@ -15,6 +16,8 @@ const routes = [
   { path: '/add', component: AddSentence, meta: { requiresAuth: true } },
   { path: '/library', component: Library, meta: { requiresAuth: true } },
   { path: '/verify-email', component: VerifyEmail, meta: { requiresAuth: false } },
+  { path: '/profile', component: Profile, meta: { requiresAuth: true } },
+
 ];
 
 const router = createRouter({
