@@ -160,6 +160,12 @@ export const api = {
       method: 'PUT',
       body: JSON.stringify({ oldPassword, newPassword }),
     }),
+  
+  checkEmail: (email: string) =>
+    request<{ exists: boolean; verified: boolean }>('/auth/check-email', {
+      method: 'POST',
+      body: JSON.stringify({ email }),
+    }, true),
 };
 
 
