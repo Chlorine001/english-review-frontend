@@ -76,7 +76,10 @@ async function updateNickname() {
         localStorage.setItem('nickName', res.nickname);
         nicknameMessage.value = '✅ 昵称更新成功';
         nicknameMessageType.value = 'text-green-600 dark:text-green-400';
-        
+        setTimeout(() => {
+            location.reload()
+            // router.go(0)
+        }, 500);
     } catch (e: any) {
         nicknameMessage.value = e.message || '更新失败';
         nicknameMessageType.value = 'text-red-600 dark:text-red-400';
