@@ -49,7 +49,6 @@
 
         <div class="flex justify-between items-center mb-6">
             <h1 class="text-3xl font-bold text-gray-900 dark:text-white">{{ title }}</h1>
-            <button @click="logout" class="btn-danger">退出登录</button>
         </div>
 
         <div class="grid grid-cols-2 gap-4 mb-8">
@@ -90,22 +89,6 @@ async function loadStats() {
     }
 }
 
-async function logout() {
-    try {
-        await api.logout();
-    } catch (err) {
-        console.error('登出失败', err);
-        // 即使后端报错，也可以清除本地状态，让用户重新登录
-    } finally {
-        // 清除本地登录标志
-        localStorage.removeItem('isLoggedIn');
-        localStorage.removeItem('lexiscribe_welcome_shown');
-
-        // 跳转到登录页
-        router.push('/login');
-        alert('退出登录成功！');
-    }
-}
 const showWelcome = ref(false);
 
 function closeWelcome() {
