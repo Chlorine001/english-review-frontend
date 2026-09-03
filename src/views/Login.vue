@@ -63,8 +63,12 @@ const statusText = computed(() => {
 async function handleLogin() {
   errorMessage.value = '';
   try {
-    await api.login(email.value, password.value);
+    const res = await api.login(email.value, password.value);
     localStorage.setItem('isLoggedIn', 'true');
+    if (res.user.nickName) {
+      localStorage.setItem('nickName', res.user.nickName);
+    }
+    localStorage.setItem('userEmail', email.value);
     router.push('/');
   } catch (e: any) {
     // 解析错误信息
