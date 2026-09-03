@@ -1,11 +1,11 @@
 import { createRouter, createWebHistory } from 'vue-router';
-import Login from '@/views/Login.vue';
-import Register from '../views/Register.vue';
+import Login from '../views/auth/Login.vue';
+import Register from '../views/auth/Register.vue';
 import Dashboard from '../views/Dashboard.vue';
 import Review from '../views/Review.vue';
 import AddSentence from '../views/AddSentence.vue';
 import Library from '../views/Library.vue';
-import VerifyEmail from '../views/VerifyEmail.vue';
+import VerifyEmail from '../views/auth/VerifyEmail.vue';
 import Profile from '@/views/Profile.vue';
 import NotFound from '@/views/404.vue';
 const routes = [
