@@ -18,7 +18,7 @@
           <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">密码</label>
           <input v-model="password" type="password" required class="input-field" />
         </div>
-        <button type="submit" class="w-full btn-primary">登录</button>
+        <button type="submit" class="w-full btn-primary" :disabled="islogging">{{ islogging ? '登录中...' : '登录' }}</button>
       </form>
 
       <p class="mt-4 text-sm text-center text-gray-600 dark:text-gray-400">
@@ -48,6 +48,7 @@ const router = useRouter();
 const email = ref('');
 const password = ref('');
 const errorMessage = ref('');
+const islogging = ref(false);
 
 // 后端状态
 const backendStatus = ref<'checking' | 'online' | 'offline'>('checking');
@@ -63,6 +64,7 @@ const statusText = computed(() => {
 async function handleLogin() {
   errorMessage.value = '';
   try {
+    islogging.value = true;
     const res = await api.login(email.value, password.value);
     localStorage.setItem('isLoggedIn', 'true');
     if (res.user.nickName) {
@@ -89,6 +91,9 @@ async function handleLogin() {
     }
     // 其他错误提示
     errorMessage.value = msg;
+    islogging.value = false;
+  } finally {
+    islogging.value = false;
   }
 }
 
