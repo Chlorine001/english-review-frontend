@@ -7,7 +7,7 @@ import AddSentence from '../views/AddSentence.vue';
 import Library from '../views/Library.vue';
 import VerifyEmail from '../views/VerifyEmail.vue';
 import Profile from '@/views/Profile.vue';
-
+import NotFound from '@/views/404.vue';
 const routes = [
   { path: '/login', component: Login },
   { path: '/register', component: Register },
@@ -18,6 +18,8 @@ const routes = [
   { path: '/verify-email', component: VerifyEmail, meta: { requiresAuth: false } },
   { path: '/profile', component: Profile, meta: { requiresAuth: true } },
 
+  // Catch all route for 404 errors
+  { path: '/:pathMatch(.*)*', name: 'NotFound', component: NotFound }
 ];
 
 const router = createRouter({
