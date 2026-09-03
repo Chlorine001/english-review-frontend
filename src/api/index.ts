@@ -76,7 +76,7 @@ export const api = {
       body: JSON.stringify({ email, password }),
     }, true),
   login: (email: string, password: string) =>
-    request<{ token: string; user: { id: number; email: string } }>('/auth/login', {
+    request<{ token: string; user: { id: number; email: string, nickName: string} }>('/auth/login', {
       method: 'POST',
       body: JSON.stringify({ email, password }),
     }, true),
@@ -149,6 +149,17 @@ export const api = {
       body: JSON.stringify({ email, code }),
     }),
 
+  updateProfile: (nickname: string) =>
+    request<{ success: true; nickname: string }>('/user/updateprofile', {
+      method: 'PUT',
+      body: JSON.stringify({ nickname }),
+    }),
+
+  changePassword: (oldPassword: string, newPassword: string) =>
+    request<{ success: true }>('/user/password', {
+      method: 'PUT',
+      body: JSON.stringify({ oldPassword, newPassword }),
+    }),
 };
 
 
