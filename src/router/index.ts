@@ -7,7 +7,8 @@ import AddSentence from '../views/AddSentence.vue';
 import Library from '../views/Library.vue';
 import VerifyEmail from '../views/auth/VerifyEmail.vue';
 import Profile from '@/views/Profile.vue';
-import NotFound from '@/views/404.vue';
+import NotFound from '@/composables/404.vue';
+
 const routes = [
   { path: '/login', component: Login },
   { path: '/register', component: Register },
