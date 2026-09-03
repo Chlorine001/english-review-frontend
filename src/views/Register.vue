@@ -18,7 +18,9 @@
                     <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">密码</label>
                     <input v-model="password" type="password" required class="input-field" />
                 </div>
-                <button type="submit" class="w-full btn-primary">注册</button>
+                <button type="submit" class="w-full btn-primary" :disabled="isRegister">
+                    {{ isRegister ? '注册中...' : '注册' }}
+                </button>
             </form>
 
             <p class="mt-4 text-sm text-center text-gray-600 dark:text-gray-400">
@@ -37,7 +39,7 @@ const router = useRouter();
 const email = ref('');
 const password = ref('');
 const errorMessage = ref('');
-
+const isRegister = ref(false);
 // 优化错误消息，动态提取数字
 function formatErrorMessage(msg: string): string {
     // 密码太短：尝试提取数字
@@ -61,12 +63,14 @@ function formatErrorMessage(msg: string): string {
 async function handleRegister() {
     errorMessage.value = '';
     try {
+        isRegister.value = true;
         await api.register(email.value, password.value);
         // 注册成功后，发送验证码
         await api.sendVerification(email.value);
         // 跳转到验证页面
         router.push({ path: '/verify-email', query: { email: email.value } });
     } catch (e: any) {
+        isRegister.value = false;
         errorMessage.value = formatErrorMessage(e.message || '注册失败，请检查网络');
     }
 }
