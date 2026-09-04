@@ -2,7 +2,7 @@
   <div id="app" class="min-h-screen bg-slate-50 dark:bg-[#1a1b2e] transition-colors duration-300">
     <!-- 顶部导航栏（包含切换按钮） -->
     <header
-      class="flex justify-between items-center p-4 border-b border-gray-200 dark:border-[#3d3f5e] bg-white dark:bg-[#2d2f44]">
+      class="flex justify-between items-center p-4 border-b border-gray-400 dark:border-[#3d3f5e] bg-white dark:bg-[#2d2f44]">
       <div class="text-lg font-semibold text-gray-800 dark:text-white"><a href="/">{{ appTitle }}</a></div>
       <div v-if="isLoggedIn">
         <div class="flex items-center gap-2">
@@ -17,16 +17,16 @@
             <div v-if="showDropdown"
               class="absolute right-0 mt-2 w-36 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden z-50">
               <router-link to="/profile" @click="closeDropdown"
-                class="block w-full rounded px-1 py-2 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-[#3d3f5e] transition-colors border-b border-gray-100 dark:border-gray-700">
+                class="block w-full rounded px-1 py-2 text-gray-800 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-[#3d3f5e] transition-colors border-b border-gray-200 dark:border-gray-700">
                 ⚙️ 设置
               </router-link>
               <button @click="toggleDarkMode"
-                class="block w-full text-center px-1 py-2 rounded text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-[#3d3f5e] transition-colors border-b border-gray-100 dark:border-gray-700">
+                class="block w-full text-center px-1 py-2 rounded text-gray-800 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-[#3d3f5e] transition-colors border-b border-gray-200 dark:border-gray-700">
                 {{ isDark ? '☀️ 浅色' : '🌙 深色' }}
               </button>
 
               <button @click="handleLogout"
-                class="block w-full text-center px-1 py-2 rounded text-red-600 hover:bg-gray-100 dark:hover:bg-[#3d3f5e] transition-colors">
+                class="block w-full text-center px-1 py-2 rounded text-red-600 hover:bg-gray-200 dark:hover:bg-[#3d3f5e] transition-colors">
                 ⏻ 退出登录
               </button>
             </div>
