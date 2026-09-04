@@ -23,24 +23,33 @@
         <!-- 修改密码 -->
         <div class="card p-4">
             <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-3">修改密码</h3>
-            <div class="space-y-3">
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">当前密码</label>
-                    <input v-model="oldPassword" type="password" class="input-field" placeholder="请输入当前密码" />
+            <form @submit.prevent="changePassword">
+                <!-- 隐藏的用户名字段（仅用于辅助功能） -->
+                <!-- <input type="email" :value="email" class="hidden" aria-hidden="true" autocomplete="username" readonly /> -->
+                <div class="space-y-3">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">当前密码</label>
+                        <input v-model="oldPassword" type="password" class="input-field" placeholder="请输入当前密码"
+                            autocomplete="current-password" />
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">新密码</label>
+                        <input v-model="newPassword" type="password" class="input-field" placeholder="至少6位"
+                            autocomplete="new-password" />
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">确认新密码</label>
+                        <input v-model="confirmPassword" type="password" class="input-field" placeholder="再次输入新密码"
+                            autocomplete="new-password" />
+                    </div>
+                    <button type="submit" class="btn-primary w-full" :disabled="changingPassword">
+                        {{ changingPassword ? '修改中...' : '修改密码' }}
+                    </button>
+                    <p v-if="passwordMessage" class="mt-2 text-sm" :class="passwordMessageType">
+                        {{ passwordMessage }}
+                    </p>
                 </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">新密码</label>
-                    <input v-model="newPassword" type="password" class="input-field" placeholder="至少6位" />
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">确认新密码</label>
-                    <input v-model="confirmPassword" type="password" class="input-field" placeholder="再次输入新密码" />
-                </div>
-                <button @click="changePassword" class="btn-primary w-full" :disabled="changingPassword">
-                    {{ changingPassword ? '修改中...' : '修改密码' }}
-                </button>
-                <p v-if="passwordMessage" class="mt-2 text-sm" :class="passwordMessageType">{{ passwordMessage }}</p>
-            </div>
+            </form>
         </div>
     </div>
 </template>
