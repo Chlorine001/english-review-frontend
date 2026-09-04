@@ -16,12 +16,10 @@
         <div class="flex items-center justify-between py-3 border-b border-gray-100 dark:border-gray-700">
             <div class="flex items-center gap-4  flex-1">
                 <span class="text-sm text-gray-500 dark:text-gray-400 w-16 flex-shrink-0">昵称</span>
-                <div v-if="!isEditingNickname" class="flex items-center gap-2">
-                    <span class="text-gray-900 dark:text-white">{{ nickName }}</span>
-                </div>
-                <input v-else v-model="nickName" class="input-field py-1 px-2 text-sm w-full"
-                    style="width: 180px; max-width: 100%;" placeholder="输入昵称" @keydown.enter="updateNickname"
-                    @keydown.esc="cancelEdit" autofocus />
+                <!-- flex items-center gap-2-->
+                <input v-model="nickName" class="input-field py-1 px-2 text-sm w-full "
+                    style="width: 180px; max-width: 100%;" placeholder={{ nickName }} @keydown.enter="updateNickname"
+                    @keydown.esc="cancelEdit" autofocus :disabled="!isEditingNickname" />
             </div>
             <div class="flex items-center gap-2  flex-shrink-0">
                 <button v-if="!isEditingNickname" @click="updateNickname"
