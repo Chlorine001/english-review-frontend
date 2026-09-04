@@ -114,7 +114,6 @@ watch(
         const email = localStorage.getItem('userEmail') || 'U';
         userInitial.value = email.charAt(0).toUpperCase();
       }
-      console.log(userInitial.value);
     }
   },
   { immediate: true }
