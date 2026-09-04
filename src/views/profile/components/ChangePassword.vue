@@ -65,6 +65,15 @@ async function changePassword() {
         oldPassword.value = '';
         newPassword.value = '';
         confirmPassword.value = '';
+
+        // ✅ 清除登录状态，让路由守卫放行
+        localStorage.removeItem('isLoggedIn');
+        localStorage.removeItem('nickName');
+        localStorage.removeItem('userEmail');
+
+        alert('密码修改成功，请重新登录!');
+        location.reload()
+
     } catch (e: any) {
         passwordMessage.value = e.message || '修改失败';
         passwordMessageType.value = 'text-red-600 dark:text-red-400';

@@ -12,11 +12,11 @@ import NotFound from '@/composables/404.vue';
 const routes = [
   { path: '/login', component: Login },
   { path: '/register', component: Register },
+  { path: '/verify-email', component: VerifyEmail, meta: { requiresAuth: false } },
   { path: '/', component: Dashboard, meta: { requiresAuth: true } },
   { path: '/review', component: Review, meta: { requiresAuth: true } },
   { path: '/add', component: AddSentence, meta: { requiresAuth: true } },
   { path: '/library', component: Library, meta: { requiresAuth: true } },
-  { path: '/verify-email', component: VerifyEmail, meta: { requiresAuth: false } },
   { path: '/profile', component: Profile, meta: { requiresAuth: true } },
 
   // Catch all route for 404 errors
