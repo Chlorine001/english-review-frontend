@@ -12,11 +12,12 @@
             <form @submit.prevent="handleRegister">
                 <div class="mb-4">
                     <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">邮箱</label>
-                    <input v-model="email" type="email" required class="input-field" />
+                    <input v-model="email" type="email" required class="input-field" autocomplete="username" />
                 </div>
                 <div class="mb-6">
                     <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">密码</label>
-                    <input v-model="password" type="password" required class="input-field" />
+                    <input v-model="password" type="password" required class="input-field"
+                        autocomplete="new-password" />
                 </div>
                 <button type="submit" class="w-full btn-primary" :disabled="isRegister">
                     {{ isRegister ? '注册中...' : '注册' }}
