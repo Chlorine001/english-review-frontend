@@ -88,7 +88,7 @@ async function handleLogout() {
     localStorage.removeItem('userEmail');
     localStorage.removeItem('nickName');
     // localStorage.removeItem('lexiscribe_welcome_shown');
-
+    closeDropdown();
     // 跳转到登录页
     router.push('/login');
     alert('退出登录成功！');
