@@ -75,10 +75,10 @@ export const api = {
       method: 'POST',
       body: JSON.stringify({ email, password, refCode }),
     }, true),
-  
+
   // 登录
   login: (email: string, password: string) =>
-    request<{ token: string; user: { id: number; email: string, nickName: string} }>('/auth/login', {
+    request<{ token: string; user: { id: number; email: string, nickName: string } }>('/auth/login', {
       method: 'POST',
       body: JSON.stringify({ email, password }),
     }, true),
@@ -162,20 +162,26 @@ export const api = {
       method: 'PUT',
       body: JSON.stringify({ oldPassword, newPassword }),
     }),
-  
+
   checkEmail: (email: string) =>
     request<{ exists: boolean; verified: boolean }>('/auth/check-email', {
       method: 'POST',
       body: JSON.stringify({ email }),
     }, true),
-  
+
   // 邀请相关
   getInviteLink: () =>
     request<{ code: string; link: string }>('/invitations/my-link'),
 
   getInvitationStats: () =>
     request<{ total: number; registered: number; records: any[] }>('/invitations/stats'),
-  
+
+  trackInviteClick: (code: string) =>
+    request<{ success: boolean }>('/invitations/track-click', {
+      method: 'POST',
+      body: JSON.stringify({ code }),
+    }, true),
+
   // 积分相关
   getPoints: () =>
     request<{ total: number; level: string; levelIcon: string }>('/points'),
