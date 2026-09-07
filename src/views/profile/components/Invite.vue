@@ -6,14 +6,18 @@
         </p>
 
         <!-- 统计卡片 -->
-        <div class="grid grid-cols-2 gap-3 mb-4">
+        <div class="grid grid-cols-3 gap-3 mb-4">
             <div class="bg-gray-50 dark:bg-gray-700/30 rounded-lg p-3 text-center">
                 <p class="text-2xl font-bold text-gray-900 dark:text-white">{{ stats.total }}</p>
                 <p class="text-sm text-gray-500 dark:text-gray-400">已邀请</p>
             </div>
             <div class="bg-gray-50 dark:bg-gray-700/30 rounded-lg p-3 text-center">
-                <p class="text-2xl font-bold text-green-600 dark:text-green-400">{{ stats.registered }}</p>
+                <p class="text-2xl font-bold text-yellow-600 dark:text-yellow-400">{{ stats.registered }}</p>
                 <p class="text-sm text-gray-500 dark:text-gray-400">已注册</p>
+            </div>
+            <div class="bg-gray-50 dark:bg-gray-700/30 rounded-lg p-3 text-center">
+                <p class="text-2xl font-bold text-green-600 dark:text-green-400">{{ stats.verified }}</p>
+                <p class="text-sm text-gray-500 dark:text-gray-400">已认证</p>
             </div>
         </div>
         <!-- 邀请链接 -->
@@ -87,7 +91,7 @@
 const inviteLink = ref('');
 const inviteMessage = ref('');
 const inviteMessageType = ref('');
-const stats = ref({ total: 0, registered: 0 });
+const stats = ref({ total: 0, registered: 0, verified: 0 });
 const records = ref<any[]>([]);
 
 async function loadInviteData() {
@@ -98,9 +102,9 @@ async function loadInviteData() {
 
         // 获取统计和记录
         const statsRes = await api.getInvitationStats();
-        stats.value = { total: statsRes.total, registered: statsRes.registered };
+        stats.value = { total: statsRes.total, registered: statsRes.registered, verified: statsRes.verified};
         records.value = statsRes.records || [];
-        
+
     } catch (e) {
         console.error('加载邀请数据失败', e);
     }

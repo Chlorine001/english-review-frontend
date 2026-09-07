@@ -174,7 +174,7 @@ export const api = {
     request<{ code: string; link: string }>('/invitations/my-link'),
 
   getInvitationStats: () =>
-    request<{ total: number; registered: number; records: any[] }>('/invitations/stats'),
+    request<{ total: number; registered: number; verified: number; records: any[] }>('/invitations/stats'),
 
   trackInviteClick: (code: string) =>
     request<{ success: boolean }>('/invitations/track-click', {
