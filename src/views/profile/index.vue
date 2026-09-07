@@ -76,6 +76,7 @@ const ProfileInfo = defineAsyncComponent(() => import('./components/ProfileInfo.
 const ChangePassword = defineAsyncComponent(() => import('./components/ChangePassword.vue'));
 const Notifications = defineAsyncComponent(() => import('./components/Notifications.vue'));
 const Invite = defineAsyncComponent(() => import('./components/Invite.vue'));
+const Points = defineAsyncComponent(() => import('./components/Points.vue')); 
 
 // 菜单配置
 const menuItems = [
@@ -83,6 +84,7 @@ const menuItems = [
     { key: 'password', icon: '🔒', label: '修改密码', component: ChangePassword },
     { key: 'notifications', icon: '🔔', label: '通知', component: Notifications },
     { key: 'invite', icon: '📨', label: '邀请', component: Invite },
+    { key: 'points', icon: '🏆', label: '积分', component: Points },
 ];
 
 const activeTab = ref('profile'); // 桌面端专用
