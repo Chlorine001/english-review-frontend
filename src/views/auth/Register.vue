@@ -31,8 +31,8 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
-import { useRouter, useRoute } from 'vue-router';
+import { ref, onMounted } from 'vue';
+import { useRouter, useRoute} from 'vue-router';
 import { api } from '../../api';
 
 const router = useRouter();
@@ -42,7 +42,7 @@ const errorMessage = ref('');
 const isRegister = ref(false);
 
 const route = useRoute();
-const refCode = ref(route.query.ref || '');
+const refCode = ref('');
 
 // 优化错误消息，动态提取数字
 function formatErrorMessage(msg: string): string {
@@ -78,4 +78,19 @@ async function handleRegister() {
         errorMessage.value = formatErrorMessage(e.message || '注册失败，请检查网络');
     }
 }
+
+onMounted(() => {
+  const refParam = route.query.ref;
+  if (Array.isArray(refParam)) {
+    refCode.value = refParam[0] || '';
+  } else {
+    refCode.value = refParam || '';
+  }
+  
+  // 如果存在邀请码，记录点击
+  if (refCode.value) {
+    api.trackInviteClick(refCode.value).catch(() => {});
+  }
+});
+
 </script>
