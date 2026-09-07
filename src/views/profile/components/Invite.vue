@@ -99,11 +99,8 @@ async function loadInviteData() {
         // 获取统计和记录
         const statsRes = await api.getInvitationStats();
         stats.value = { total: statsRes.total, registered: statsRes.registered };
-        console.log(statsRes);
-        console.log(stats.value);
-
         records.value = statsRes.records || [];
-        console.log(records.value);
+        
     } catch (e) {
         console.error('加载邀请数据失败', e);
     }
