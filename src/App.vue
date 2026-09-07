@@ -41,7 +41,7 @@
     </header>
 
     <!-- 页面主体 -->
-    <main class="p-4 pb-24 overflow-y-auto h-screen">
+    <main class="p-4 pb-12 overflow-y-auto h-screen">
       <router-view />
     </main>
   </div>
