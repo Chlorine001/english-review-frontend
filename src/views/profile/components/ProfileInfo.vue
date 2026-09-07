@@ -19,7 +19,7 @@
                 <!-- flex items-center gap-2-->
                 <input v-model="nickName" class="input-field py-1 px-2 text-sm w-full "
                     style="width: 180px; max-width: 100%;" placeholder={{ nickName }} @keydown.enter="updateNickname"
-                    @keydown.esc="cancelEdit" autofocus :disabled="!isEditingNickname" />
+                    @keydown.esc="cancelEdit" autofocus @focus="isEditingNickname = true" />
             </div>
             <div class="flex items-center gap-2  flex-shrink-0">
                 <button v-if="!isEditingNickname" @click="updateNickname"
