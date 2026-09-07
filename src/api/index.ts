@@ -70,11 +70,13 @@ async function request<T>(endpoint: string, options: RequestInit = {}, skipAuthR
 
 export const api = {
   // 认证
-  register: (email: string, password: string) =>
+  register: (email: string, password: string, refCode?: string) =>
     request<{ token: string; user: { id: number; email: string } }>('/auth/register', {
       method: 'POST',
-      body: JSON.stringify({ email, password }),
+      body: JSON.stringify({ email, password, refCode }),
     }, true),
+  
+  // 登录
   login: (email: string, password: string) =>
     request<{ token: string; user: { id: number; email: string, nickName: string} }>('/auth/login', {
       method: 'POST',
@@ -166,6 +168,24 @@ export const api = {
       method: 'POST',
       body: JSON.stringify({ email }),
     }, true),
+  
+  // 邀请相关
+  getInviteLink: () =>
+    request<{ code: string; link: string }>('/invitations/my-link'),
+
+  getInvitationStats: () =>
+    request<{ total: number; registered: number; records: any[] }>('/invitations/stats'),
+  
+  // 积分相关
+  getPoints: () =>
+    request<{ total: number; level: string; levelIcon: string }>('/points'),
+
+  getPointsLog: (limit?: number) =>
+    request<any[]>(`/points/log${limit ? `?limit=${limit}` : ''}`),
+
+  //todo : 获取积分排行榜
+  getPointsRank: () =>
+    request<any[]>('/points/rank'),
 };
 
 
