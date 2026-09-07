@@ -1,5 +1,5 @@
 <template>
-    <div class="max-w-2xl mx-auto p-4 pb-32 overflow-y-auto h-screen">
+    <div class="max-w-2xl mx-auto p-4">
         <!-- ====== 欢迎弹窗 ====== -->
         <div v-if="showWelcome"
             class="fixed inset-0 bg-black/50 flex items-start justify-center z-50 p-24 overflow-y-auto h-screen">

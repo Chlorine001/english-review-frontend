@@ -1,5 +1,5 @@
 <template>
-    <div class="max-w-xl mx-auto p-4 pb-32 overflow-y-auto h-screen">
+    <div class="max-w-xl mx-auto p-4">
         <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-4">添加句子</h2>
         <form @submit.prevent="submit">
             <div class="mb-4">
@@ -252,13 +252,3 @@ function skipUpload() {
 
 </script>
 
-<style scoped>
-/* 确保页面滚动条可见 */
-.h-screen {
-    height: 100vh;
-}
-
-.overflow-y-auto {
-    overflow-y: auto;
-}
-</style>

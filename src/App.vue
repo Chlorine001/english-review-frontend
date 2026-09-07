@@ -41,7 +41,7 @@
     </header>
 
     <!-- 页面主体 -->
-    <main class="p-4">
+    <main class="p-4 pb-24 overflow-y-auto h-screen">
       <router-view />
     </main>
   </div>
@@ -162,3 +162,14 @@ onMounted(() => {
 
 
 </script>
+
+<style scoped>
+/* 确保页面滚动条可见 */
+.h-screen {
+  height: 100vh;
+}
+
+.overflow-y-auto {
+  overflow-y: auto;
+}
+</style>

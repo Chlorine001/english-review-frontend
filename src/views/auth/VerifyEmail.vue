@@ -1,6 +1,6 @@
 <template>
     <div
-        class="flex-1 flex items-start justify-center p-16 bg-gray-50 dark:bg-[#1a1b2e] pb-32 overflow-y-auto h-screen">
+        class="flex-1 flex items-start justify-center p-16 bg-gray-50 dark:bg-[#1a1b2e]">
         <div class="w-full max-w-md p-8 card">
             <!-- 情况1：邮箱未注册 -->
             <div v-if="status === 'unregistered'" class="text-center">
