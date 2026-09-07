@@ -132,4 +132,8 @@ onMounted(() => {
 onUnmounted(() => {
     window.removeEventListener('resize', handleResize);
 });
+
+// // 提供共享数据给子组件（可选）
+// import { provide } from 'vue';
+// provide('userEmail', email);
 </script>
