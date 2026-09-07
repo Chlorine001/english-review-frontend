@@ -68,10 +68,15 @@
 
                     <!-- 状态：3列 -->
                     <span class="col-span-2">
-                        <span class="text-xs px-2 py-0.5 rounded-full" :class="item.status === 'registered'
-                            ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300'
-                            : 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-300'">
-                            {{ item.status === 'registered' ? '已注册' : '待注册' }}
+                        <span class="text-xs px-2 py-0.5 rounded-full" :class="{
+                            'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300': item.status === 'registered' && item.invitee_verified === 1,
+                            'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-300': item.status === 'registered' && item.invitee_verified === 0,
+                            'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300': item.status === 'accepted',
+                            'bg-gray-100 dark:bg-gray-700 text-gray-500': item.status === 'pending',
+                        }">
+                            {{ item.status === 'registered' && item.invitee_verified === 1 ? '✅ 已认证' :
+                                item.status === 'registered' ? '📧 未验证' :
+                                    item.status === 'accepted' ? '⏳ 待注册' : '⏳ 等待中' }}
                         </span>
                     </span>
 
@@ -102,7 +107,7 @@ async function loadInviteData() {
 
         // 获取统计和记录
         const statsRes = await api.getInvitationStats();
-        stats.value = { total: statsRes.total, registered: statsRes.registered, verified: statsRes.verified};
+        stats.value = { total: statsRes.total, registered: statsRes.registered, verified: statsRes.verified };
         records.value = statsRes.records || [];
 
     } catch (e) {
