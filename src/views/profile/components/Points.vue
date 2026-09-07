@@ -73,7 +73,7 @@
                 <div v-for="item in pointsLog" :key="item.id"
                     class="grid grid-cols-12 gap-2 items-center text-sm py-2 px-2 border-b border-gray-100 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/30 transition-colors rounded">
                     <!-- 描述：6列 -->
-                    <span class="col-span-6 text-gray-700 dark:text-gray-300 truncate text-left">
+                    <span class="col-span-6 text-gray-700 dark:text-gray-300 line-clamp-2 text-left">
                         {{ typeIcon(item.type) }} {{ item.description }}
                     </span>
 
