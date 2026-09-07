@@ -19,7 +19,7 @@
                 <!-- flex items-center gap-2-->
                 <input v-model="nickName" class="input-field py-1 px-2 text-sm w-full "
                     style="width: 180px; max-width: 100%;" placeholder={{ nickName }} @keydown.enter="updateNickname"
-                    @keydown.esc="cancelEdit" autofocus @focus="isEditingNickname = true" />
+                    @keydown.esc="cancelEdit" autofocus :disabled="!isEditingNickname" />
             </div>
             <div class="flex items-center gap-2  flex-shrink-0">
                 <button v-if="!isEditingNickname" @click="updateNickname"
@@ -49,14 +49,6 @@
             <span class="text-xs text-gray-400 dark:text-gray-500">免费版</span>
         </div>
 
-        <div class="flex items-center justify-between py-3 border-b border-gray-100 dark:border-gray-700">
-            <div class="flex items-center gap-4">
-                <span class="text-sm text-gray-500 dark:text-gray-400 w-16">积分</span>
-                <span class="text-gray-900 dark:text-white">88</span>
-            </div>
-            <span class="text-xs text-gray-400 dark:text-gray-500">可兑换</span>
-        </div>
-
     </div>
 
 
@@ -73,7 +65,7 @@ import { api } from '@/api';
 // const email = inject('userEmail') || '';
 const email = localStorage.getItem('userEmail') || 'U';
 
-const nickName = ref(localStorage.getItem('nickName') || '');
+const nickName = ref(localStorage.getItem('nickName') || ' ');
 const savingNickname = ref(false);
 const isEditingNickname = ref(false);
 const issaved = ref(false);
@@ -110,7 +102,7 @@ async function updateNickname() {
 async function cancelEdit() {
     isEditingNickname.value = false;
     nicknameMessage.value = '';
-    nickName.value = localStorage.getItem('nickName') || '';
+    nickName.value = localStorage.getItem('nickName') || ' ';
 }
 
 </script>
