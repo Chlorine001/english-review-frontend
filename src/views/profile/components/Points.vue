@@ -64,7 +64,7 @@
                 <!-- 表头 -->
                 <div
                     class="grid grid-cols-12 gap-2 text-xs text-gray-400 dark:text-gray-500 px-2 py-1 border-b border-gray-200 dark:border-gray-700">
-                    <span class="col-span-6">描述</span>
+                    <span class="col-span-6 text-left">描述</span>
                     <span class="col-span-3 text-center">积分</span>
                     <span class="col-span-3 text-right">时间</span>
                 </div>
@@ -73,8 +73,8 @@
                 <div v-for="item in pointsLog" :key="item.id"
                     class="grid grid-cols-12 gap-2 items-center text-sm py-2 px-2 border-b border-gray-100 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/30 transition-colors rounded">
                     <!-- 描述：6列 -->
-                    <span class="col-span-6 text-gray-700 dark:text-gray-300 truncate">
-                        {{ item.description }}
+                    <span class="col-span-6 text-gray-700 dark:text-gray-300 truncate text-left">
+                        {{ typeIcon(item.type) }} {{ item.description }}
                     </span>
 
                     <!-- 积分：3列，居中 -->
@@ -114,7 +114,7 @@ const levelConfig = [
 
 // 积分规则
 const pointRules = [
-    { key: 'invite', icon: '📨', label: '邀请好友', points: 10, limit: '每次邀请' },
+    { key: 'invite', icon: '🚀', label: '邀请好友', points: 10, limit: '每次邀请' },
     { key: 'daily', icon: '📅', label: '每日登录', points: 1, limit: '每天1次' },
     { key: 'review', icon: '📚', label: '完成复习', points: 1, limit: '每次（Good/Easy）' },
     { key: 'streak', icon: '🔥', label: '连续打卡', points: 5, limit: '每7天' },
@@ -142,7 +142,7 @@ const progressPercent = computed(() => {
 
 function typeIcon(type: string): string {
     const map: Record<string, string> = {
-        invite_register: '📨',
+        invite_register: '🚀',
         daily_login: '📅',
         review_complete: '📚',
         streak: '🔥',
@@ -153,11 +153,12 @@ function typeIcon(type: string): string {
 
 function formatDate(date: string): string {
     const d = new Date(date);
+    const year = d.getFullYear();
     const month = String(d.getMonth() + 1).padStart(2, '0');
     const day = String(d.getDate()).padStart(2, '0');
     const hours = String(d.getHours()).padStart(2, '0');
     const minutes = String(d.getMinutes()).padStart(2, '0');
-    return `${month}-${day} ${hours}:${minutes}`;
+    return `${year}-${month}-${day} ${hours}:${minutes}`;
 }
 
 async function loadPoints() {
