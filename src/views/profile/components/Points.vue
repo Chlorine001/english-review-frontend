@@ -16,7 +16,7 @@
                 <div class="text-right">
                     <p class="text-sm text-gray-500 dark:text-gray-400">距离下一级</p>
                     <p class="text-xl font-bold text-indigo-600 dark:text-indigo-400">{{ nextLevelPoints - points.total
-                    }}</p>
+                        }}</p>
                     <p class="text-sm text-gray-500 dark:text-gray-400">积分</p>
                 </div>
             </div>
@@ -48,27 +48,44 @@
             </div>
         </div>
 
-        <!-- 积分流水 -->
+        <!-- 积分记录 -->
         <div class="card p-4">
             <div class="flex justify-between items-center mb-3">
                 <h4 class="text-sm font-medium text-gray-700 dark:text-gray-300">积分记录</h4>
                 <span class="text-xs text-gray-400">共 {{ pointsLog.length }} 条</span>
             </div>
+
             <div v-if="pointsLog.length === 0" class="text-center py-8 text-gray-400 dark:text-gray-500">
                 <p>还没有积分记录</p>
                 <p class="text-sm">开始复习或邀请好友获取积分吧！</p>
             </div>
-            <div v-else class="space-y-2 max-h-96 overflow-y-auto">
+
+            <div v-else class="space-y-1 max-h-64 overflow-y-auto">
+                <!-- 表头 -->
+                <div
+                    class="grid grid-cols-12 gap-2 text-xs text-gray-400 dark:text-gray-500 px-2 py-1 border-b border-gray-200 dark:border-gray-700">
+                    <span class="col-span-6">描述</span>
+                    <span class="col-span-3 text-center">积分</span>
+                    <span class="col-span-3 text-right">时间</span>
+                </div>
+
+                <!-- 列表 -->
                 <div v-for="item in pointsLog" :key="item.id"
-                    class="flex items-center justify-between py-2 border-b border-gray-100 dark:border-gray-700">
-                    <div class="flex items-center gap-3">
-                        <span class="text-lg">{{ typeIcon(item.type) }}</span>
-                        <div>
-                            <p class="text-sm text-gray-800 dark:text-white">{{ item.description }}</p>
-                            <p class="text-xs text-gray-400">{{ formatDate(item.created_at) }}</p>
-                        </div>
-                    </div>
-                    <span class="text-sm font-medium text-green-600 dark:text-green-400">+{{ item.points }}</span>
+                    class="grid grid-cols-12 gap-2 items-center text-sm py-2 px-2 border-b border-gray-100 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/30 transition-colors rounded">
+                    <!-- 描述：6列 -->
+                    <span class="col-span-6 text-gray-700 dark:text-gray-300 truncate">
+                        {{ item.description }}
+                    </span>
+
+                    <!-- 积分：3列，居中 -->
+                    <span class="col-span-3 text-center font-medium text-green-600 dark:text-green-400">
+                        +{{ item.points }}
+                    </span>
+
+                    <!-- 时间：3列，右对齐 -->
+                    <span class="col-span-3 text-right text-xs text-gray-400 dark:text-gray-500">
+                        {{ formatDate(item.created_at) }}
+                    </span>
                 </div>
             </div>
         </div>
