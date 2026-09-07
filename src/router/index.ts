@@ -6,11 +6,7 @@ import Review from '../views/Review.vue';
 import AddSentence from '../views/AddSentence.vue';
 import Library from '../views/Library.vue';
 import VerifyEmail from '../views/auth/VerifyEmail.vue';
-import ProfileMobile from '@/views/profile/ProfileMobile.vue';
-import ProfileInfo from '@/views/profile/components/ProfileInfo.vue';
-import ChangePassword from '@/views/profile/components/Notifications.vue';
-import Notifications from '@/views/profile/components/Notifications.vue';
-import Invite from '@/views/profile/components/Invite.vue';
+import Profile from '../views/profile/index.vue';
 import NotFound from '@/composables/404.vue';
 
 const routes = [
@@ -21,24 +17,7 @@ const routes = [
   { path: '/review', component: Review, meta: { requiresAuth: true } },
   { path: '/add', component: AddSentence, meta: { requiresAuth: true } },
   { path: '/library', component: Library, meta: { requiresAuth: true } },
-  // { path: '/profile', component: Profile, meta: { requiresAuth: true } },
-  {
-    path: '/profile',
-    component: () => import('@/views/profile/index.vue'),
-    meta: { requiresAuth: true },
-  },
-  // 移动端子路由
-  {
-    path: '/profile-mobile/:tab',
-    component: ProfileMobile,
-    meta: { requiresAuth: true },
-    children: [
-      { path: 'info', component: ProfileInfo },
-      { path: 'password', component: ChangePassword },
-      { path: 'notifications', component: Notifications },
-      { path: 'invite', component: Invite },
-    ],
-  },
+  { path: '/profile', component: Profile, meta: { requiresAuth: true } },
 
   // Catch all route for 404 errors
   { path: '/:pathMatch(.*)*', name: 'NotFound', component: NotFound }

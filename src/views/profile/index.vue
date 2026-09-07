@@ -1,7 +1,7 @@
 <template>
-    <!-- 桌面端：左右布局 -->
-    <div v-if="!isMobile" class="max-w-6xl mx-auto p-4">
-        <div class="flex flex-row gap-6">
+    <div class="max-w-6xl mx-auto p-4">
+        <!-- ====== 桌面端：左右布局 ====== -->
+        <div v-if="!isMobile" class="flex flex-row gap-6">
             <!-- 左侧导航 -->
             <aside class="w-56 flex-shrink-0">
                 <div class="card p-4 sticky top-4">
@@ -31,11 +31,40 @@
                 <component :is="currentComponent" />
             </main>
         </div>
-    </div>
 
-    <!-- 移动端：跳转到独立页面 -->
-    <div v-else>
-        <ProfileMobile />
+        <!-- ====== 移动端：单列布局 ====== -->
+        <div v-else class="max-w-2xl mx-auto">
+            <!-- 用户卡片 -->
+            <div class="card p-6 text-center mb-4">
+                <div
+                    class="w-20 h-20 rounded-full bg-indigo-500 text-white text-3xl flex items-center justify-center mx-auto mb-3">
+                    {{ userInitial }}
+                </div>
+                <p class="text-xl font-medium text-gray-900 dark:text-white">{{ displayName }}</p>
+                <p class="text-sm text-gray-500 dark:text-gray-400">{{ email }}</p>
+            </div>
+
+            <!-- 功能列表（仅在未选中时显示） -->
+            <div v-if="!mobileSelectedTab" class="card divide-y divide-gray-100 dark:divide-gray-700">
+                <div v-for="item in menuItems" :key="item.key" @click="mobileSelectedTab = item.key"
+                    class="flex items-center justify-between py-4 px-2 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700/30 transition-colors rounded-lg">
+                    <div class="flex items-center gap-3">
+                        <span class="text-xl">{{ item.icon }}</span>
+                        <span class="text-gray-800 dark:text-white">{{ item.label }}</span>
+                    </div>
+                    <span class="text-gray-400 dark:text-gray-500">›</span>
+                </div>
+            </div>
+
+            <!-- 内容区域（选中后显示） -->
+            <div v-else class="mt-4">
+                <button @click="mobileSelectedTab = null"
+                    class="text-sm text-gray-500 dark:text-gray-400 mb-4 hover:text-gray-700 dark:hover:text-gray-200 transition-colors">
+                    ← 返回列表
+                </button>
+                <component :is="mobileCurrentComponent" />
+            </div>
+        </div>
     </div>
 </template>
 
@@ -47,7 +76,6 @@ const ProfileInfo = defineAsyncComponent(() => import('./components/ProfileInfo.
 const ChangePassword = defineAsyncComponent(() => import('./components/ChangePassword.vue'));
 const Notifications = defineAsyncComponent(() => import('./components/Notifications.vue'));
 const Invite = defineAsyncComponent(() => import('./components/Invite.vue'));
-const ProfileMobile = defineAsyncComponent(() => import('./ProfileMobile.vue'));
 
 // 菜单配置
 const menuItems = [
@@ -57,12 +85,19 @@ const menuItems = [
     { key: 'invite', icon: '📨', label: '邀请', component: Invite },
 ];
 
-const activeTab = ref('profile');
+const activeTab = ref('profile'); // 桌面端专用
+const mobileSelectedTab = ref<string | null>(null);  // 移动端专用
 const isMobile = ref(window.innerWidth < 768);
 
 // 当前组件
 const currentComponent = computed(() => {
     const found = menuItems.find(item => item.key === activeTab.value);
+    return found?.component || null;
+});
+// 移动端专用
+const mobileCurrentComponent = computed(() => {
+    if (!mobileSelectedTab.value) return null;
+    const found = menuItems.find(item => item.key === mobileSelectedTab.value);
     return found?.component || null;
 });
 
@@ -82,8 +117,12 @@ const displayName = computed(() => {
 });
 
 // 监听窗口大小变化
+// 当从移动端切换到桌面端时，重置移动端选中状态
 function handleResize() {
     isMobile.value = window.innerWidth < 768;
+    if (!isMobile.value) {
+        mobileSelectedTab.value = null;
+    }
 }
 
 onMounted(() => {
