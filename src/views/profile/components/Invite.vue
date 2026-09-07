@@ -17,16 +17,6 @@
             </div>
         </div>
         <!-- 邀请链接 -->
-        <!-- <div class="bg-gray-50 dark:bg-gray-700/30 rounded-lg p-4">
-            <p class="text-sm text-gray-600 dark:text-gray-300 mb-2">你的专属邀请链接</p>
-            <div class="flex gap-2">
-                <input :value="inviteLink" readonly class="input-field flex-1 text-sm" />
-                <button @click="copyInviteLink" class="btn-primary whitespace-nowrap">
-                    复制
-                </button>
-            </div>
-            <p v-if="inviteMessage" class="mt-2 text-sm text-green-600 dark:text-green-400">{{ inviteMessage }}</p>
-        </div> -->
         <div class="bg-gray-50 dark:bg-gray-700/30 rounded-lg p-4">
             <p class="text-sm text-gray-600 dark:text-gray-300 mb-2">你的专属邀请链接</p>
             <div class="flex gap-2">
@@ -40,25 +30,55 @@
 
         <!-- 邀请方法说明 -->
         <div class="mt-4 text-sm text-gray-500 dark:text-gray-400">
-            <p>💡 分享链接给朋友，他们注册后你将获得积分奖励</p>
+            <p>💡 分享链接给朋友，他们注册激活后你将获得积分奖励</p>
         </div>
 
         <!-- 邀请记录 -->
         <div v-if="records.length > 0" class="mt-4">
             <h4 class="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">邀请记录</h4>
-            <div class="space-y-1 max-h-40 overflow-y-auto">
+
+            <!-- 表头 -->
+            <div
+                class="grid grid-cols-12 gap-2 text-xs text-gray-400 dark:text-gray-500 px-2 py-1 border-b border-gray-200 dark:border-gray-700">
+                <span class="col-span-5">邮箱 / IP</span>
+                <span class="col-span-2">状态</span>
+                <span class="col-span-4 text-right">时间</span>
+            </div>
+
+            <!-- 列表 -->
+            <div class="space-y-1 max-h-48 overflow-y-auto">
                 <div v-for="item in records" :key="item.id"
-                    class="flex items-center justify-between text-sm py-1 border-b border-gray-100 dark:border-gray-700">
-                    <span class="text-gray-600 dark:text-gray-400">{{ item.invitee_email || '未填写' }}</span>
-                    <span class="text-xs" :class="item.status === 'registered' ? 'text-green-600' : 'text-yellow-600'">
-                        {{ item.status === 'registered' ? '✅ 已注册' : '⏳ 待注册' }}
+                    class="grid grid-cols-12 gap-2 items-center text-sm py-2 px-2 border-b border-gray-100 dark:border-gray-700 rounded hover:bg-gray-50 dark:hover:bg-gray-700/30 transition-colors">
+                    <!-- 邮箱/IP -->
+                    <span class="col-span-5 text-gray-600 dark:text-gray-300 truncate">
+                        <!-- 已注册显示邮箱，待注册显示IP -->
+                        <template v-if="item.status === 'registered'">
+                            {{ item.invitee_email || '未填写' }}
+                        </template>
+                        <template v-else>
+                            <span class="font-mono text-xs text-gray-500 dark:text-gray-400">
+                                {{ item.ip_address || '未知IP' }}
+                            </span>
+                        </template>
                     </span>
-                    <span class="text-xs text-gray-400">{{ formatDate(item.created_at) }}</span>
+
+                    <!-- 状态：3列 -->
+                    <span class="col-span-2">
+                        <span class="text-xs px-2 py-0.5 rounded-full" :class="item.status === 'registered'
+                            ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300'
+                            : 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-300'">
+                            {{ item.status === 'registered' ? '已注册' : '待注册' }}
+                        </span>
+                    </span>
+
+                    <!-- 时间：4列，右对齐 -->
+                    <span class="col-span-4 text-right text-xs text-gray-400 dark:text-gray-500">
+                        {{ formatDate(item.created_at) }}
+                    </span>
                 </div>
             </div>
         </div>
     </div>
-
 </template>
 
 <script setup lang="ts">
@@ -79,7 +99,11 @@ async function loadInviteData() {
         // 获取统计和记录
         const statsRes = await api.getInvitationStats();
         stats.value = { total: statsRes.total, registered: statsRes.registered };
+        console.log(statsRes);
+        console.log(stats.value);
+
         records.value = statsRes.records || [];
+        console.log(records.value);
     } catch (e) {
         console.error('加载邀请数据失败', e);
     }
@@ -101,8 +125,16 @@ function copyInviteLink() {
         });
 }
 
+// 显示完整日期时间（含时分秒）
 function formatDate(date: string) {
-    return new Date(date).toLocaleDateString('zh-CN');
+    const d = new Date(date);
+    const year = d.getFullYear();
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    const hours = String(d.getHours()).padStart(2, '0');
+    const minutes = String(d.getMinutes()).padStart(2, '0');
+    const seconds = String(d.getSeconds()).padStart(2, '0');
+    return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
 }
 
 onMounted(() => {
