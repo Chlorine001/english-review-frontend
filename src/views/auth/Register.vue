@@ -1,6 +1,5 @@
 <template>
-    <div
-        class="min-h-screen flex items-start p-4 pt-16 justify-center bg-gray-50 dark:bg-[#1a1b2e]">
+    <div class="min-h-screen flex items-start p-4 pt-16 justify-center bg-gray-50 dark:bg-[#1a1b2e]">
         <div class="w-full max-w-md p-8 card">
             <h2 class="text-2xl font-bold text-center mb-6 text-gray-900 dark:text-white">注册</h2>
 
@@ -33,7 +32,7 @@
 
 <script setup lang="ts">
 import { ref } from 'vue';
-import { useRouter } from 'vue-router';
+import { useRouter, useRoute } from 'vue-router';
 import { api } from '../../api';
 
 const router = useRouter();
@@ -41,6 +40,10 @@ const email = ref('');
 const password = ref('');
 const errorMessage = ref('');
 const isRegister = ref(false);
+
+const route = useRoute();
+const refCode = ref(route.query.ref || '');
+
 // 优化错误消息，动态提取数字
 function formatErrorMessage(msg: string): string {
     // 密码太短：尝试提取数字
@@ -65,7 +68,7 @@ async function handleRegister() {
     errorMessage.value = '';
     try {
         isRegister.value = true;
-        await api.register(email.value, password.value);
+        await api.register(email.value, password.value, refCode.value);
         // 注册成功后，发送验证码
         await api.sendVerification(email.value);
         // 跳转到验证页面
