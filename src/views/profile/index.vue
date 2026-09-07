@@ -83,7 +83,7 @@ const menuItems = [
     { key: 'profile', icon: '👤', label: '个人信息', component: ProfileInfo },
     { key: 'password', icon: '🔒', label: '修改密码', component: ChangePassword },
     { key: 'notifications', icon: '🔔', label: '通知', component: Notifications },
-    { key: 'invite', icon: '📨', label: '邀请', component: Invite },
+    { key: 'invite', icon: '🚀', label: '邀请', component: Invite },
     { key: 'points', icon: '🏆', label: '积分', component: Points },
 ];
 
