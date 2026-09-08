@@ -70,9 +70,10 @@ async function handleLogin() {
   try {
     islogging.value = true;
     const res = await api.login(email.value, password.value);
+    console.log(res);
     localStorage.setItem('isLoggedIn', 'true');
-    if (res.user.nickName) {
-      localStorage.setItem('nickName', res.user.nickName);
+    if (res.user.nickname) {
+      localStorage.setItem('nickName', res.user.nickname);
     }
     localStorage.setItem('userEmail', email.value);
     localStorage.setItem('isVerified', String(res.user.is_verified));
