@@ -188,13 +188,27 @@ async function submit() {
 }
 
 
-import { checkVerifiedWithRedirect } from '@/utils/verifyCheck';
+import { confirm } from '@/utils/verifyCheck';
 // ===== 模态框上传逻辑 =====
 async function uploadMedia() {
     if (!selectedFile.value || !newSentenceId.value) return;
 
     // ✅ 检查邮箱是否已验证
-    if (!checkVerifiedWithRedirect(router)) return;
+    const isVerified = localStorage.getItem('isVerified') === 'true';
+    if (!isVerified) {
+        const confirmed = await confirm({
+            title: '邮箱未验证',
+            message: '需要验证邮箱后才能上传音频，是否前往验证？',
+            icon: '📧',
+            confirmText: '前往验证',
+            cancelText: '取消',
+        });
+        if (confirmed) {
+            const email = localStorage.getItem('userEmail') || '';
+            router.push({ path: '/verify-email', query: { email } });
+        }
+        return;
+    }
 
     uploadingFile.value = true;
     uploadProgress.value = 0;

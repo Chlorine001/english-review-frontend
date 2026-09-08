@@ -46,9 +46,8 @@
 import { ref, computed, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { api } from '../../api';
-import ConfirmDialog from '@/composables/ConfirmDialog.vue';
+import { confirm } from '@/utils/verifyCheck';
 
-const confirmDialog = ref<InstanceType<typeof ConfirmDialog> | null>(null);
 const router = useRouter();
 const email = ref('');
 const password = ref('');
@@ -77,22 +76,34 @@ async function handleLogin() {
     }
     localStorage.setItem('userEmail', email.value);
     localStorage.setItem('isVerified', String(res.user.is_verified));
+
     if (!res.user.is_verified) {
-      const confirmed = await confirmDialog.value?.show();
+      // ✅ 类似原生 confirm 的调用方式
+      const confirmed = await confirm({
+        title: '邮箱尚未验证',
+        message: '您注册的邮箱还未验证，是否前往验证页面？',
+        icon: '📧',
+        confirmText: '前往验证',
+        cancelText: '稍后再说',
+      });
+
       if (confirmed) {
         // 用户选择验证 → 跳转验证页面
         errorMessage.value = '⏳ 正在跳转至验证页面...';
         setTimeout(() => {
-          router.push({ path: '/verify-email', query: { email: email.value } })
-        }, 1000);
+          router.push({ path: '/verify-email', query: { email: email.value } });
+        }, 500);
       } else {
         // 用户选择稍后 → 跳转首页
         errorMessage.value = '🏠 正在跳转至首页...';
+        localStorage.setItem('showUnverifiedTip', 'true');
         setTimeout(() => {
-          router.push('/');
+        router.push('/');
         }, 1000)
       }
+      return;
     }
+    router.push('/');
   } catch (e: any) {
     // 解析错误信息
     let msg = e.message || '登录失败，请检查网络';
