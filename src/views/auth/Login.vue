@@ -76,7 +76,23 @@ async function handleLogin() {
       localStorage.setItem('nickName', res.user.nickName);
     }
     localStorage.setItem('userEmail', email.value);
-    router.push('/');
+    localStorage.setItem('isVerified', String(res.user.is_verified));
+    if (!res.user.is_verified) {
+      const confirmed = await confirmDialog.value?.show();
+      if (confirmed) {
+        // 用户选择验证 → 跳转验证页面
+        errorMessage.value = '⏳ 正在跳转至验证页面...';
+        setTimeout(() => {
+          router.push({ path: '/verify-email', query: { email: email.value } })
+        }, 1000);
+      } else {
+        // 用户选择稍后 → 跳转首页
+        errorMessage.value = '🏠 正在跳转至首页...';
+        setTimeout(() => {
+          router.push('/');
+        }, 1000)
+      }
+    }
   } catch (e: any) {
     // 解析错误信息
     let msg = e.message || '登录失败，请检查网络';
@@ -85,25 +101,6 @@ async function handleLogin() {
     }
     if (msg.includes('Invalid email address')) {
       msg = '邮箱格式有误！';
-    }
-    // 检查是否是邮箱未验证
-    if (msg.includes('邮箱未验证') || msg.includes('EMAIL_NOT_VERIFIED')) {
-      // 弹窗让用户选择
-      // const confirmVerify = confirm(
-      //   '⚠️ 邮箱尚未验证，是否前往验证？\n\n点击「确定」前往验证页面\n点击「取消」留在当前页面'
-      // );
-      const confirmed = await confirmDialog.value?.show();
-      if (confirmed) {
-        // 用户选择验证 → 跳转验证页面
-        msg = '⏳ 正在跳转至验证页面...';
-        setTimeout(() => {
-          router.push({ path: '/verify-email', query: { email: email.value } })
-        }, 2000);
-      } else {
-        // 用户取消 → 停留在登录页，显示提示
-        errorMessage.value = '请验证邮箱后登录，或重新注册';
-      }
-      return;
     }
     // 其他错误提示
     errorMessage.value = msg;
