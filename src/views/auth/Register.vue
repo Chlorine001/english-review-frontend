@@ -89,7 +89,6 @@ async function handleRegister() {
         } else {
             // 用户选择稍后 → 跳转首页
             errorMessage.value = '🏠 正在跳转至登录界面...';
-            localStorage.setItem('showUnverifiedTip', 'true');
             setTimeout(() => {
                 router.push('/login');
             }, 500)

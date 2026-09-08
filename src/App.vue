@@ -90,6 +90,7 @@ async function handleLogout() {
     localStorage.removeItem('isLoggedIn');
     localStorage.removeItem('userEmail');
     localStorage.removeItem('nickName');
+    localStorage.removeItem('isVerified'); 
     // localStorage.removeItem('lexiscribe_welcome_shown');
     closeDropdown();
     // 跳转到登录页

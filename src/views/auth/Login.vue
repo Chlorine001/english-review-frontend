@@ -96,7 +96,6 @@ async function handleLogin() {
       } else {
         // 用户选择稍后 → 跳转首页
         errorMessage.value = '🏠 正在跳转至首页...';
-        localStorage.setItem('showUnverifiedTip', 'true');
         setTimeout(() => {
         router.push('/');
         }, 1000)
