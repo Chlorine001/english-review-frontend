@@ -93,7 +93,6 @@ async function handleLogout() {
     // localStorage.removeItem('lexiscribe_welcome_shown');
     closeDropdown();
     // 跳转到登录页
-    router.push('/login');
     await confirm({
       title: '退出登录成功',
       message: "退出登录成功",
@@ -101,6 +100,7 @@ async function handleLogout() {
       confirmText: '我知道了',
       onlyOne: true,
     });
+    router.push('/login');
   }
 }
 
@@ -179,6 +179,7 @@ onMounted(() => {
 
 .overflow-y-auto {
   overflow-y: auto;
-  scrollbar-gutter: stable;  /* 滚动条始终占位，消除边距跳动  */
+  scrollbar-gutter: stable;
+  /* 滚动条始终占位，消除边距跳动  */
 }
 </style>
