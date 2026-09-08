@@ -1,5 +1,5 @@
 <template>
-    <div class="max-w-xl mx-auto p-4 pb-32 overflow-y-auto h-screen">
+    <div class="max-w-xl mx-auto p-4">
         <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-4">添加句子</h2>
         <form @submit.prevent="submit">
             <div class="mb-4">
@@ -62,8 +62,8 @@
                     为句子添加媒体，方便深刻理解。
                 </p>
                 <!-- 隐藏的文件输入 -->
-                <input ref="modalFileInput" type="file" :accept="MEDIA_ACCEPT"
-                    @change="handleModalFileSelect" class="hidden" />
+                <input ref="modalFileInput" type="file" :accept="MEDIA_ACCEPT" @change="handleModalFileSelect"
+                    class="hidden" />
                 <!-- 自定义选择按钮 -->
                 <button type="button" @click="modalFileInput?.click()"
                     class="w-full py-2 px-4 border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg hover:border-indigo-500 dark:hover:border-indigo-400 transition-colors text-gray-500 dark:text-gray-400"
@@ -165,7 +165,13 @@ async function submit() {
 
     // 简单校验
     if (!form.content.trim()) {
-        alert('请输入英文句子');
+        await confirm({
+            title: '警告',
+            message: "请输入英文句子！",
+            icon: '⚠️',
+            confirmText: '我知道了',
+            onlyOne: true,
+        });
         return;
     }
 
@@ -174,7 +180,13 @@ async function submit() {
         const result = await api.addSentence(form);
         newSentenceId.value = result.id;
         // 保存成功提示
-        alert('✅ 句子保存成功！');
+        await confirm({
+            title: '保存成功',
+            message: "句子保存成功！",
+            icon: '✅',
+            confirmText: '我知道了',
+            onlyOne: true,
+        });
         // 打开模态框（提交按钮保持禁用）
         showUploadModal.value = true;
         uploaded.value = false;
@@ -182,14 +194,39 @@ async function submit() {
         selectedFile.value = null;
         if (modalFileInput.value) modalFileInput.value.value = '';
     } catch (e: any) {
-        alert('❌ 保存失败：' + (e.message || '未知错误'));
+        await confirm({
+            title: '保存失败',
+            message: (e.message || '未知错误'),
+            icon: '❌',
+            confirmText: '我知道了',
+            onlyOne: true,
+        });
         submitting.value = false; // 失败则解锁
     }
 }
 
+
+import { confirm } from '@/utils/verifyCheck';
 // ===== 模态框上传逻辑 =====
 async function uploadMedia() {
     if (!selectedFile.value || !newSentenceId.value) return;
+
+    // ✅ 检查邮箱是否已验证
+    const isVerified = localStorage.getItem('isVerified') === 'true';
+    if (!isVerified) {
+        const confirmed = await confirm({
+            title: '邮箱未验证',
+            message: '需要验证邮箱后才能上传音频，是否前往验证？',
+            icon: '📧',
+            confirmText: '前往验证',
+            cancelText: '取消',
+        });
+        if (confirmed) {
+            const email = localStorage.getItem('userEmail') || '';
+            router.push({ path: '/verify-email', query: { email } });
+        }
+        return;
+    }
 
     uploadingFile.value = true;
     uploadProgress.value = 0;
@@ -200,15 +237,27 @@ async function uploadMedia() {
             uploadProgress.value = p;
         });
         uploaded.value = true;
-        alert('✅ 音频上传成功！');
+        await confirm({
+            title: '上传成功',
+            message: "音频上传成功！",
+            icon: '✅',
+            confirmText: '我知道了',
+            onlyOne: true,
+        });
     } catch (e: any) {
-        alert('❌ 音频上传失败：' + (e.message || '未知错误'));
+        await confirm({
+            title: '上传失败',
+            message: (e.message || '未知错误'),
+            icon: '❌',
+            confirmText: '我知道了',
+            onlyOne: true,
+        });
     } finally {
         uploadingFile.value = false;
     }
 }
 
-function handleModalFileSelect(e: Event) {
+async function handleModalFileSelect(e: Event) {
     const input = e.target as HTMLInputElement;
     if (!input.files || input.files.length === 0) {
         input.value = '';
@@ -218,12 +267,24 @@ function handleModalFileSelect(e: Event) {
     const file = input.files[0];
     const ext = file.name.split('.').pop()?.toLowerCase();
     if (!ALLOWED_MEDIA_TYPES.includes(file.type) || !ext || !ALLOWED_MEDIA_EXTS.includes(ext)) {
-        alert(`仅支持 ${ALLOWED_MEDIA_EXTS.join(', ')} 格式`);
+        await confirm({
+            title: '警告',
+            message: `仅支持 ${ALLOWED_MEDIA_EXTS.join(', ')} 格式`,
+            icon: '⚠️',
+            confirmText: '我知道了',
+            onlyOne: true,
+        });
         input.value = '';
         return;
     }
     if (file.size > DEFAULT_MAX_FILE_SIZE) {
-        alert(`文件大小不能超过 ${DEFAULT_MAX_FILE_SIZE / 1024 / 1024}MB`);
+        await confirm({
+            title: '警告',
+            message: `文件大小不能超过 ${DEFAULT_MAX_FILE_SIZE / 1024 / 1024}MB`,
+            icon: '⚠️',
+            confirmText: '我知道了',
+            onlyOne: true,
+        });
         input.value = '';
         return;
     }
@@ -251,14 +312,3 @@ function skipUpload() {
 }
 
 </script>
-
-<style scoped>
-/* 确保页面滚动条可见 */
-.h-screen {
-    height: 100vh;
-}
-
-.overflow-y-auto {
-    overflow-y: auto;
-}
-</style>

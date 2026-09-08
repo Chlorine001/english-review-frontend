@@ -1,0 +1,117 @@
+<template>
+    <div class="min-h-screen flex items-start p-4 pt-20 justify-center bg-gray-50 dark:bg-[#1a1b2e]">
+        <div class="w-full max-w-md p-8 card">
+            <h2 class="text-2xl font-bold text-center mb-6 text-gray-900 dark:text-white">注册</h2>
+
+            <div v-if="errorMessage"
+                class="mb-4 p-2 bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-300 rounded">
+                {{ errorMessage }}
+            </div>
+
+            <form @submit.prevent="handleRegister">
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">邮箱</label>
+                    <input v-model="email" type="email" required class="input-field" autocomplete="username" />
+                </div>
+                <div class="mb-6">
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">密码</label>
+                    <input v-model="password" type="password" required class="input-field"
+                        autocomplete="new-password" />
+                </div>
+                <button type="submit" class="w-full btn-primary" :disabled="isRegister">
+                    {{ isRegister ? '注册中...' : '注册' }}
+                </button>
+            </form>
+
+            <p class="mt-4 text-sm text-center text-gray-600 dark:text-gray-400">
+                已有账号？<router-link to="/login" class="text-indigo-600 dark:text-indigo-400 underline">去登录</router-link>
+            </p>
+        </div>
+    </div>
+</template>
+
+<script setup lang="ts">
+import { ref, onMounted } from 'vue';
+import { useRouter, useRoute} from 'vue-router';
+import { api } from '../../api';
+import { confirm } from '@/utils/verifyCheck';
+
+const router = useRouter();
+const email = ref('');
+const password = ref('');
+const errorMessage = ref('');
+const isRegister = ref(false);
+
+const route = useRoute();
+const refCode = ref('');
+
+// 优化错误消息，动态提取数字
+function formatErrorMessage(msg: string): string {
+    // 密码太短：尝试提取数字
+    const match = msg.match(/>=(\d+)|minimum[:\s]+(\d+)/i);
+    if (match) {
+        const num = match[1] || match[2];
+        return `密码长度至少为 ${num} 个字符`;
+    }
+    // 邮箱格式错误
+    if (msg.includes('email') && (msg.includes('invalid') || msg.includes('format'))) {
+        return '邮箱格式不正确';
+    }
+    // 邮箱已存在
+    if (msg.includes('already exists')) {
+        return '该邮箱已被注册';
+    }
+    // 其他错误，返回原消息
+    return msg;
+}
+
+async function handleRegister() {
+    errorMessage.value = '';
+    try {
+        isRegister.value = true;
+        await api.register(email.value, password.value, refCode.value);
+        // 注册成功后，发送验证码
+        // await api.sendVerification(email.value);
+        const confirmed = await confirm({
+            title: '邮箱尚未验证',
+            message: '您注册的邮箱还未验证，是否前往验证页面？',
+            icon: '📧',
+            confirmText: '前往验证',
+            cancelText: '稍后再说',
+        });
+
+        if (confirmed) {
+            // 用户选择验证 → 跳转验证页面
+            errorMessage.value = '⏳ 正在跳转至验证页面...';
+            setTimeout(() => {
+                router.push({ path: '/verify-email', query: { email: email.value } });
+            }, 500);
+        } else {
+            // 用户选择稍后 → 跳转首页
+            errorMessage.value = '🏠 正在跳转至登录界面...';
+            localStorage.setItem('showUnverifiedTip', 'true');
+            setTimeout(() => {
+                router.push('/login');
+            }, 500)
+        }
+    } catch (e: any) {
+        isRegister.value = false;
+        errorMessage.value = formatErrorMessage(e.message || '注册失败，请检查网络');
+    }
+}
+
+onMounted(() => {
+  const refParam = route.query.ref;
+  if (Array.isArray(refParam)) {
+    refCode.value = refParam[0] || '';
+  } else {
+    refCode.value = refParam || '';
+  }
+  
+  // 如果存在邀请码，记录点击
+  if (refCode.value) {
+    api.trackInviteClick(refCode.value).catch(() => {});
+  }
+});
+
+</script>

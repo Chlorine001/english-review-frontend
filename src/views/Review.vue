@@ -1,5 +1,5 @@
 <template>
-    <div class="max-w-xl mx-auto p-4 pb-32 overflow-y-auto h-screen">
+    <div class="max-w-xl mx-auto p-4">
         <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-4">今日复习</h2>
 
         <!-- 无复习内容 -->
@@ -29,8 +29,7 @@
                 <div>
                     <div v-if="currentSentence.media_path" class="flex items-start justify-between">
                         <MediaPlayer :src="mediaUrls[currentSentence.id]"
-                            :file-format="currentSentence.media_format || ''"
-                             show-info video-class="max-h-48" />
+                            :file-format="currentSentence.media_format || ''" show-info video-class="max-h-48" />
                     </div>
                     <div v-else class="flex flex-col gap-2 bg-gray-50 dark:bg-gray-700/30 rounded-lg p-3">
                         <p class="card-title flex-1">{{ currentSentence.content }}</p>
@@ -89,6 +88,7 @@ import { useRouter } from 'vue-router';
 import { api } from '@/api';
 // import { useTTS } from '@/composables/useTTS';
 import MediaPlayer from '@/composables/MediaPlayer.vue';
+import { confirm } from '@/utils/verifyCheck';
 
 // 路由
 const router = useRouter();
@@ -141,8 +141,14 @@ async function handleRating(rating: string) {
         // 移动到下一个
         currentIndex.value++;
         showAnswer.value = false;
-    } catch (e) {
-        alert('提交评分失败，请重试');
+    } catch (e: any) {
+        await confirm({
+            title: '操作失败',
+            message: (e.message || '未知错误'),
+            icon: '❌',
+            confirmText: '我知道了',
+            onlyOne: true,
+        });
     }
 }
 

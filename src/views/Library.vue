@@ -1,5 +1,5 @@
 <template>
-    <div class="max-w-4xl mx-auto p-4 pb-32 overflow-y-auto h-screen">
+    <div class="max-w-4xl mx-auto p-4">
         <div class="flex flex-wrap items-center justify-between gap-4 mb-6">
             <h2 class="text-2xl font-bold text-gray-900 dark:text-white">📖 句子库</h2>
             <div class="flex flex-wrap gap-2">
@@ -143,14 +143,13 @@
                         </div>
 
                         <!-- 替换时显示的文件选择（隐藏） -->
-                        <input ref="editFileInput" type="file" :accept="MEDIA_ACCEPT"
-                            @change="handleEditFileSelect" class="hidden" />
+                        <input ref="editFileInput" type="file" :accept="MEDIA_ACCEPT" @change="handleEditFileSelect"
+                            class="hidden" />
                     </div>
 
                     <!-- 情况 2：无音频 -->
                     <div v-else>
-                        <input ref="editFileInput" type="file" :accept="MEDIA_ACCEPT"
-                            @change="handleEditFileSelect"
+                        <input ref="editFileInput" type="file" :accept="MEDIA_ACCEPT" @change="handleEditFileSelect"
                             class="hidden" />
                         <button type="button" @click="editFileInput?.click()"
                             class="w-full py-3 px-4 border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg hover:border-indigo-500 dark:hover:border-indigo-400 transition-colors text-gray-500 dark:text-gray-400 hover:text-indigo-600 dark:hover:text-indigo-400"
@@ -201,6 +200,8 @@ import { ref, onMounted, computed } from 'vue';
 import { api } from '@/api';
 import MediaPlayer from '@/composables/MediaPlayer.vue';
 import { ALLOWED_MEDIA_TYPES, ALLOWED_MEDIA_EXTS, DEFAULT_MAX_FILE_SIZE, MEDIA_ACCEPT } from '@/constants';
+import { confirm } from '@/utils/verifyCheck';
+
 // 类型定义
 interface Sentence {
     id: number;
@@ -333,14 +334,27 @@ async function saveEdit() {
         await api.updateSentence(editForm.value.id, editForm.value);
         await loadSentences();
         closeEdit();
-    } catch (e) {
-        alert('更新失败');
+    } catch (e: any) {
+        await confirm({
+            title: '更新',
+            message: (e.message || '未知错误'),
+            icon: '❌',
+            confirmText: '我知道了',
+            onlyOne: true,
+        });
     }
 }
 
 
 async function deleteSentence(id: number) {
-    if (!confirm('确定要删除这个句子吗？')) return;
+    const confirmed = await confirm({
+        title: '确定删除该句子吗？',
+        message: '该句子将被永久删除，无法恢复！',
+        icon: '⚠️',
+        confirmText: '确定',
+        cancelText: '取消',
+    });
+    if (!confirmed) return;
     try {
         // 1️⃣ 先尝试删除音频（如果有）
         try {
@@ -367,9 +381,21 @@ async function deleteSentence(id: number) {
             closeEdit();
         }
 
-        alert('✅ 删除成功');
+        await confirm({
+            title: '删除成功',
+            message: "句子删除成功！",
+            icon: '✅',
+            confirmText: '我知道了',
+            onlyOne: true,
+        });
     } catch (e: any) {
-        alert('❌ 删除失败：' + (e.message || '未知错误'));
+        await confirm({
+            title: '删除失败',
+            message: (e.message || '未知错误'),
+            icon: '❌',
+            confirmText: '我知道了',
+            onlyOne: true,
+        });
     }
 }
 const mediaUrls = ref<Record<number, string>>({});
@@ -394,7 +420,13 @@ async function triggerEditUpload() {
             editUploadProgress.value = p;
         });
         editUploaded.value = true;
-        alert('✅ 音频上传成功！');
+        await confirm({
+            title: '上传成功',
+            message: "音频上传成功！",
+            icon: '✅',
+            confirmText: '我知道了',
+            onlyOne: true,
+        });
         // 刷新句子列表，更新 media_path
         await loadSentences();
         const updated = sentences.value.find(s => s.id === editForm.value.id);
@@ -404,14 +436,20 @@ async function triggerEditUpload() {
         editSelectedFile.value = null;
         if (editFileInput.value) editFileInput.value.value = '';
     } catch (e: any) {
-        alert('❌ 音频上传失败：' + (e.message || '未知错误'));
+        await confirm({
+            title: '上传失败',
+            message: (e.message || '未知错误'),
+            icon: '❌',
+            confirmText: '我知道了',
+            onlyOne: true,
+        });
     } finally {
         editUploading.value = false;
     }
 }
 
 // 处理文件选择
-function handleEditFileSelect(e: Event) {
+async function handleEditFileSelect(e: Event) {
     const input = e.target as HTMLInputElement;
     if (!input.files || input.files.length === 0) {
         input.value = '';
@@ -420,12 +458,24 @@ function handleEditFileSelect(e: Event) {
     const file = input.files[0];
     const ext = file.name.split('.').pop()?.toLowerCase();
     if (!ALLOWED_MEDIA_TYPES.includes(file.type) || !ext || !ALLOWED_MEDIA_EXTS.includes(ext)) {
-        alert(`仅支持 ${ALLOWED_MEDIA_EXTS.join(', ')} 格式`);
+        await confirm({
+            title: '警告',
+            message: `仅支持 ${ALLOWED_MEDIA_EXTS.join(', ')} 格式`,
+            icon: '⚠️',
+            confirmText: '我知道了',
+            onlyOne: true,
+        });
         input.value = '';
         return;
     }
     if (file.size > DEFAULT_MAX_FILE_SIZE) {
-        alert(`文件大小不能超过 ${DEFAULT_MAX_FILE_SIZE / 1024 / 1024}MB`);
+        await confirm({
+            title: '警告',
+            message: `文件大小不能超过 ${DEFAULT_MAX_FILE_SIZE / 1024 / 1024}MB`,
+            icon: '⚠️',
+            confirmText: '我知道了',
+            onlyOne: true,
+        });
         input.value = '';
         return;
     }
@@ -436,7 +486,14 @@ function handleEditFileSelect(e: Event) {
 }
 
 async function removeMedia() {
-    if (!confirm('确定删除该音频吗？')) return;
+    const confirmed = await confirm({
+        title: '确定删除该音频吗？',
+        message: '该音频将被永久删除，无法恢复！',
+        icon: '⚠️',
+        confirmText: '确定',
+        cancelText: '取消',
+    });
+    if (!confirmed) return;
     try {
         await api.deleteMedia(editForm.value.id);
         await loadSentences();
@@ -445,9 +502,21 @@ async function removeMedia() {
             editForm.value = { ...updated };
         }
         editUploaded.value = false;
-        alert('✅ 音频已删除');
+        await confirm({
+            title: '删除成功',
+            message: "音频删除成功！",
+            icon: '✅',
+            confirmText: '我知道了',
+            onlyOne: true,
+        });
     } catch (e: any) {
-        alert('❌ 删除失败：' + (e.message || '未知错误'));
+        await confirm({
+            title: '删除失败',
+            message: (e.message || '未知错误'),
+            icon: '❌',
+            confirmText: '我知道了',
+            onlyOne: true,
+        });
     }
 }
 
