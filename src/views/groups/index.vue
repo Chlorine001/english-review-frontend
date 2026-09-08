@@ -43,7 +43,7 @@
                     </h3>
                     <span
                         class="text-xs px-2 py-0.5 rounded-full bg-indigo-100 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300 flex-shrink-0">
-                        {{ group.member_count || 1 }}
+                        {{ group.member_count || 1 }} 人
                     </span>
                 </div>
 
