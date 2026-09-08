@@ -97,7 +97,9 @@ export const api = {
     }),
 
   // 统计
-  getStats: () => request<{ today: number; total: number }>('/stats'),
+  getStats: () => request<{ today: number; total: number }>('/stats/home'),
+  getInvitationStats: () =>
+    request<{ total: number; registered: number; verified: number; records: any[] }>('/stats/invitations'),
 
 
   // 获取所有句子
@@ -173,8 +175,6 @@ export const api = {
   getInviteLink: () =>
     request<{ code: string; link: string }>('/invitations/my-link'),
 
-  getInvitationStats: () =>
-    request<{ total: number; registered: number; verified: number; records: any[] }>('/invitations/stats'),
 
   trackInviteClick: (code: string) =>
     request<{ success: boolean }>('/invitations/track-click', {
