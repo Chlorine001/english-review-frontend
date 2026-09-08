@@ -8,7 +8,11 @@
                     <span class="text-sm text-gray-500 dark:text-gray-400 w-16">邮箱</span>
                     <span class="text-gray-900 dark:text-white">{{ email }}</span>
                 </div>
-                <span class="text-xs text-gray-400 dark:text-gray-500">已验证</span>
+                <span class="text-xs font-medium px-2 py-0.5 rounded-full" :class="isVerified
+                    ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300'
+                    : 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-300'">
+                    {{ isVerified ? '✅ 已验证' : '⏳ 未验证' }}
+                </span>
             </div>
         </div>
 
@@ -66,6 +70,7 @@ import { api } from '@/api';
 const email = localStorage.getItem('userEmail') || 'U';
 
 const nickName = ref(localStorage.getItem('nickName') || ' ');
+const isVerified = ref(localStorage.getItem('isVerified') === 'true');
 const savingNickname = ref(false);
 const isEditingNickname = ref(false);
 const issaved = ref(false);
