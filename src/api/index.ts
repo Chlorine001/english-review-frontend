@@ -78,7 +78,7 @@ export const api = {
 
   // 登录
   login: (email: string, password: string) =>
-    request<{ token: string; user: { id: number; email: string, nickName: string, is_verified: boolean; } }>('/auth/login', {
+    request<{ token: string; user: { id: number; email: string, nickname: string, is_verified: boolean; } }>('/auth/login', {
       method: 'POST',
       body: JSON.stringify({ email, password }),
     }, true),
