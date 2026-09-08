@@ -187,6 +187,7 @@ onMounted(async () => {
             return;
         }
         status.value = 'pending';
+        await api.sendVerification(email.value); // 发送验证码
     } catch (e: any) {
         status.value = 'pending';
         errorMessage.value = '网络错误，无法验证邮箱状态，请重试';

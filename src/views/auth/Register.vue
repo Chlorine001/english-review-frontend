@@ -34,6 +34,7 @@
 import { ref, onMounted } from 'vue';
 import { useRouter, useRoute} from 'vue-router';
 import { api } from '../../api';
+import { confirm } from '@/utils/verifyCheck';
 
 const router = useRouter();
 const email = ref('');
@@ -70,9 +71,29 @@ async function handleRegister() {
         isRegister.value = true;
         await api.register(email.value, password.value, refCode.value);
         // 注册成功后，发送验证码
-        await api.sendVerification(email.value);
-        // 跳转到验证页面
-        router.push({ path: '/verify-email', query: { email: email.value } });
+        // await api.sendVerification(email.value);
+        const confirmed = await confirm({
+            title: '邮箱尚未验证',
+            message: '您注册的邮箱还未验证，是否前往验证页面？',
+            icon: '📧',
+            confirmText: '前往验证',
+            cancelText: '稍后再说',
+        });
+
+        if (confirmed) {
+            // 用户选择验证 → 跳转验证页面
+            errorMessage.value = '⏳ 正在跳转至验证页面...';
+            setTimeout(() => {
+                router.push({ path: '/verify-email', query: { email: email.value } });
+            }, 500);
+        } else {
+            // 用户选择稍后 → 跳转首页
+            errorMessage.value = '🏠 正在跳转至登录界面...';
+            localStorage.setItem('showUnverifiedTip', 'true');
+            setTimeout(() => {
+                router.push('/login');
+            }, 500)
+        }
     } catch (e: any) {
         isRegister.value = false;
         errorMessage.value = formatErrorMessage(e.message || '注册失败，请检查网络');

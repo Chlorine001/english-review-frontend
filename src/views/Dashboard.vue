@@ -1,5 +1,11 @@
 <template>
     <div class="max-w-2xl mx-auto p-4">
+        <div v-if="!isVerified"
+            class="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-300 dark:border-yellow-700 rounded-lg p-3 mb-4 text-sm text-yellow-800 dark:text-yellow-300">
+            ⚠️ 邮箱未验证，<router-link :to="{ path: '/verify-email', query: { email: userEmail } }"
+                class="text-indigo-600 dark:text-indigo-400 underline">点击验证</router-link>
+            ，以解锁全部功能（附件上传、邮箱通知等）。
+        </div>
         <!-- ====== 欢迎弹窗 ====== -->
         <div v-if="showWelcome"
             class="fixed inset-0 bg-black/50 flex items-start justify-center z-50 p-24 overflow-y-auto h-screen">
@@ -70,6 +76,7 @@
             <router-link to="/library" class="btn-secondary">📖 句子库</router-link>
         </div>
     </div>
+   
 </template>
 
 <script setup lang="ts">
@@ -78,7 +85,8 @@ import { useRouter } from 'vue-router';
 import { api } from '../api';
 
 const title = import.meta.env.VITE_HOME_TITLE || '📚 LexiScribe';
-
+const isVerified = localStorage.getItem('isVerified') === 'true';
+const userEmail = localStorage.getItem('userEmail') || '';
 const router = useRouter();
 const stats = ref({ today: 0, total: 0 });
 async function loadStats() {

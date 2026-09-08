@@ -24,7 +24,11 @@
         <div class="bg-gray-50 dark:bg-gray-700/30 rounded-lg p-4">
             <p class="text-sm text-gray-600 dark:text-gray-300 mb-2">你的专属邀请链接</p>
             <div class="flex gap-2">
-                <input :value="inviteLink" readonly class="input-field flex-1 text-sm" placeholder="加载中..." />
+                <input :value="inviteLink" readonly class="input-field flex-1 text-sm transition-colors duration-300"
+                    :class="{
+                        'text-gray-400 dark:text-gray-500': inviteLink,
+                        'text-gray-900 dark:text-white': !inviteLink
+                    }" placeholder="加载中..." />
                 <button @click="copyInviteLink" class="btn-primary whitespace-nowrap" :disabled="!inviteLink">
                     复制
                 </button>
@@ -94,6 +98,7 @@
 
 
 const inviteLink = ref('');
+const inviteError = ref(true);
 const inviteMessage = ref('');
 const inviteMessageType = ref('');
 const stats = ref({ total: 0, registered: 0, verified: 0 });
@@ -102,16 +107,25 @@ const records = ref<any[]>([]);
 async function loadInviteData() {
     try {
         // 获取邀请链接
-        const linkRes = await api.getInviteLink();
+        const [linkRes, statsRes] = await Promise.all([
+            api.getInviteLink(),
+            api.getInvitationStats(),
+        ]);
         inviteLink.value = linkRes.link;
-
+        inviteError.value = false; // 清除错误
         // 获取统计和记录
-        const statsRes = await api.getInvitationStats();
         stats.value = { total: statsRes.total, registered: statsRes.registered, verified: statsRes.verified };
         records.value = statsRes.records || [];
 
-    } catch (e) {
+    } catch (e: any) {
         console.error('加载邀请数据失败', e);
+        // ✅ 安全处理错误消息
+        const errorMsg = typeof e?.message === 'string' ? e.message : '未知错误';
+        if (errorMsg.includes('请先验证邮箱')) {
+            // 处理邮箱未验证的错误
+            inviteLink.value = '邮箱未验证，请先验证邮箱后使用邀请功能!';
+            inviteError.value = false;
+        }
     }
 }
 
