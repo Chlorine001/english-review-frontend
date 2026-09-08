@@ -145,16 +145,11 @@ function copyInviteLink() {
         });
 }
 
+import { formatBeijingTimeFull } from '@/utils/time';
 // 显示完整日期时间（含时分秒）
-function formatDate(date: string) {
-    const d = new Date(date);
-    const year = d.getFullYear();
-    const month = String(d.getMonth() + 1).padStart(2, '0');
-    const day = String(d.getDate()).padStart(2, '0');
-    const hours = String(d.getHours()).padStart(2, '0');
-    const minutes = String(d.getMinutes()).padStart(2, '0');
-    const seconds = String(d.getSeconds()).padStart(2, '0');
-    return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+function formatDate(date: string): string {
+    return formatBeijingTimeFull(date)
+    // → '2026-09-08 15:30:45'
 }
 
 onMounted(() => {
