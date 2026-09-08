@@ -29,6 +29,7 @@ export function confirm(options: {
     icon?: string;
     confirmText?: string;
     cancelText?: string;
+    onlyOne?: boolean;
 }): Promise<boolean> {
     return new Promise((resolve) => {
         // 清理之前可能残留的实例
@@ -53,6 +54,7 @@ export function confirm(options: {
             icon: options.icon || '⚠️',
             confirmText: options.confirmText || '确定',
             cancelText: options.cancelText || '取消',
+            onlyOne: options.onlyOne || false,
             onConfirm: () => {
                 resolve(true);
                 cleanup();

@@ -22,13 +22,13 @@
 
                 <!-- 按钮 -->
                 <div class="flex gap-3 mt-6">
-                    <button @click="handleCancel"
-                        class="flex-1 px-4 py-2.5 rounded-lg border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors text-sm font-medium">
-                        {{ cancelText }}
-                    </button>
                     <button @click="handleConfirm"
                         class="flex-1 px-4 py-2.5 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white transition-colors text-sm font-medium">
                         {{ confirmText }}
+                    </button>
+                    <button v-if="!onlyOne" @click="handleCancel"
+                        class="flex-1 px-4 py-2.5 rounded-lg border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors text-sm font-medium">
+                        {{ cancelText }}
                     </button>
                 </div>
             </div>
@@ -47,6 +47,7 @@ const props = withDefaults(
         icon?: string;
         confirmText?: string;
         cancelText?: string;
+        onlyOne?: boolean;
     }>(),
     {
         title: '提示',
@@ -54,6 +55,7 @@ const props = withDefaults(
         icon: '⚠️',
         confirmText: '确定',
         cancelText: '取消',
+        onlyOne: false,
     }
 );
 

@@ -51,6 +51,8 @@
 import { ref, onMounted, watch, onBeforeUnmount } from 'vue';
 import { useRouter } from 'vue-router';
 import { api } from '@/api';
+import { confirm } from '@/utils/verifyCheck';
+
 
 const router = useRouter();
 const isLoggedIn = ref(false);
@@ -92,7 +94,13 @@ async function handleLogout() {
     closeDropdown();
     // 跳转到登录页
     router.push('/login');
-    alert('退出登录成功！');
+    await confirm({
+      title: '退出登录成功',
+      message: "退出登录成功",
+      icon: '✅',
+      confirmText: '我知道了',
+      onlyOne: true,
+    });
   }
 }
 
