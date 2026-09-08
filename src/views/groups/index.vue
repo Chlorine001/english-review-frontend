@@ -33,22 +33,28 @@
         </div>
 
         <!-- 小组卡片列表 -->
-        <div v-else class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div v-else class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div v-for="group in groups" :key="group.id" class="card p-4 hover:shadow-md transition cursor-pointer"
                 @click="router.push(`/groups/${group.id}`)">
-                <div class="flex items-start justify-between">
-                    <div>
-                        <h3 class="text-lg font-semibold text-gray-900 dark:text-white">{{ group.name }}</h3>
-                        <p class="text-sm text-gray-500 dark:text-gray-400 line-clamp-2">{{ group.description ||
-                            '暂无描述'
-                            }}</p>
-                    </div>
+                <!-- 标题行 -->
+                <div class="flex items-start justify-between gap-2">
+                    <h3 class="text-base font-semibold text-gray-900 dark:text-white truncate flex-1">
+                        {{ group.name }}
+                    </h3>
                     <span
-                        class="text-xs px-2 py-1 rounded-full bg-indigo-100 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300">
-                        {{ group.member_count }}人
+                        class="text-xs px-2 py-0.5 rounded-full bg-indigo-100 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300 flex-shrink-0">
+                        {{ group.member_count || 1 }}
                     </span>
                 </div>
-                <div class="flex justify-between items-center mt-3 text-xs text-gray-400">
+
+                <!-- 描述 -->
+                <p class="text-sm text-gray-500 dark:text-gray-400 mt-1 line-clamp-2 break-words">
+                    {{ group.description || '暂无描述' }}
+                </p>
+
+                <!-- 底部信息 -->
+                <div
+                    class="flex justify-between items-center mt-3 pt-2 border-t border-gray-100 dark:border-gray-700 text-xs text-gray-400">
                     <span>{{ group.role === 'owner' ? '👑 创建者' : '成员' }}</span>
                     <span>{{ formatDate(group.created_at) }}</span>
                 </div>
