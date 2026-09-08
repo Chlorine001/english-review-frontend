@@ -151,14 +151,11 @@ function typeIcon(type: string): string {
     return map[type] || '✨';
 }
 
+import { formatBeijingTimeFull } from '@/utils/time';
+// 显示完整日期时间（含时分秒）
 function formatDate(date: string): string {
-    const d = new Date(date);
-    const year = d.getFullYear();
-    const month = String(d.getMonth() + 1).padStart(2, '0');
-    const day = String(d.getDate()).padStart(2, '0');
-    const hours = String(d.getHours()).padStart(2, '0');
-    const minutes = String(d.getMinutes()).padStart(2, '0');
-    return `${year}-${month}-${day} ${hours}:${minutes}`;
+    return formatBeijingTimeFull(date)
+    // → '2026-09-08 15:30:45'
 }
 
 async function loadPoints() {
