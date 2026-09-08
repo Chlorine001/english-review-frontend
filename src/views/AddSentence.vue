@@ -187,9 +187,14 @@ async function submit() {
     }
 }
 
+
+import { checkVerifiedWithRedirect } from '@/utils/verifyCheck';
 // ===== 模态框上传逻辑 =====
 async function uploadMedia() {
     if (!selectedFile.value || !newSentenceId.value) return;
+
+    // ✅ 检查邮箱是否已验证
+    if (!checkVerifiedWithRedirect(router)) return;
 
     uploadingFile.value = true;
     uploadProgress.value = 0;
