@@ -1,6 +1,5 @@
 <template>
-  <div
-    class="min-h-screen flex items-start p-4 pt-16 justify-center bg-gray-50 dark:bg-[#1a1b2e]">
+  <div class="min-h-screen flex items-start p-4 pt-20 justify-center bg-gray-50 dark:bg-[#1a1b2e]">
     <div class="w-full max-w-md p-8 card">
       <h2 class="text-2xl font-bold text-center mb-6 text-gray-900 dark:text-white">登录</h2>
 
@@ -19,7 +18,7 @@
           <input v-model="password" type="password" required class="input-field" autocomplete="current-password" />
         </div>
         <button type="submit" class="w-full btn-primary" :disabled="islogging">{{ islogging ? '登录中...' : '登录'
-          }}</button>
+        }}</button>
       </form>
 
       <p class="mt-4 text-sm text-center text-gray-600 dark:text-gray-400">
@@ -38,13 +37,18 @@
     }"></span>
     <span class="text-gray-700 dark:text-gray-300">{{ statusText }}</span>
   </div>
+
+  <ConfirmDialog ref="confirmDialog" title="邮箱尚未验证" message="您注册的邮箱还未验证，是否前往验证页面？" icon="📧" confirm-text="前往验证"
+    cancel-text="稍后再说" />
 </template>
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { api } from '../../api';
+import ConfirmDialog from '@/composables/ConfirmDialog.vue';
 
+const confirmDialog = ref<InstanceType<typeof ConfirmDialog> | null>(null);
 const router = useRouter();
 const email = ref('');
 const password = ref('');
@@ -84,11 +88,22 @@ async function handleLogin() {
     }
     // 检查是否是邮箱未验证
     if (msg.includes('邮箱未验证') || msg.includes('EMAIL_NOT_VERIFIED')) {
-      // 跳转到验证页面，并携带邮箱
-      msg = '邮箱未验证，⏳ 正在跳转至验证页面...';
-      setTimeout(() => {
-        router.push({ path: '/verify-email', query: { email: email.value } });
-      }, 2000);
+      // 弹窗让用户选择
+      // const confirmVerify = confirm(
+      //   '⚠️ 邮箱尚未验证，是否前往验证？\n\n点击「确定」前往验证页面\n点击「取消」留在当前页面'
+      // );
+      const confirmed = await confirmDialog.value?.show();
+      if (confirmed) {
+        // 用户选择验证 → 跳转验证页面
+        msg = '⏳ 正在跳转至验证页面...';
+        setTimeout(() => {
+          router.push({ path: '/verify-email', query: { email: email.value } })
+        }, 2000);
+      } else {
+        // 用户取消 → 停留在登录页，显示提示
+        errorMessage.value = '请验证邮箱后登录，或重新注册';
+      }
+      return;
     }
     // 其他错误提示
     errorMessage.value = msg;

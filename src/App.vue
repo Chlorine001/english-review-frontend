@@ -171,5 +171,6 @@ onMounted(() => {
 
 .overflow-y-auto {
   overflow-y: auto;
+  scrollbar-gutter: stable;  /* 滚动条始终占位，消除边距跳动  */
 }
 </style>

@@ -1,6 +1,5 @@
 <template>
-    <div
-        class="flex-1 flex items-start justify-center p-16 bg-gray-50 dark:bg-[#1a1b2e]">
+    <div class="flex-1 flex items-start justify-center p-16 bg-gray-50 dark:bg-[#1a1b2e]">
         <div class="w-full max-w-md p-8 card">
             <!-- 情况1：邮箱未注册 -->
             <div v-if="status === 'unregistered'" class="text-center">
@@ -41,6 +40,17 @@
                         我们已向 <strong>{{ email }}</strong> 发送了一封验证邮件，<br />
                         请输入邮件中的 6 位验证码。
                     </p>
+                    <p
+                        class="mt-3 text-xs text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-900/20 px-3 py-2 rounded-lg inline-block">
+                        💡 提示：未验证邮箱前，你仍可浏览页面，但 <strong>邮箱通知</strong>、<strong>上传附件</strong> 等功能暂不可用。</p>
+                    <!-- <p class="mt-3 text-xs text-gray-500 dark:text-gray-400">
+                        ⚠️ 验证邮箱后即可使用 <span class="text-indigo-600 dark:text-indigo-400">添加句子</span> 和 <span
+                            class="text-indigo-600 dark:text-indigo-400">复习</span> 功能。
+                    </p>
+                    <p
+                        class="mt-3 text-xs text-orange-600 dark:text-orange-400 bg-orange-50 dark:bg-orange-900/20 px-3 py-2 rounded-lg border border-orange-200 dark:border-orange-800">
+                        ⚠️ 未验证邮箱，部分功能（添加句子、复习）暂时不可用。
+                    </p> -->
                 </div>
 
                 <div class="mt-6">

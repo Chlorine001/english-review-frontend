@@ -1,5 +1,5 @@
 <template>
-    <div class="min-h-screen flex items-start p-4 pt-16 justify-center bg-gray-50 dark:bg-[#1a1b2e]">
+    <div class="min-h-screen flex items-start p-4 pt-20 justify-center bg-gray-50 dark:bg-[#1a1b2e]">
         <div class="w-full max-w-md p-8 card">
             <h2 class="text-2xl font-bold text-center mb-6 text-gray-900 dark:text-white">注册</h2>
 
