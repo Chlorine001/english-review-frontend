@@ -1,30 +1,26 @@
 //-------使用示例--------
 // import { formatBeijingTime, formatDateShort, timeAgo } from '@/utils/time';
-
 // // 完整时间
 // formatBeijingTime('2026-09-08 07:30:00');
 // // → '2026-09-08 15:30'
-
 // // 短时间
 // formatDateShort('2026-09-08 07:30:00');
 // // → '09-08 15:30'
-
 // // 相对时间
 // timeAgo('2026-09-08 15:25:00');
 // // → '5分钟前'
-
 // // 纯日期
 // formatDateOnly('2026-09-08 07:30:00');
 // → '2026-09-08'
 
-
 // import { formatBeijingTimeFull } from '@/utils/time';
-
 // // 积分记录显示完整时间
 // formatBeijingTimeFull(item.created_at)
 // // → '2026-09-08 15:30:45'
 
 //----------------------
+
+const BEIJING_OFFSET = 8 * 60 * 60 * 1000;
 /**
  * 格式化日期时间为完整格式（含年月日时分秒）
  * @param date - ISO 时间字符串或 Date 对象
@@ -33,8 +29,8 @@
 export function formatBeijingTimeFull(date: string | Date): string {
     const d = typeof date === 'string' ? new Date(date) : date;
     if (isNaN(d.getTime())) return '无效时间';
-
-    const parts = d.toLocaleString('zh-CN', {
+    const beijingTime = new Date(d.getTime() + BEIJING_OFFSET);
+    const parts = beijingTime.toLocaleString('zh-CN', {
         timeZone: 'Asia/Shanghai',
         year: 'numeric',
         month: '2-digit',
@@ -44,6 +40,14 @@ export function formatBeijingTimeFull(date: string | Date): string {
         second: '2-digit',
         hour12: false
     });
+    // // 手动加 8 小时（北京时间 = UTC + 8）
+    // const year = beijingTime.getFullYear();
+    // const month = String(beijingTime.getMonth() + 1).padStart(2, '0');
+    // const day = String(beijingTime.getDate()).padStart(2, '0');
+    // const hours = String(beijingTime.getHours()).padStart(2, '0');
+    // const minutes = String(beijingTime.getMinutes()).padStart(2, '0');
+    // const seconds = String(beijingTime.getSeconds()).padStart(2, '0');
+    // return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
     return parts.replace(/\//g, '-');
 }
 
@@ -55,8 +59,8 @@ export function formatBeijingTimeFull(date: string | Date): string {
 export function formatBeijingTime(date: string | Date): string {
     const d = typeof date === 'string' ? new Date(date) : date;
     if (isNaN(d.getTime())) return '无效时间';
-
-    const parts = d.toLocaleString('zh-CN', {
+    const beijingTime = new Date(d.getTime() + BEIJING_OFFSET);
+    const parts = beijingTime.toLocaleString('zh-CN', {
         timeZone: 'Asia/Shanghai',
         year: 'numeric',
         month: '2-digit',
@@ -76,8 +80,8 @@ export function formatBeijingTime(date: string | Date): string {
 export function formatDateShort(date: string | Date): string {
     const d = typeof date === 'string' ? new Date(date) : date;
     if (isNaN(d.getTime())) return '无效时间';
-
-    const parts = d.toLocaleString('zh-CN', {
+    const beijingTime = new Date(d.getTime() + BEIJING_OFFSET);
+    const parts = beijingTime.toLocaleString('zh-CN', {
         timeZone: 'Asia/Shanghai',
         month: '2-digit',
         day: '2-digit',
@@ -96,9 +100,9 @@ export function formatDateShort(date: string | Date): string {
 export function timeAgo(date: string | Date): string {
     const d = typeof date === 'string' ? new Date(date) : date;
     if (isNaN(d.getTime())) return '无效时间';
-
+    const beijingTime = new Date(d.getTime() + BEIJING_OFFSET);
     const now = new Date();
-    const diff = now.getTime() - d.getTime();
+    const diff = now.getTime() - beijingTime.getTime();
     const minutes = Math.floor(diff / 60000);
     const hours = Math.floor(diff / 3600000);
     const days = Math.floor(diff / 86400000);
@@ -120,8 +124,8 @@ export function timeAgo(date: string | Date): string {
 export function formatDateOnly(date: string | Date): string {
     const d = typeof date === 'string' ? new Date(date) : date;
     if (isNaN(d.getTime())) return '无效时间';
-
-    const parts = d.toLocaleString('zh-CN', {
+    const beijingTime = new Date(d.getTime() + BEIJING_OFFSET);
+    const parts = beijingTime.toLocaleString('zh-CN', {
         timeZone: 'Asia/Shanghai',
         year: 'numeric',
         month: '2-digit',
