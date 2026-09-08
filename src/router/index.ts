@@ -8,6 +8,10 @@ import Library from '../views/Library.vue';
 import VerifyEmail from '../views/auth/VerifyEmail.vue';
 import Profile from '../views/profile/index.vue';
 import NotFound from '@/composables/404.vue';
+import Groups from '@/views/groups/index.vue';
+import GroupCreate from '@/views/groups/Create.vue';
+import GroupDetail from '@/views/groups/Detail.vue';
+import GroupJoin from '@/views/groups/Join.vue';
 
 const routes = [
   { path: '/login', component: Login },
@@ -18,6 +22,10 @@ const routes = [
   { path: '/add', component: AddSentence, meta: { requiresAuth: true } },
   { path: '/library', component: Library, meta: { requiresAuth: true } },
   { path: '/profile', component: Profile, meta: { requiresAuth: true } },
+  { path: '/groups', component: Groups, meta: { requiresAuth: true } },
+  { path: '/groups/create', component: GroupCreate, meta: { requiresAuth: true } },
+  { path: '/groups/:id', component: GroupDetail, meta: { requiresAuth: true } },
+  { path: '/groups/join', component: GroupJoin, meta: { requiresAuth: true } },
 
   // Catch all route for 404 errors
   { path: '/:pathMatch(.*)*', name: 'NotFound', component: NotFound }
