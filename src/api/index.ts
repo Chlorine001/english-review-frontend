@@ -192,6 +192,23 @@ export const api = {
   //todo : 获取积分排行榜
   getPointsRank: () =>
     request<any[]>('/points/rank'),
+
+  //小组
+  getMyGroups: () => request<any[]>('/groups/mine'),
+
+  createGroup: (data: { name: string; description?: string; isPublic?: boolean }) =>
+    request<{ id: number; inviteCode: string }>('/groups', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    }),
+
+  joinGroup: (inviteCode: string) =>
+    request<{ success: boolean; groupId: number }>('/groups/join', {
+      method: 'POST',
+      body: JSON.stringify({ inviteCode }),
+    }),
+
+  getGroupDetail: (id: number) => request<any>(`/groups/${id}`),
 };
 
 
