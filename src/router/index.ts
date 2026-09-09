@@ -14,9 +14,12 @@ import GroupDetail from '@/views/groups/Detail.vue';
 import GroupJoin from '@/views/groups/Join.vue';
 
 const routes = [
-  { path: '/login', component: Login },
-  { path: '/register', component: Register },
-  { path: '/verify-email', component: VerifyEmail, meta: { requiresAuth: false } },
+  // 公开页面（未登录可访问）
+  { path: '/login', component: Login, meta: { requiresAuth: false, guestOnly: true } },
+  { path: '/register', component: Register, meta: { requiresAuth: false, guestOnly: true } },
+  { path: '/verify-email', component: VerifyEmail, meta: { requiresAuth: false, guestOnly: true } },
+
+  // 需要登录的页面
   { path: '/', component: Dashboard, meta: { requiresAuth: true } },
   { path: '/review', component: Review, meta: { requiresAuth: true } },
   { path: '/add', component: AddSentence, meta: { requiresAuth: true } },
@@ -38,11 +41,21 @@ const router = createRouter({
 
 router.beforeEach((to, _from, next) => {
   const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
+
+  // 1. 需要登录但未登录 → 跳转登录
   if (to.meta.requiresAuth && !isLoggedIn) {
     next('/login');
-  } else {
-    next();
+    return;
   }
+
+  // 2. 已登录但访问游客专用页面（登录/注册/验证） → 跳转首页
+  if (to.meta.guestOnly && isLoggedIn) {
+    next('/');
+    return;
+  }
+
+  // 3. 正常放行
+  next();
 });
 
 export default router;
