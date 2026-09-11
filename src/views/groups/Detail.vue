@@ -39,7 +39,7 @@
                             <!-- 成员数 -->
                             <span class="inline-flex items-center gap-1">
                                 <span>👥</span>
-                                <span>{{ group.member_count || 1 }} 人</span>
+                                <span>{{ group.member_count }} 人</span>
                             </span>
 
                             <!-- 分隔点 -->
