@@ -19,7 +19,7 @@
                         required autofocus />
                 </div>
 
-                <button type="submit" class="btn-primary w-full" :disabled="submitting">
+                <button type="submit" class="btn-primary w-full" :disabled="submitting || !inviteCode.trim()">
                     {{ submitting ? '加入中...' : '🔗 加入小组' }}
                 </button>
 
@@ -36,14 +36,30 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
-import { useRouter } from 'vue-router';
+import { ref, onMounted } from 'vue';
+import { useRouter, useRoute } from 'vue-router';
 import { api } from '@/api';
 
 const router = useRouter();
+const route = useRoute();
+
 const inviteCode = ref('');
 const submitting = ref(false);
 const errorMessage = ref('');
+
+// ✅ 从 URL 参数自动获取邀请码
+onMounted(() => {
+    const code = route.query.code;
+    if (typeof code === 'string') {
+        inviteCode.value = code;
+    } else if (Array.isArray(code) && typeof code[0] === 'string') {
+        inviteCode.value = code[0];
+    }
+    // // 如果 URL 里有 code，自动提交
+    // if (inviteCode.value.trim()) {
+    //     handleSubmit();
+    // }
+});
 
 async function handleSubmit() {
     if (!inviteCode.value.trim()) {
