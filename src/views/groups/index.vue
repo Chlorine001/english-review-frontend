@@ -43,7 +43,7 @@
                     </h3>
                     <span
                         class="text-xs px-2 py-0.5 rounded-full bg-indigo-100 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300 flex-shrink-0">
-                        {{ group.member_count || 1 }} 人
+                        {{ group.member_count }} 人
                     </span>
                 </div>
 
@@ -55,7 +55,7 @@
                 <!-- 底部信息 -->
                 <div
                     class="flex justify-between items-center mt-3 pt-2 border-t border-gray-100 dark:border-gray-700 text-xs text-gray-400">
-                    <span>{{ group.role === 'owner' ? '👑 创建者' : '成员' }}</span>
+                    <span>{{ group.role === 'owner' ? '👑 创建者' : '👤成员' }}</span>
                     <span>{{ formatDate(group.created_at) }}</span>
                 </div>
             </div>
@@ -72,9 +72,10 @@ const router = useRouter();
 const groups = ref<any[]>([]);
 const loading = ref(true);
 
-function formatDate(date: string) {
-    const d = new Date(date);
-    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+import { formatDateOnly } from '@/utils/time';
+function formatDate(date: string): string {
+    return formatDateOnly(date)
+    // → '2026-09-08'
 }
 
 async function loadGroups() {
