@@ -39,13 +39,15 @@
                 @click="router.push(`/groups/${group.id}`)">
                 <!-- 标题行 -->
                 <div class="flex items-start justify-between gap-2">
-                    <h3 class="text-base font-semibold text-gray-900 dark:text-white truncate flex-1">
+                    <h3 class="text-base font-semibold text-gray-900 dark:text-white truncate flex-1"
+                        :title="group.name">
                         {{ group.name }}
                     </h3>
                 </div>
 
                 <!-- 描述：占满剩余空间 -->
-                <p class="text-sm text-gray-500 dark:text-gray-400 m-1 line-clamp-2 break-words flex-1">
+                <p class="text-sm text-gray-500 dark:text-gray-400 m-1 line-clamp-2 break-words flex-1"
+                    :title="group.description">
                     {{ group.description || '暂无描述' }}
                 </p>
 
@@ -61,6 +63,11 @@
                         <span
                             class="px-2 py-0.5 rounded-full bg-indigo-100 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300">
                             {{ group.member_count }}人
+                        </span>
+                        <span class="px-2 py-0.5 rounded-full text-xs" :class="group.is_public
+                            ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300'
+                            : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300'">
+                            {{ group.is_public ? '公开' : '私密' }}
                         </span>
                         <span>{{ formatDate(group.created_at) }}</span>
                     </div>
