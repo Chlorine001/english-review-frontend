@@ -114,7 +114,7 @@ const copyMessage = ref('');
 const joining = ref(false);
 
 const tabs = computed(() => [
-    { key: 'members', label: '成员', count: group.value?.member_count || 0 },
+    { key: 'members', label: '👤成员', count: group.value?.member_count || 0 },
     { key: 'sentences', label: '句子', count: sentences.value.length },
     { key: 'activities', label: '动态', count: activities.value.length },
 ]);
