@@ -33,30 +33,37 @@
         </div>
 
         <!-- 小组卡片列表 -->
-        <div v-else class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div v-for="group in groups" :key="group.id" class="card p-4 hover:shadow-md transition cursor-pointer"
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div v-for="group in groups" :key="group.id"
+                class="card p-4 hover:shadow-md transition cursor-pointer flex flex-col h-full"
                 @click="router.push(`/groups/${group.id}`)">
                 <!-- 标题行 -->
                 <div class="flex items-start justify-between gap-2">
                     <h3 class="text-base font-semibold text-gray-900 dark:text-white truncate flex-1">
                         {{ group.name }}
                     </h3>
-                    <span
-                        class="text-xs px-2 py-0.5 rounded-full bg-indigo-100 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300 flex-shrink-0">
-                        {{ group.member_count }} 人
-                    </span>
                 </div>
 
-                <!-- 描述 -->
-                <p class="text-sm text-gray-500 dark:text-gray-400 mt-1 line-clamp-2 break-words">
+                <!-- 描述：占满剩余空间 -->
+                <p class="text-sm text-gray-500 dark:text-gray-400 m-1 line-clamp-2 break-words flex-1">
                     {{ group.description || '暂无描述' }}
                 </p>
 
-                <!-- 底部信息 -->
+                <!-- 底部信息：永远贴底 -->
                 <div
-                    class="flex justify-between items-center mt-3 pt-2 border-t border-gray-100 dark:border-gray-700 text-xs text-gray-400">
-                    <span>{{ group.role === 'owner' ? '👑 创建者' : '👤成员' }}</span>
-                    <span>{{ formatDate(group.created_at) }}</span>
+                    class="flex justify-between items-center mt-2 pt-2 border-t border-gray-100 dark:border-gray-700 text-xs text-gray-400">
+                    <!-- 左侧：角色 -->
+                    <span class="inline-flex items-center gap-1">
+                        {{ group.role === 'owner' ? '👑 创建者' : group.role === 'admin' ? '🛡️ 管理员' : '👤 成员' }}
+                    </span>
+                    <!-- 右侧：人数 + 时间 -->
+                    <div class="flex items-center gap-3">
+                        <span
+                            class="px-2 py-0.5 rounded-full bg-indigo-100 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300">
+                            {{ group.member_count }}人
+                        </span>
+                        <span>{{ formatDate(group.created_at) }}</span>
+                    </div>
                 </div>
             </div>
         </div>
