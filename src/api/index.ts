@@ -215,6 +215,8 @@ export const api = {
     }),
 
   getGroupDetail: (id: number) => request<any>(`/groups/${id}`),
+  getGroupActivities: (id: number) => request<any>(`/groups/${id}/activities`),
+  
 };
 
 
