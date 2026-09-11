@@ -59,9 +59,10 @@ const showAddModal = ref(false);
 const selectedSentenceId = ref('');
 const mySentences = ref<any[]>([]);
 
+import { formatDateOnly } from '@/utils/time';
 function formatDate(date: string): string {
-    const d = new Date(date);
-    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+    return formatDateOnly(date)
+    // → '2026-09-08'
 }
 
 function likeSentence(id: number) {
