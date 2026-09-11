@@ -47,7 +47,7 @@
                 <button type="submit" class="btn-primary flex-1" :disabled="submitting">
                     {{ submitting ? '创建中...' : '🚀 创建小组' }}
                 </button>
-                <router-link to="/groups" class="btn-secondary flex-1 text-center">取消</router-link>
+                <router-link to="/mygroups" class="btn-secondary flex-1 text-center">取消</router-link>
             </div>
 
             <!-- 错误提示 -->

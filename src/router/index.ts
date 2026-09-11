@@ -25,7 +25,7 @@ const routes = [
   { path: '/add', component: AddSentence, meta: { requiresAuth: true } },
   { path: '/library', component: Library, meta: { requiresAuth: true } },
   { path: '/profile', component: Profile, meta: { requiresAuth: true } },
-  { path: '/groups', component: Groups, meta: { requiresAuth: true } },
+  { path: '/mygroups', component: Groups, meta: { requiresAuth: true } },
   { path: '/groups/create', component: GroupCreate, meta: { requiresAuth: true } },
   { path: '/groups/:id', component: GroupDetail, meta: { requiresAuth: true } },
   { path: '/groups/join', component: GroupJoin, meta: { requiresAuth: true } },
