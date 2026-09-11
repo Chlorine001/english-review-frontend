@@ -7,7 +7,7 @@
         <div v-else-if="!group" class="text-center py-16">
             <div class="text-6xl mb-4">🔍</div>
             <p class="text-gray-500 dark:text-gray-400">小组不存在或已被删除</p>
-            <router-link to="/groups" class="mt-4 inline-block btn-primary">
+            <router-link to="/mygroups" class="mt-4 inline-block btn-primary">
                 🏠 返回小组列表
             </router-link>
         </div>
@@ -24,19 +24,41 @@
                         <p class="text-gray-600 dark:text-gray-300 mt-1 break-words">
                             {{ group.description || '暂无描述' }}
                         </p>
-                        <div class="flex items-center gap-4 mt-2 text-sm text-gray-500 dark:text-gray-400 flex-wrap">
-                            <span>👑 {{ group.owner_name || '创建者' }}</span>
-                            <span>👥 {{ group.member_count || 1 }} 人</span>
-                            <span class="px-2 py-0.5 rounded-full text-xs"
-                                :class="group.is_public ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-600'">
-                                {{ group.is_public ? '公开' : '私密' }}
+                        <div class="flex items-center gap-3 mt-3 text-sm text-gray-500 dark:text-gray-400 flex-wrap">
+                            <!-- 创建者 -->
+                            <span class="inline-flex items-center gap-1">
+                                <span>👑</span>
+                                <span class="font-medium text-gray-700 dark:text-gray-300">
+                                    {{ group.owner_name || '创建者' }}
+                                </span>
+                            </span>
+
+                            <!-- 分隔点 -->
+                            <span class="text-gray-300 dark:text-gray-600">·</span>
+
+                            <!-- 成员数 -->
+                            <span class="inline-flex items-center gap-1">
+                                <span>👥</span>
+                                <span>{{ group.member_count || 1 }} 人</span>
+                            </span>
+
+                            <!-- 分隔点 -->
+                            <span class="text-gray-300 dark:text-gray-600">·</span>
+
+                            <!-- ✅ 公开/私密：加上图标，垂直对齐 -->
+                            <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full  font-medium"
+                                :class="group.is_public
+                                    ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300'
+                                    : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300'">
+                                <span>{{ group.is_public ? '🌍' : '🔒' }}</span>
+                                <span>{{ group.is_public ? '公开' : '私密' }}</span>
                             </span>
                         </div>
                     </div>
                     <div class="flex-shrink-0 ml-4">
-                        <button v-if="group.isOwner" @click="showInviteModal = true"
+                        <button v-if="group.isOwner || group.isAdmin" @click="showInviteModal = true"
                             class="btn-primary text-sm px-4 py-2">
-                            📨 邀请
+                            🔗 邀请
                         </button>
                     </div>
                 </div>
@@ -68,16 +90,16 @@
             </div>
 
             <!-- 加入小组按钮（非成员且非创建者） -->
-            <div v-if="!group.isMember && !group.isOwner" class="mt-4">
+            <!-- <div v-if="!group.isMember && !group.isOwner" class="mt-4">
                 <button @click="handleJoinGroup" class="btn-primary w-full">
                     加入小组
                 </button>
-            </div>
+            </div> -->
 
             <!-- 邀请弹窗 -->
             <div v-if="showInviteModal" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
                 <div class="bg-white dark:bg-gray-800 rounded-lg p-6 max-w-md w-full">
-                    <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-2">📨 邀请链接</h3>
+                    <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-2">🔗 邀请链接</h3>
                     <p class="text-sm text-gray-500 dark:text-gray-400 mb-4">
                         分享此链接给好友，他们可通过邀请码加入小组
                     </p>
@@ -111,7 +133,7 @@ const activities = ref<any[]>([]);
 const activeTab = ref('members');
 const showInviteModal = ref(false);
 const copyMessage = ref('');
-const joining = ref(false);
+// const joining = ref(false);
 
 const tabs = computed(() => [
     { key: 'members', label: '👤成员', count: group.value?.member_count || 0 },
@@ -147,8 +169,7 @@ async function loadSentences() {
 
 async function loadActivities() {
     try {
-        // TODO: 实现获取小组动态的 API
-        // activities.value = await api.getGroupActivities(groupId);
+        activities.value = await api.getGroupActivities(groupId);
     } catch (e) {
         console.error('加载动态失败', e);
     }
@@ -160,34 +181,34 @@ function copyInviteLink() {
     setTimeout(() => { copyMessage.value = ''; }, 2000);
 }
 
-async function handleJoinGroup() {
-    // 如果是公开小组，直接加入
-    if (group.value?.is_public) {
-        joining.value = true;
-        try {
-            // TODO: 实现公开小组直接加入
-            // await api.joinGroupDirectly(groupId);
-            alert('✅ 已加入小组！');
-            await loadGroupDetail();
-        } catch (e: any) {
-            alert('加入失败：' + (e.message || '未知错误'));
-        } finally {
-            joining.value = false;
-        }
-    } else {
-        // 私密小组需要邀请码
-        const code = prompt('请输入邀请码：');
-        if (code) {
-            try {
-                await api.joinGroup(code.trim());
-                alert('✅ 已加入小组！');
-                await loadGroupDetail();
-            } catch (e: any) {
-                alert('加入失败：' + (e.message || '邀请码错误'));
-            }
-        }
-    }
-}
+// async function handleJoinGroup() {
+//     // 如果是公开小组，直接加入
+//     if (group.value?.is_public) {
+//         joining.value = true;
+//         try {
+//             // TODO: 实现公开小组直接加入
+//             // await api.joinGroupDirectly(groupId);
+//             alert('✅ 已加入小组！');
+//             await loadGroupDetail();
+//         } catch (e: any) {
+//             alert('加入失败：' + (e.message || '未知错误'));
+//         } finally {
+//             joining.value = false;
+//         }
+//     } else {
+//         // 私密小组需要邀请码
+//         const code = prompt('请输入邀请码：');
+//         if (code) {
+//             try {
+//                 await api.joinGroup(code.trim());
+//                 alert('✅ 已加入小组！');
+//                 await loadGroupDetail();
+//             } catch (e: any) {
+//                 alert('加入失败：' + (e.message || '邀请码错误'));
+//             }
+//         }
+//     }
+// }
 
 
 // async function handleJoinGroup() {
