@@ -14,7 +14,11 @@
                 <!-- 内容 -->
                 <div class="flex-1 min-w-0">
                     <p class="text-sm text-gray-700 dark:text-gray-300 break-words text-left">
-                        {{ item.content }}
+                        <!-- ✅ 昵称 + 内容 -->
+                        <span class="font-medium text-gray-900 dark:text-white">
+                            {{ item.user_nickname || '用户' }}
+                        </span>
+                        <span class="ml-1">{{ item.content }}</span>
                     </p>
                     <p class="text-xs text-gray-400 dark:text-gray-500 mt-0.5 text-left">
                         {{ formatDate(item.created_at) }}
@@ -27,53 +31,9 @@
 
 
 <script setup lang="ts">
-const activities = [
-    {
-        id: 1,
-        group_id: 1,
-        user_id: 2,
-        user_nickname: 'Dragon',
-        type: 'join',
-        content: 'Dragon 加入了小组',
-        created_at: '2026-09-11T06:30:00.000Z'
-    },
-    {
-        id: 2,
-        group_id: 1,
-        user_id: 2,
-        user_nickname: 'Dragon',
-        type: 'share',
-        content: 'Dragon 分享了一个句子："I was wondering if you could help me."',
-        created_at: '2026-09-11T06:35:00.000Z'
-    },
-    {
-        id: 3,
-        group_id: 1,
-        user_id: 3,
-        user_nickname: 'Alice',
-        type: 'like',
-        content: 'Alice 点赞了 Dragon 分享的句子',
-        created_at: '2026-09-11T06:40:00.000Z'
-    },
-    {
-        id: 4,
-        group_id: 1,
-        user_id: 2,
-        user_nickname: 'Dragon',
-        type: 'review',
-        content: 'Dragon 完成了今日复习（5 个句子）',
-        created_at: '2026-09-11T07:00:00.000Z'
-    },
-    {
-        id: 5,
-        group_id: 1,
-        user_id: 1,
-        user_nickname: 'Admin',
-        type: 'create',
-        content: 'Admin 创建了小组',
-        created_at: '2026-09-08T10:00:00.000Z'
-    }
-];
+defineProps<{
+    activities: any[];
+}>();
 
 function getIcon(type: string): string {
     const map: Record<string, string> = {
