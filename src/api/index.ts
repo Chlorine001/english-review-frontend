@@ -40,13 +40,19 @@ async function request<T>(endpoint: string, options: RequestInit = {}, skipAuthR
 
   // ✅ 处理 401 未授权（Token 过期或无效）
   if (res.status === 401) {
-    // 使用更优雅的提示方式（如 Toast 或 Notification）
-    // 如果你的项目有 UI 库，改用 notification.error()
-    if (!skipAuthRedirect) {
-      console.warn('登录已过期，请重新登录');
+    // 清除本地登录状态
+    localStorage.removeItem('isLoggedIn');
+    localStorage.removeItem('userEmail');
+    localStorage.removeItem('nickName');
+    localStorage.removeItem('isVerified');
+    // 避免在登录/注册页面重复跳转
+    const currentPath = window.location.pathname;
+    const publicPaths = ['/login', '/register', '/verify-email'];
+
+    if (!skipAuthRedirect && !publicPaths.includes(currentPath)) {
       window.location.href = '/login';
-      throw new Error('登录已过期，请重新登录');
     }
+    throw new Error('登录已过期，请重新登录');
   }
 
   if (!res.ok) {
