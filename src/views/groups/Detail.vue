@@ -46,19 +46,26 @@
                             <span class="text-gray-300 dark:text-gray-600">·</span>
 
                             <!-- ✅ 公开/私密：加上图标，垂直对齐 -->
-                            <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full  font-medium"
-                                :class="group.is_public
-                                    ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300'
-                                    : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300'">
+                            <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full  font-medium" :class="group.is_public
+                                ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300'
+                                : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300'">
                                 <span>{{ group.is_public ? '🌍' : '🔒' }}</span>
                                 <span>{{ group.is_public ? '公开' : '私密' }}</span>
                             </span>
                         </div>
                     </div>
-                    <div class="flex-shrink-0 ml-4">
+                    <!-- 右侧：操作按钮（仅创建者可见） -->
+                    <div v-if="group.isOwner" class="flex flex-col gap-2 flex-shrink-0 ml-4">
                         <button v-if="group.isOwner || group.isAdmin" @click="showInviteModal = true"
                             class="btn-primary text-sm px-4 py-2">
                             🔗 邀请
+                        </button>
+                        <button @click="handleManage" class="btn-secondary text-sm px-4 py-2 whitespace-nowrap">
+                            ⚙️ 管理
+                        </button>
+                        <button @click="handleDissolve"
+                            class="px-4 py-2 text-sm whitespace-nowrap rounded-lg border border-red-300 dark:border-red-700 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors">
+                            🗑️ 解散
                         </button>
                     </div>
                 </div>
@@ -117,12 +124,14 @@
 
 <script setup lang="ts">
 import { ref, onMounted, computed } from 'vue';
-import { useRoute } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
 import { api } from '@/api';
 import GroupMember from './components/GroupMember.vue';
 import GroupSentence from './components/GroupSentence.vue';
 import GroupActivity from './components/GroupActivity.vue';
+import { confirm } from '@/utils/verifyCheck';
 
+const router = useRouter();
 const route = useRoute();
 const groupId = Number(route.params.id);
 
@@ -230,6 +239,41 @@ function copyInviteLink() {
 //     }
 // }
 
+// 管理小组
+function handleManage() {
+    // 方案一：跳转到管理页面
+    router.push(`/groups/${groupId}/manage`);
+
+    // 方案二：打开管理弹窗
+    // showManageModal.value = true;
+}
+
+// 解散小组
+async function handleDissolve() {
+    const confirmed = await confirm({
+        title: '解散小组',
+        message: '解散后，小组内所有成员、句子和动态都会被永久删除，此操作不可恢复。',
+        icon: '⚠️',
+        confirmText: '确认解散',
+        cancelText: '取消',
+    });
+
+    if (!confirmed) return;
+
+    try {
+        await api.dissolveGroup(groupId);
+        await confirm({
+            title: '已解散',
+            message: '小组已成功解散',
+            icon: '✅',
+            confirmText: '我知道了',
+            onlyOne: true,
+        });
+        router.push('/groups');
+    } catch (e: any) {
+        alert('解散失败：' + (e.message || '未知错误'));
+    }
+}
 onMounted(() => {
     loadGroupDetail();
     loadSentences();

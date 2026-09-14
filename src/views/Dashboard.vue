@@ -70,11 +70,23 @@
             </div>
         </div>
 
-        <div class="flex flex-col flex-1 sm:flex-row gap-4">
-            <router-link to="/review" class="btn-primary flex-1 text-center">🚀 开始复习</router-link>
-            <router-link to="/add" class="btn-secondary flex-1 text-center">➕ 添加句子</router-link>
-            <router-link to="/mygroups" class="btn-secondary flex-1 text-center">🏠 我的小组</router-link>
-            <router-link to="/library" class="btn-secondary flex-1 text-center">📖 句子库</router-link>
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+            <router-link to="/review"
+                class="btn-primary flex items-center justify-center gap-2 py-3 text-sm whitespace-nowrap">
+                🚀 开始复习
+            </router-link>
+            <router-link to="/add"
+                class="btn-secondary flex items-center justify-center gap-2 py-3 text-sm whitespace-nowrap">
+                ➕ 添加句子
+            </router-link>
+            <router-link to="/mygroups"
+                class="btn-secondary flex items-center justify-center gap-2 py-3 text-sm whitespace-nowrap">
+                🏠 我的小组
+            </router-link>
+            <router-link to="/library"
+                class="btn-secondary flex items-center justify-center gap-2 py-3 text-sm whitespace-nowrap">
+                📖 句子库
+            </router-link>
         </div>
     </div>
 

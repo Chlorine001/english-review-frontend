@@ -216,6 +216,10 @@ export const api = {
 
   getGroupDetail: (id: number) => request<any>(`/groups/${id}`),
   getGroupActivities: (id: number) => request<any>(`/groups/${id}/activities`),
+  dissolveGroup: (groupId: number) =>
+    request<{ success: boolean }>(`/groups/${groupId}`, {
+      method: 'DELETE',
+    }),
   
 };
 

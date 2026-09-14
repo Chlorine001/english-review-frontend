@@ -1,15 +1,16 @@
 <template>
     <div class="max-w-4xl mx-auto p-4">
         <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
-            <h2 class="text-2xl font-bold text-gray-900 dark:text-white">🏠 我的小组</h2>
+            <h2 class="text-2xl font-bold text-gray-900 dark:text-white">🔍 公共小组</h2>
 
             <div class="flex gap-3 w-full sm:w-auto">
-                <router-link to="/groups" class="btn-secondary flex-1 sm:flex-none text-center">
-                    🔍 公共小组
+                <router-link to="/mygroups" class="btn-secondary flex-1 sm:flex-none text-center">
+                    🏠 我的小组
                 </router-link>
-                <router-link to="/groups/create" class="btn-primary flex-1 sm:flex-none text-center">
-                    ➕ 创建小组
+                <router-link to="/groups/join" class="btn-primary flex-1 sm:flex-none text-center">
+                    🔗 邀请码加入
                 </router-link>
+
             </div>
         </div>
 
@@ -18,16 +19,16 @@
 
         <div v-else-if="groups.length === 0" class="text-center py-10">
             <div class="text-6xl mb-4">📭</div>
-            <p class="text-gray-500 dark:text-gray-400">还没有加入任何小组</p>
+            <p class="text-gray-500 dark:text-gray-400">还没有任何公共小组</p>
             <p class="text-sm text-gray-400 dark:text-gray-500 mt-1">
-                创建一个属于你的小组，或加入公开小组
+                创建一个属于你的小组，或通过邀请码加入他人的私密小组
             </p>
             <div class="flex flex-col sm:flex-row gap-3 mt-4 justify-center">
                 <router-link to="/groups/create" class="btn-primary inline-block">
                     ➕ 创建小组
                 </router-link>
-                <router-link to="/groups" class="btn-secondary inline-block">
-                    🔍 公共小组
+                <router-link to="/groups/join" class="btn-secondary inline-block">
+                    🔗 邀请码加入
                 </router-link>
             </div>
         </div>
