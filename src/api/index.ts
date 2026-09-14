@@ -238,6 +238,19 @@ export const api = {
       method: 'POST',
       body: JSON.stringify({ newOwnerId }),
     }),
+  
+  // 退出小组
+  leaveGroup: (groupId: number) =>
+    request<{ success: boolean }>(`/groups/${groupId}/leave`, {
+      method: 'POST',
+    }),
+
+  // 移除成员
+  kickMember: (groupId: number, userId: number) =>
+    request<{ success: boolean }>(`/groups/${groupId}/kick`, {
+      method: 'POST',
+      body: JSON.stringify({ userId }),
+    }),
 
 };
 

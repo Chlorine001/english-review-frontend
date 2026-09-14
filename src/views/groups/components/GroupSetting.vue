@@ -96,11 +96,11 @@
         </div>
 
         <!-- ✅ 成员管理：组长和管理员可见 -->
-        <div v-if="isOwner || group.isAdmin" class="space-y-3 pt-4 border-t border-gray-200 dark:border-gray-700">
+        <div v-if="isOwner || group.isAdmin" class="space-y-3">
             <h4 class="text-sm font-medium text-gray-700 dark:text-gray-300">成员管理</h4>
             <div class="flex flex-col gap-2">
                 <!-- 移除成员：管理员 + 组长 -->
-                <button @click="showRemoveModal = true"
+                <button @click="openRemoveModal"
                     class="text-left text-sm text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300">
                     🚫 移除成员
                 </button>
@@ -111,6 +111,17 @@
                     👑 转让小组
                 </button>
             </div>
+        </div>
+
+        <div v-if="!isOwner && group.isMember" class="space-y-3 pt-4 border-t border-gray-200 dark:border-gray-700">
+            <h4 class="text-sm font-medium text-gray-700 dark:text-gray-300">退出小组</h4>
+            <button @click="handleLeave"
+                class="text-left text-sm text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300">
+                🚪 退出小组
+            </button>
+            <p class="text-xs text-gray-400 dark:text-gray-500">
+                退出后，你在小组内分享的句子将被删除。
+            </p>
         </div>
 
         <!-- ✅ 危险操作：仅组长可见 -->
@@ -176,6 +187,54 @@
                         class="px-4 py-2.5 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white transition-colors text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed"
                         :disabled="!selectedUserId || transferring">
                         {{ transferring ? '转让中...' : '确认转让' }}
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ✅ 移除成员弹窗 -->
+        <div v-if="showRemoveModal" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
+            @click.self="showRemoveModal = false">
+            <div class="bg-white dark:bg-gray-800 rounded-lg p-6 max-w-md w-full">
+                <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-2">🚫 移除成员</h3>
+                <p class="text-sm text-gray-500 dark:text-gray-400 mb-4">
+                    选择要移除的成员，移除后他们将无法访问小组内容。
+                </p>
+
+                <!-- 可移除成员列表 -->
+                <div class="space-y-2 max-h-64 overflow-y-auto mb-4">
+                    <div v-for="member in removableMembers" :key="member.id" @click="selectedMemberId = member.id"
+                        class="flex items-center gap-3 p-3 rounded-lg cursor-pointer transition-colors" :class="selectedMemberId === member.id
+                            ? 'bg-red-50 dark:bg-red-900/20 border border-red-300 dark:border-red-700'
+                            : 'hover:bg-gray-50 dark:hover:bg-gray-700/50 border border-transparent'">
+                        <div
+                            class="w-9 h-9 rounded-full bg-indigo-500 text-white flex items-center justify-center text-xs font-bold flex-shrink-0">
+                            {{ (member.nickname || member.email)?.charAt(0).toUpperCase() }}
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <p class="text-sm font-medium text-gray-900 dark:text-white truncate">
+                                {{ member.nickname || member.email }}
+                            </p>
+                            <p v-if="member.nickname" class="text-xs text-gray-400 truncate">{{ member.email }}</p>
+                        </div>
+                        <span v-if="member.role === 'admin'" class="text-xs text-blue-500 flex-shrink-0">管理员</span>
+                        <span v-if="selectedMemberId === member.id" class="text-red-600 text-lg flex-shrink-0">✓</span>
+                    </div>
+                </div>
+
+                <p v-if="removableMembers.length === 0" class="text-center text-sm text-gray-400 py-4">
+                    没有可以移除的成员
+                </p>
+
+                <div class="grid grid-cols-2 gap-3">
+                    <button @click="showRemoveModal = false"
+                        class="px-4 py-2.5 rounded-lg border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors text-sm font-medium">
+                        取消
+                    </button>
+                    <button @click="handleKick"
+                        class="px-4 py-2.5 rounded-lg bg-red-600 hover:bg-red-700 text-white transition-colors text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+                        :disabled="!selectedMemberId || kicking">
+                        {{ kicking ? '移除中...' : '确认移除' }}
                     </button>
                 </div>
             </div>
@@ -273,6 +332,77 @@ async function saveDesc() {
         alert('修改失败：' + (e.message || '未知错误'));
     } finally {
         savingDesc.value = false;
+    }
+}
+async function handleLeave() {
+    const ok = await confirm({
+        title: '退出小组',
+        message: '确定要退出该小组吗？退出后你在小组内分享的句子将被删除。',
+        icon: '🚪',
+        confirmText: '确认退出',
+        cancelText: '取消',
+    });
+    if (!ok) return;
+
+    try {
+        await api.leaveGroup(props.group.id);
+        router.push('/groups');
+    } catch (e: any) {
+        alert('退出失败：' + (e.message || '未知错误'));
+    }
+}
+const selectedMemberId = ref<number | null>(null);
+const kicking = ref(false);
+
+// 可移除成员（排除组长和自己；管理员不能移除其他管理员）
+const removableMembers = computed(() => {
+    return (props.group.members || []).filter((m: any) => {
+        // 不能移除组长
+        if (m.id === props.group.owner_id) return false;
+        // 不能移除自己
+        if (m.id === props.group.owner_id) return false;
+        // 管理员不能移除其他管理员
+        if (!props.isOwner && m.role === 'admin') return false;
+        return true;
+    });
+});
+
+function openRemoveModal() {
+    selectedMemberId.value = null;
+    showRemoveModal.value = true;
+}
+
+async function handleKick() {
+    if (!selectedMemberId.value) return;
+    const target = removableMembers.value.find((m: any) => m.id === selectedMemberId.value);
+    const targetName = target?.nickname || target?.email || '该成员';
+
+    const ok = await confirm({
+        title: '移除成员',
+        message: `确定要将 ${targetName} 移出小组吗？`,
+        icon: '🚫',
+        confirmText: '确认移除',
+        cancelText: '取消',
+    });
+    if (!ok) return;
+
+    kicking.value = true;
+    try {
+        await api.kickMember(props.group.id, selectedMemberId.value);
+        await confirm({
+            title: '移除成功',
+            message: `${targetName} 已被移出小组`,
+            icon: '✅',
+            confirmText: '我知道了',
+            onlyOne: true,
+        });
+        showRemoveModal.value = false;
+        selectedMemberId.value = null;
+        emit('refresh');
+    } catch (e: any) {
+        alert('移除失败：' + (e.message || '未知错误'));
+    } finally {
+        kicking.value = false;
     }
 }
 
