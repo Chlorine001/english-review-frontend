@@ -17,7 +17,7 @@
         <!-- 小组列表 -->
         <div v-if="loading" class="text-center py-10 text-gray-500">加载中...</div>
 
-        <div v-else-if="groups.length === 0" class="text-center py-10">
+        <div v-else-if="openGroups.length === 0" class="text-center py-10">
             <div class="text-6xl mb-4">📭</div>
             <p class="text-gray-500 dark:text-gray-400">还没有任何公共小组</p>
             <p class="text-sm text-gray-400 dark:text-gray-500 mt-1">
@@ -35,7 +35,7 @@
 
         <!-- 小组卡片列表 -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div v-for="group in groups" :key="group.id"
+            <div v-for="group in openGroups" :key="group.id"
                 class="card p-4 hover:shadow-md transition cursor-pointer flex flex-col h-full"
                 @click="router.push(`/groups/${group.id}`)">
                 <!-- 标题行 -->
@@ -56,8 +56,11 @@
                 <div
                     class="flex justify-between items-center mt-2 pt-2 border-t border-gray-100 dark:border-gray-700 text-xs text-gray-400">
                     <!-- 左侧：角色 -->
-                    <span class="inline-flex items-center gap-1">
-                        {{ group.role === 'owner' ? '👑 创建者' : group.role === 'admin' ? '🛡️ 管理员' : '👤 成员' }}
+        
+                    <span class="inline-flex items-center gap-1" :class="group.is_member
+                        ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300'
+                        : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300'">
+                        {{ group.is_member ? '✅ 已加入' : '可加入' }}
                     </span>
                     <!-- 右侧：人数 + 时间 -->
                     <div class="flex items-center gap-3">
@@ -65,14 +68,12 @@
                             class="px-2 py-0.5 rounded-full bg-indigo-100 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300">
                             {{ group.member_count }}人
                         </span>
-                        <span class="px-2 py-0.5 rounded-full text-xs" :class="group.is_public
-                            ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300'
-                            : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300'">
-                            {{ group.is_public ? '公开' : '私密' }}
-                        </span>
+                        <!-- <button v-else @click="joinGroup(group.id)" class="btn-primary">加入小组</button> -->
+                       
                         <span>{{ formatDate(group.created_at) }}</span>
                     </div>
                 </div>
+
             </div>
         </div>
     </div>
@@ -84,7 +85,7 @@ import { useRouter } from 'vue-router';
 import { api } from '@/api';
 
 const router = useRouter();
-const groups = ref<any[]>([]);
+const openGroups = ref<any[]>([]);
 const loading = ref(true);
 
 import { formatDateOnly } from '@/utils/time';
@@ -95,9 +96,9 @@ function formatDate(date: string): string {
 
 async function loadGroups() {
     try {
-        groups.value = await api.getMyGroups();
+        openGroups.value = await api.getOpenGroups();
     } catch (e) {
-        console.error('加载小组失败', e);
+        console.error('加载公开小组失败', e);
     } finally {
         loading.value = false;
     }
