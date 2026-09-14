@@ -232,6 +232,12 @@ export const api = {
       method: 'PUT',
       body: JSON.stringify(data),
     }),
+  
+  transferOwner: (groupId: number, newOwnerId: number) =>
+    request<{ success: boolean }>(`/groups/${groupId}/transfer`, {
+      method: 'POST',
+      body: JSON.stringify({ newOwnerId }),
+    }),
 
 };
 
