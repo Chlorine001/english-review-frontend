@@ -31,7 +31,7 @@
                         'text-blue-500': member.role === 'admin',
                         'text-gray-400': member.role === 'member'
                     }">
-                        <template v-if="member.role === 'owner'">👑 创建者</template>
+                        <template v-if="member.role === 'owner'">👑 组长</template>
                         <template v-else-if="member.role === 'admin'">🛡️ 管理员</template>
                         <template v-else>👤 成员</template>
                     </span>

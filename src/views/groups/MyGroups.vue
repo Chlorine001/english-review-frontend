@@ -56,7 +56,7 @@
                     class="flex justify-between items-center mt-2 pt-2 border-t border-gray-100 dark:border-gray-700 text-xs text-gray-400">
                     <!-- 左侧：角色 -->
                     <span class="inline-flex items-center gap-1">
-                        {{ group.role === 'owner' ? '👑 创建者' : group.role === 'admin' ? '🛡️ 管理员' : '👤 成员' }}
+                        {{ group.role === 'owner' ? '👑 组长' : group.role === 'admin' ? '🛡️ 管理员' : '👤 成员' }}
                     </span>
                     <!-- 右侧：人数 + 时间 -->
                     <div class="flex items-center gap-3">

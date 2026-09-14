@@ -25,11 +25,11 @@
                             {{ group.description || '暂无描述' }}
                         </p>
                         <div class="flex items-center gap-3 mt-3 text-sm text-gray-500 dark:text-gray-400 flex-wrap">
-                            <!-- 创建者 -->
+                            <!-- 组长 -->
                             <span class="inline-flex items-center gap-1">
                                 <span>👑</span>
                                 <span class="font-medium text-gray-700 dark:text-gray-300">
-                                    {{ group.owner_name || '创建者' }}
+                                    {{ group.owner_name || '组长' }}
                                 </span>
                             </span>
 
@@ -86,7 +86,7 @@
                     @refresh="loadGroupDetail" />
             </div>
 
-            <!-- 加入小组按钮（非成员且非创建者） -->
+            <!-- 加入小组按钮（非成员且非组长） -->
             <div v-if="!group.isMember && !group.isOwner && !group.isAdmin" class="mt-4">
                 <button @click="handleJoinGroup" class="btn-primary w-full">
                     加入小组
