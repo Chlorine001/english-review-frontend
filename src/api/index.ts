@@ -252,6 +252,12 @@ export const api = {
       body: JSON.stringify({ userId }),
     }),
 
+  // 设置/取消管理员
+  setAdmin: (groupId: number, userId: number, isAdmin: boolean) =>
+    request<{ success: boolean; role: string }>(`/groups/${groupId}/set-admin`, {
+      method: 'POST',
+      body: JSON.stringify({ userId, isAdmin }),
+    }),
 };
 
 
