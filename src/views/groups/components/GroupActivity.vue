@@ -43,7 +43,8 @@ function getIcon(type: string): string {
         like: '❤️',      // 点赞
         review: '📚',    // 完成复习
         leave: '🚪',     // 退出小组
-        owner: '👑',     // 转让群主 / 成为创建者
+        // owner: '🎉',     // 成为创建者
+        transfer: '👑',  // 转让小组
         kick: '🚫',      // 移除成员
         update: '✏️',    // 更新信息
     };
