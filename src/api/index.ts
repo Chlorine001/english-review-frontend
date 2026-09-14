@@ -201,6 +201,7 @@ export const api = {
 
   //小组
   getMyGroups: () => request<any[]>('/groups/mine'),
+  getOpenGroups: () => request<any[]>('/groups/open'),
 
   createGroup: (data: { name: string; description?: string; isPublic?: boolean }) =>
     request<{ id: number; inviteCode: string }>('/groups', {
@@ -220,7 +221,18 @@ export const api = {
     request<{ success: boolean }>(`/groups/${groupId}`, {
       method: 'DELETE',
     }),
+
+  joinGroupDirectly: (groupId: number) =>
+    request<{ success: boolean; groupId: number }>(`/groups/${groupId}/join`, {
+      method: 'POST',
+    }),
   
+  updateGroup: (groupId: number, data: { name?: string; description?: string; isPublic?: boolean }) =>
+    request<{ success: boolean }>(`/groups/${groupId}`, {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    }),
+
 };
 
 
