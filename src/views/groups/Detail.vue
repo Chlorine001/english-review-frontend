@@ -54,20 +54,6 @@
                             </span>
                         </div>
                     </div>
-                    <!-- 右侧：操作按钮（仅创建者可见） -->
-                    <div v-if="group.isOwner" class="flex flex-col gap-2 flex-shrink-0 ml-4">
-                        <button v-if="group.isOwner || group.isAdmin" @click="showInviteModal = true"
-                            class="btn-primary text-sm px-4 py-2">
-                            🔗 邀请
-                        </button>
-                        <button @click="handleManage" class="btn-secondary text-sm px-4 py-2 whitespace-nowrap">
-                            ⚙️ 管理
-                        </button>
-                        <button @click="handleDissolve"
-                            class="px-4 py-2 text-sm whitespace-nowrap rounded-lg border border-red-300 dark:border-red-700 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors">
-                            🗑️ 解散
-                        </button>
-                    </div>
                 </div>
             </div>
 
@@ -94,44 +80,33 @@
 
                 <!-- 动态 -->
                 <GroupActivity v-else-if="activeTab === 'activities'" :activities="activities" />
+
+                <!-- 管理 -->
+                <GroupSetting v-else-if="activeTab === 'setting'" :group="group" :is-owner="group.isOwner"
+                    @refresh="loadGroupDetail" />
             </div>
 
             <!-- 加入小组按钮（非成员且非创建者） -->
-            <!-- <div v-if="!group.isMember && !group.isOwner" class="mt-4">
+            <div v-if="!group.isMember && !group.isOwner && !group.isAdmin" class="mt-4">
                 <button @click="handleJoinGroup" class="btn-primary w-full">
                     加入小组
                 </button>
-            </div> -->
-
-            <!-- 邀请弹窗 -->
-            <div v-if="showInviteModal" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-                <div class="bg-white dark:bg-gray-800 rounded-lg p-6 max-w-md w-full">
-                    <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-2">🔗 邀请链接</h3>
-                    <p class="text-sm text-gray-500 dark:text-gray-400 mb-4">
-                        分享此链接给好友，他们可通过邀请码加入小组
-                    </p>
-                    <div class="flex gap-2">
-                        <input :value="inviteLink" readonly class="input-field flex-1 text-sm font-mono" />
-                        <button @click="copyInviteLink" class="btn-primary whitespace-nowrap">复制</button>
-                    </div>
-                    <p v-if="copyMessage" class="mt-2 text-sm text-green-600">{{ copyMessage }}</p>
-                    <button @click="showInviteModal = false" class="btn-secondary w-full mt-4">关闭</button>
-                </div>
             </div>
+
         </div>
     </div>
 </template>
 
 <script setup lang="ts">
 import { ref, onMounted, computed } from 'vue';
-import { useRoute, useRouter } from 'vue-router';
+import { useRoute } from 'vue-router';
 import { api } from '@/api';
 import GroupMember from './components/GroupMember.vue';
 import GroupSentence from './components/GroupSentence.vue';
 import GroupActivity from './components/GroupActivity.vue';
+import GroupSetting from './components/GroupSetting.vue';
 import { confirm } from '@/utils/verifyCheck';
 
-const router = useRouter();
 const route = useRoute();
 const groupId = Number(route.params.id);
 
@@ -140,26 +115,19 @@ const group = ref<any>(null);
 const sentences = ref<any[]>([]);
 const activities = ref<any[]>([]);
 const activeTab = ref('members');
-const showInviteModal = ref(false);
-const copyMessage = ref('');
-// const joining = ref(false);
+const joining = ref(false);
 
 const tabs = computed(() => [
     { key: 'members', label: '👤成员', count: group.value?.member_count || 0 },
     { key: 'sentences', label: '句子', count: sentences.value.length },
     { key: 'activities', label: '动态', count: activities.value.length },
+    { key: 'setting', label: '管理'},
 ]);
-
-const inviteLink = computed(() => {
-    if (!group.value?.invite_code) return '';
-    return `${window.location.origin}/groups/join?code=${group.value.invite_code}`;
-});
 
 async function loadGroupDetail() {
     try {
         const data = await api.getGroupDetail(groupId);
         group.value = data;
-        console.log('小组详情：', data);
     } catch (e) {
         console.error('加载小组详情失败：', e);
     } finally {
@@ -184,96 +152,34 @@ async function loadActivities() {
     }
 }
 
-function copyInviteLink() {
-    navigator.clipboard.writeText(inviteLink.value);
-    copyMessage.value = '✅ 已复制邀请链接';
-    setTimeout(() => { copyMessage.value = ''; }, 2000);
-}
-
-// async function handleJoinGroup() {
-//     // 如果是公开小组，直接加入
-//     if (group.value?.is_public) {
-//         joining.value = true;
-//         try {
-//             // TODO: 实现公开小组直接加入
-//             // await api.joinGroupDirectly(groupId);
-//             alert('✅ 已加入小组！');
-//             await loadGroupDetail();
-//         } catch (e: any) {
-//             alert('加入失败：' + (e.message || '未知错误'));
-//         } finally {
-//             joining.value = false;
-//         }
-//     } else {
-//         // 私密小组需要邀请码
-//         const code = prompt('请输入邀请码：');
-//         if (code) {
-//             try {
-//                 await api.joinGroup(code.trim());
-//                 alert('✅ 已加入小组！');
-//                 await loadGroupDetail();
-//             } catch (e: any) {
-//                 alert('加入失败：' + (e.message || '邀请码错误'));
-//             }
-//         }
-//     }
-// }
-
-
-// async function handleJoinGroup() {
-//     joining.value = true;
-//     try {
-//         if (group.value?.is_public) {
-//             await api.joinGroupDirectly(groupId);
-//         } else {
-//             const code = prompt('请输入邀请码：');
-//             if (code) await api.joinGroup(code.trim());
-//         }
-//         // ✅ 重新加载小组详情
-//         await loadGroupDetail();
-//         alert('✅ 已加入小组！');
-//     } catch (e: any) {
-//         alert('加入失败：' + (e.message || '未知错误'));
-//     } finally {
-//         joining.value = false;
-//     }
-// }
-
-// 管理小组
-function handleManage() {
-    // 方案一：跳转到管理页面
-    router.push(`/groups/${groupId}/manage`);
-
-    // 方案二：打开管理弹窗
-    // showManageModal.value = true;
-}
-
-// 解散小组
-async function handleDissolve() {
-    const confirmed = await confirm({
-        title: '解散小组',
-        message: '解散后，小组内所有成员、句子和动态都会被永久删除，此操作不可恢复。',
-        icon: '⚠️',
-        confirmText: '确认解散',
-        cancelText: '取消',
-    });
-
-    if (!confirmed) return;
-
+async function handleJoinGroup() {
+    joining.value = true;
     try {
-        await api.dissolveGroup(groupId);
+        if (group.value?.is_public) {
+            await api.joinGroupDirectly(groupId);
+        }
+        // 重新加载小组详情
+        await loadGroupDetail();
         await confirm({
-            title: '已解散',
-            message: '小组已成功解散',
-            icon: '✅',
+            title: '加入成功！',
+            message: '欢迎加入小组！',
+            icon: '🎉',
             confirmText: '我知道了',
             onlyOne: true,
         });
-        router.push('/groups');
     } catch (e: any) {
-        alert('解散失败：' + (e.message || '未知错误'));
+        await confirm({
+            title: '加入失败！',
+            message: e.message || '未知错误',
+            icon: '❌',
+            confirmText: '我知道了',
+            onlyOne: true,
+        });
+    } finally {
+        joining.value = false;
     }
 }
+
 onMounted(() => {
     loadGroupDetail();
     loadSentences();
