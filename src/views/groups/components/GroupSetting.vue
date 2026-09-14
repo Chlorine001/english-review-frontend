@@ -96,30 +96,40 @@
         </div>
 
         <!-- ✅ 成员管理：组长和管理员可见 -->
-        <div v-if="isOwner || group.isAdmin" class="space-y-3">
+        <div v-if="isOwner || group.isAdmin" class="space-y-3 pt-4 border-t border-gray-200 dark:border-gray-700">
             <h4 class="text-sm font-medium text-gray-700 dark:text-gray-300">成员管理</h4>
-            <div class="flex flex-col gap-2">
-                <!-- 移除成员：管理员 + 组长 -->
+            <div class="flex flex-col gap-1">
+                <!-- 设置管理员：仅组长 -->
+                <button v-if="isOwner" @click="openAdminModal"
+                    class="flex items-center gap-2 w-full text-left px-3 py-2 rounded-lg text-sm text-indigo-600 dark:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 transition-colors">
+                    <span>🛡️</span>
+                    <span>设置管理员</span>
+                </button>
+
+                <!-- 移除成员 -->
                 <button @click="openRemoveModal"
-                    class="text-left text-sm text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300">
-                    🚫 移除成员
+                    class="flex items-center gap-2 w-full text-left px-3 py-2 rounded-lg text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors">
+                    <span>🚫</span>
+                    <span>移除成员</span>
                 </button>
 
                 <!-- 转让小组：仅组长 -->
                 <button v-if="isOwner" @click="openTransferModal"
-                    class="text-left text-sm text-orange-600 hover:text-orange-800 dark:text-orange-400 dark:hover:text-orange-300">
-                    👑 转让小组
+                    class="flex items-center gap-2 w-full text-left px-3 py-2 rounded-lg text-sm text-orange-600 dark:text-orange-400 hover:bg-orange-50 dark:hover:bg-orange-900/20 transition-colors">
+                    <span>👑</span>
+                    <span>转让小组</span>
                 </button>
             </div>
         </div>
-
+        <!-- ✅ 退出小组：非组长且是成员 -->
         <div v-if="!isOwner && group.isMember" class="space-y-3 pt-4 border-t border-gray-200 dark:border-gray-700">
             <h4 class="text-sm font-medium text-gray-700 dark:text-gray-300">退出小组</h4>
             <button @click="handleLeave"
-                class="text-left text-sm text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300">
-                🚪 退出小组
+                class="flex items-center gap-2 w-full text-left px-3 py-2 rounded-lg text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors">
+                <span>🚪</span>
+                <span>退出小组</span>
             </button>
-            <p class="text-xs text-gray-400 dark:text-gray-500">
+            <p class="text-xs text-gray-400 dark:text-gray-500 px-3">
                 退出后，你在小组内分享的句子将被删除。
             </p>
         </div>
@@ -127,17 +137,18 @@
         <!-- ✅ 危险操作：仅组长可见 -->
         <div v-if="isOwner" class="space-y-3 pt-4 border-t border-gray-200 dark:border-gray-700">
             <h4 class="text-sm font-medium text-red-600 dark:text-red-400">危险操作</h4>
-            <div class="flex flex-col gap-2">
+            <div>
                 <button @click="handleDissolve"
-                    class="text-left text-sm text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300 font-medium">
-                    🗑️ 解散小组
+                    class="flex items-center gap-2 w-full text-left px-3 py-2 rounded-lg text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors font-medium">
+                    <span>🗑️</span>
+                    <span>解散小组</span>
                 </button>
-                <p class="text-xs text-gray-400 dark:text-gray-500">
+                <p class="text-xs text-gray-400 dark:text-gray-500 mt-1 px-3">
                     解散后所有成员、句子和动态将被永久删除，此操作不可恢复。
                 </p>
             </div>
         </div>
-        
+
         <!-- ✅ 转让小组弹窗 -->
         <div v-if="showTransferModal" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
             @click.self="showTransferModal = false">
@@ -221,10 +232,14 @@
                         <span v-if="selectedMemberId === member.id" class="text-red-600 text-lg flex-shrink-0">✓</span>
                     </div>
                 </div>
-
-                <p v-if="removableMembers.length === 0" class="text-center text-sm text-gray-400 py-4">
+                <div v-if="removableMembers.length === 0" class="flex items-center justify-center h-40">
+                    <p class="text-sm text-gray-400">
+                        没有可以移除的成员
+                    </p>
+                </div>
+                <!-- <p v-if="removableMembers.length === 0" class="text-center text-sm text-gray-400 py-4">
                     没有可以移除的成员
-                </p>
+                </p> -->
 
                 <div class="grid grid-cols-2 gap-3">
                     <button @click="showRemoveModal = false"
@@ -235,6 +250,47 @@
                         class="px-4 py-2.5 rounded-lg bg-red-600 hover:bg-red-700 text-white transition-colors text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed"
                         :disabled="!selectedMemberId || kicking">
                         {{ kicking ? '移除中...' : '确认移除' }}
+                    </button>
+                </div>
+            </div>
+        </div>
+        <!-- ✅ 设置管理员弹窗 -->
+        <div v-if="showAdminModal" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
+            @click.self="showAdminModal = false">
+            <div class="bg-white dark:bg-gray-800 rounded-lg p-6 max-w-md w-full">
+                <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-2">🛡️ 设置管理员</h3>
+                <p class="text-sm text-gray-500 dark:text-gray-400 mb-4">
+                    管理员可以管理成员、修改小组信息，但不能解散小组或转让小组。
+                </p>
+
+                <div class="space-y-2 max-h-64 overflow-y-auto mb-4">
+                    <div v-for="member in adminCandidates" :key="member.id"
+                        class="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
+                        <!-- 头像 -->
+                        <div
+                            class="w-9 h-9 rounded-full bg-indigo-500 text-white flex items-center justify-center text-xs font-bold flex-shrink-0">
+                            {{ (member.nickname || member.email)?.charAt(0).toUpperCase() }}
+                        </div>
+                        <!-- 名字 -->
+                        <div class="flex-1 min-w-0">
+                            <p class="text-sm font-medium text-gray-900 dark:text-white truncate">
+                                {{ member.nickname || member.email }}
+                            </p>
+                            <p v-if="member.nickname" class="text-xs text-gray-400 truncate">{{ member.email }}</p>
+                        </div>
+                        <!-- 切换按钮 -->
+                        <button @click="toggleAdmin(member)"
+                            class="text-xs px-3 py-1 rounded-full transition-colors flex-shrink-0" :class="member.role === 'admin'
+                                ? 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300'
+                                : 'bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400'">
+                            {{ member.role === 'admin' ? '🛡️ 管理员' : '设为管理员' }}
+                        </button>
+                    </div>
+                </div>
+
+                <div class="mt-4">
+                    <button @click="showAdminModal = false" class="btn-secondary w-full">
+                        关闭
                     </button>
                 </div>
             </div>
@@ -265,6 +321,46 @@ const inviteLink = computed(() => {
     const baseUrl = import.meta.env.VITE_FRONTEND_URL || window.location.origin;
     return `${baseUrl}/groups/join?code=${encodeURIComponent(props.group.invite_code)}`;
 });
+
+const showAdminModal = ref(false);
+const updatingAdminId = ref<number | null>(null);
+
+// 可设置为管理员的成员（排除组长）
+const adminCandidates = computed(() => {
+    return (props.group.members || []).filter(
+        (m: any) => m.id !== props.group.owner_id
+    );
+});
+
+function openAdminModal() {
+    showAdminModal.value = true;
+}
+
+async function toggleAdmin(member: any) {
+    const isCurrentlyAdmin = member.role === 'admin';
+    const targetName = member.nickname || member.email;
+    const ok = await confirm({
+        title: isCurrentlyAdmin ? '取消管理员' : '设置管理员',
+        message: isCurrentlyAdmin
+            ? `确定取消 ${targetName} 的管理员吗？`
+            : `确定设置 ${targetName} 为管理员吗？`,
+        icon: '🛡️',
+        confirmText: '确认',
+        cancelText: '取消',
+    });
+
+    if (!ok) return;
+
+    updatingAdminId.value = member.id;
+    try {
+        await api.setAdmin(props.group.id, member.id, !isCurrentlyAdmin);
+        emit('refresh');
+    } catch (e: any) {
+        alert('操作失败：' + (e.message || '未知错误'));
+    } finally {
+        updatingAdminId.value = null;
+    }
+}
 
 // 模态框状态
 const showRemoveModal = ref(false);
