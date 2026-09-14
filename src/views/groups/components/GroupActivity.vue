@@ -19,6 +19,13 @@
                             {{ item.user_nickname || '用户' }}
                         </span>
                         <span class="ml-1">{{ item.content }}</span>
+                        <!-- ✅ 被操作人（如果有） -->
+                        <template v-if="item.target_user_nickname">
+                            <span class="mx-1 text-gray-400">→</span>
+                            <span class="font-medium text-indigo-600 dark:text-indigo-400">
+                                {{ item.target_user_nickname }}
+                            </span>
+                        </template>
                     </p>
                     <p class="text-xs text-gray-400 dark:text-gray-500 mt-0.5 text-left">
                         {{ formatDate(item.created_at) }}
