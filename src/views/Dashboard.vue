@@ -69,8 +69,14 @@
                 <div class="text-xs text-gray-500 dark:text-gray-400 mt-1">总句子</div>
             </router-link>
             <div class="card p-4 text-center">
-                <div class="text-3xl font-bold text-orange-500">🔥 {{ progress.streak }}</div>
-                <div class="text-xs text-gray-500 dark:text-gray-400 mt-1">连续天数</div>
+                <div class="text-3xl font-bold transition-opacity" :class="progress.hasReviewedToday
+                    ? 'text-orange-500'
+                    : 'text-gray-400 dark:text-gray-500 opacity-50'">
+                    🔥 {{ progress.streak }}
+                </div>
+                <div class="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                    {{ progress.hasReviewedToday ? '连续天数' : '今天还没复习' }}
+                </div>
             </div>
         </div>
 
@@ -185,12 +191,14 @@ const progress = ref<{
     todayPending: number;
     todayDone: number;
     streak: number;
+    hasReviewedToday: boolean;
 }>({
     total: 0,
     byStatus: { NEW: 0, LEARNING: 0, REVIEW: 0, MATURE: 0 },
     todayPending: 0,
     todayDone: 0,
     streak: 0,
+    hasReviewedToday: false,
 });
 
 // 各状态百分比

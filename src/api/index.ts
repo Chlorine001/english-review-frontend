@@ -297,6 +297,7 @@ export const api = {
       todayPending: number;
       todayDone: number;
       streak: number;
+      hasReviewedToday: boolean;
     }>('/stats/progress'),
 };
 
