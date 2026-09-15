@@ -58,6 +58,11 @@
                             title="播放媒体">
                             {{ isVideo(item.media_format) ? '🎬' : '🎵' }}
                         </button>
+                        <!-- ✅ 复制按钮（自己的不显示） -->
+                        <button v-if="item.user_id !== currentUserId" @click="copySentence(item)"
+                            class="text-xs text-gray-400 hover:text-green-500 transition-colors" title="复制到我的句子库">
+                            📥
+                        </button>
                         <!-- 点赞 -->
                         <button @click="likeSentence(item.id)"
                             class="text-xs text-gray-400 hover:text-red-500 transition-colors flex items-center gap-1">
@@ -179,6 +184,41 @@ function closeMediaModal() {
 function isVideo(format: string | null): boolean {
     if (!format) return false;
     return ['mp4', 'webm', 'mov'].includes(format.toLowerCase());
+}
+
+// 复制到我的句子库
+async function copySentence(item: any) {
+    const ok = await confirm({
+        title: '复制到我的句子库',
+        message: '将该句子复制到你的个人句子库，并加入复习计划？',
+        icon: '📥',
+        confirmText: '复制',
+        cancelText: '取消',
+    });
+    if (!ok) return;
+
+    try {
+        await api.copyGroupSentence(props.groupId, item.id);
+        await confirm({
+            title: '复制成功',
+            message: '已添加到你的句子库，可以在「句子库」中查看',
+            icon: '✅',
+            confirmText: '我知道了',
+            onlyOne: true,
+        });
+    } catch (e: any) {
+        if (e.message?.includes('已有相同句子')) {
+            await confirm({
+                title: '无需复制',
+                message: '你的句子库中已有相同句子',
+                icon: '💡',
+                confirmText: '我知道了',
+                onlyOne: true,
+            });
+        } else {
+            alert('复制失败：' + (e.message || '未知错误'));
+        }
+    }
 }
 
 const emit = defineEmits(['refresh']);

@@ -226,19 +226,19 @@ export const api = {
     request<{ success: boolean; groupId: number }>(`/groups/${groupId}/join`, {
       method: 'POST',
     }),
-  
+
   updateGroup: (groupId: number, data: { name?: string; description?: string; isPublic?: boolean }) =>
     request<{ success: boolean }>(`/groups/${groupId}`, {
       method: 'PUT',
       body: JSON.stringify(data),
     }),
-  
+
   transferOwner: (groupId: number, newOwnerId: number) =>
     request<{ success: boolean }>(`/groups/${groupId}/transfer`, {
       method: 'POST',
       body: JSON.stringify({ newOwnerId }),
     }),
-  
+
   // 退出小组
   leaveGroup: (groupId: number) =>
     request<{ success: boolean }>(`/groups/${groupId}/leave`, {
@@ -258,7 +258,7 @@ export const api = {
       method: 'POST',
       body: JSON.stringify({ userId, isAdmin }),
     }),
-  
+
   // 获取小组句子
   getGroupSentences: (groupId: number) =>
     request<any[]>(`/groups/${groupId}/sentences`),
@@ -281,9 +281,14 @@ export const api = {
     request<{ success: boolean }>(`/groups/${groupId}/sentences/${sentenceId}/like`, {
       method: 'POST',
     }),
-  
+
   getProfile: () =>
     request<{ id: number; email: string; nickname: string | null; created_at: string }>('/user/profile'),
+
+  copyGroupSentence: (groupId: number, shareId: number) =>
+    request<{ success: boolean; id: number }>(`/groups/${groupId}/sentences/${shareId}/copy`, {
+      method: 'POST',
+    }),
 };
 
 
