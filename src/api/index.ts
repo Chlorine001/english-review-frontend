@@ -40,13 +40,19 @@ async function request<T>(endpoint: string, options: RequestInit = {}, skipAuthR
 
   // ✅ 处理 401 未授权（Token 过期或无效）
   if (res.status === 401) {
-    // 使用更优雅的提示方式（如 Toast 或 Notification）
-    // 如果你的项目有 UI 库，改用 notification.error()
-    if (!skipAuthRedirect) {
-      console.warn('登录已过期，请重新登录');
+    // 清除本地登录状态
+    localStorage.removeItem('isLoggedIn');
+    localStorage.removeItem('userEmail');
+    localStorage.removeItem('nickName');
+    localStorage.removeItem('isVerified');
+    // 避免在登录/注册页面重复跳转
+    const currentPath = window.location.pathname;
+    const publicPaths = ['/login', '/register', '/verify-email'];
+
+    if (!skipAuthRedirect && !publicPaths.includes(currentPath)) {
       window.location.href = '/login';
-      throw new Error('登录已过期，请重新登录');
     }
+    throw new Error('登录已过期，请重新登录');
   }
 
   if (!res.ok) {
@@ -192,6 +198,107 @@ export const api = {
   //todo : 获取积分排行榜
   getPointsRank: () =>
     request<any[]>('/points/rank'),
+
+  //小组
+  getMyGroups: () => request<any[]>('/groups/mine'),
+  getOpenGroups: () => request<any[]>('/groups/open'),
+
+  createGroup: (data: { name: string; description?: string; isPublic?: boolean }) =>
+    request<{ id: number; inviteCode: string }>('/groups', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    }),
+
+  joinGroup: (inviteCode: string) =>
+    request<{ success: boolean; groupId: number }>('/groups/join', {
+      method: 'POST',
+      body: JSON.stringify({ inviteCode }),
+    }),
+
+  getGroupDetail: (id: number) => request<any>(`/groups/${id}`),
+  getGroupActivities: (id: number) => request<any>(`/groups/${id}/activities`),
+  dissolveGroup: (groupId: number) =>
+    request<{ success: boolean }>(`/groups/${groupId}`, {
+      method: 'DELETE',
+    }),
+
+  joinGroupDirectly: (groupId: number) =>
+    request<{ success: boolean; groupId: number }>(`/groups/${groupId}/join`, {
+      method: 'POST',
+    }),
+
+  updateGroup: (groupId: number, data: { name?: string; description?: string; isPublic?: boolean }) =>
+    request<{ success: boolean }>(`/groups/${groupId}`, {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    }),
+
+  transferOwner: (groupId: number, newOwnerId: number) =>
+    request<{ success: boolean }>(`/groups/${groupId}/transfer`, {
+      method: 'POST',
+      body: JSON.stringify({ newOwnerId }),
+    }),
+
+  // 退出小组
+  leaveGroup: (groupId: number) =>
+    request<{ success: boolean }>(`/groups/${groupId}/leave`, {
+      method: 'POST',
+    }),
+
+  // 移除成员
+  kickMember: (groupId: number, userId: number) =>
+    request<{ success: boolean }>(`/groups/${groupId}/kick`, {
+      method: 'POST',
+      body: JSON.stringify({ userId }),
+    }),
+
+  // 设置/取消管理员
+  setAdmin: (groupId: number, userId: number, isAdmin: boolean) =>
+    request<{ success: boolean; role: string }>(`/groups/${groupId}/set-admin`, {
+      method: 'POST',
+      body: JSON.stringify({ userId, isAdmin }),
+    }),
+
+  // 获取小组句子
+  getGroupSentences: (groupId: number) =>
+    request<any[]>(`/groups/${groupId}/sentences`),
+
+  // 分享句子到小组
+  shareSentenceToGroup: (groupId: number, sentenceId: number) =>
+    request<{ success: boolean; id: number }>(`/groups/${groupId}/sentences`, {
+      method: 'POST',
+      body: JSON.stringify({ sentenceId }),
+    }),
+
+  // 删除小组句子
+  deleteGroupSentence: (groupId: number, sentenceId: number) =>
+    request<{ success: boolean }>(`/groups/${groupId}/sentences/${sentenceId}`, {
+      method: 'DELETE',
+    }),
+
+  // 点赞
+  likeGroupSentence: (groupId: number, sentenceId: number) =>
+    request<{ success: boolean }>(`/groups/${groupId}/sentences/${sentenceId}/like`, {
+      method: 'POST',
+    }),
+
+  getProfile: () =>
+    request<{ id: number; email: string; nickname: string | null; created_at: string }>('/user/profile'),
+
+  copyGroupSentence: (groupId: number, shareId: number) =>
+    request<{ success: boolean; id: number }>(`/groups/${groupId}/sentences/${shareId}/copy`, {
+      method: 'POST',
+    }),
+  
+  getProgressStats: () =>
+    request<{
+      total: number;
+      byStatus: Record<string, number>;
+      todayPending: number;
+      todayDone: number;
+      streak: number;
+      hasReviewedToday: boolean;
+    }>('/stats/progress'),
 };
 
 
