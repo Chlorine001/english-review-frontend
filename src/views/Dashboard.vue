@@ -53,33 +53,38 @@
             </div>
         </div>
 
+        <!-- 标题 -->
         <div class="flex justify-between items-center mb-6">
             <h1 class="text-3xl font-bold text-gray-900 dark:text-white">{{ title }}</h1>
         </div>
 
-        <div class="grid grid-cols-2 gap-4 mb-8">
+        <!-- ✅ 顶部统计卡片：3 个 -->
+        <div class="grid grid-cols-3 gap-3 mb-6">
+            <router-link to="/review" class="card p-4 text-center hover:shadow-md transition-shadow">
+                <div class="text-3xl font-bold text-indigo-600 dark:text-indigo-400">{{ stats.today }}</div>
+                <div class="text-xs text-gray-500 dark:text-gray-400 mt-1">今日复习</div>
+            </router-link>
+            <router-link to="/library" class="card p-4 text-center hover:shadow-md transition-shadow">
+                <div class="text-3xl font-bold text-green-600 dark:text-green-400">{{ stats.total }}</div>
+                <div class="text-xs text-gray-500 dark:text-gray-400 mt-1">总句子</div>
+            </router-link>
             <div class="card p-4 text-center">
-                <div class="text-2xl font-bold text-gray-800 dark:text-white"><a href="/review">{{ stats.today }}</a>
-                </div>
-                <div class="card-meta">今日复习</div>
-            </div>
-            <div class="card p-4 text-center">
-                <div class="text-2xl font-bold text-gray-800 dark:text-white"><a href="/library">{{ stats.total }}</a>
-                </div>
-                <div class="card-meta">总句子</div>
+                <div class="text-3xl font-bold text-orange-500">🔥 {{ progress.streak }}</div>
+                <div class="text-xs text-gray-500 dark:text-gray-400 mt-1">连续天数</div>
             </div>
         </div>
 
+        <!-- ✅ 学习进度卡片 -->
         <div class="card p-6 mb-4">
             <div class="flex items-center justify-between mb-4">
-                <h3 class="text-lg font-semibold text-gray-900 dark:text-white">📊 学习进度</h3>
-                <span class="text-sm text-gray-500 dark:text-gray-400">
-                    总计 {{ progress.total }} 个句子
+                <h3 class="text-base font-semibold text-gray-900 dark:text-white">📊 学习进度</h3>
+                <span class="text-xs text-gray-500 dark:text-gray-400">
+                    共 {{ progress.total }} 个句子
                 </span>
             </div>
 
-            <!-- 进度条：各状态占比 -->
-            <div class="h-3 rounded-full overflow-hidden flex bg-gray-100 dark:bg-gray-700 mb-3">
+            <!-- 进度条 -->
+            <div class="h-2.5 rounded-full overflow-hidden flex bg-gray-100 dark:bg-gray-700 mb-4">
                 <div class="bg-gray-400 dark:bg-gray-500 transition-all" :style="{ width: percent('NEW') + '%' }"
                     title="新句子"></div>
                 <div class="bg-yellow-400 transition-all" :style="{ width: percent('LEARNING') + '%' }" title="学习中">
@@ -89,74 +94,43 @@
             </div>
 
             <!-- 图例 -->
-            <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 text-center text-sm">
-                <div>
-                    <div class="flex items-center justify-center gap-1.5">
-                        <span class="w-2.5 h-2.5 rounded-full bg-gray-400"></span>
-                        <span class="text-gray-600 dark:text-gray-400">新句子</span>
+            <div class="grid grid-cols-4 gap-3">
+                <div v-for="item in statusItems" :key="item.key" class="text-center">
+                    <div class="flex items-center justify-center gap-1.5 mb-1">
+                        <span class="w-2 h-2 rounded-full" :class="item.color"></span>
+                        <span class="text-xs text-gray-500 dark:text-gray-400">{{ item.label }}</span>
                     </div>
-                    <p class="text-lg font-bold text-gray-800 dark:text-white mt-1">
-                        {{ progress.byStatus.NEW }}
+                    <p class="text-lg font-bold text-gray-800 dark:text-white">
+                        {{ progress.byStatus[item.key] }}
                     </p>
-                </div>
-                <div>
-                    <div class="flex items-center justify-center gap-1.5">
-                        <span class="w-2.5 h-2.5 rounded-full bg-yellow-400"></span>
-                        <span class="text-gray-600 dark:text-gray-400">学习中</span>
-                    </div>
-                    <p class="text-lg font-bold text-gray-800 dark:text-white mt-1">
-                        {{ progress.byStatus.LEARNING }}
-                    </p>
-                </div>
-                <div>
-                    <div class="flex items-center justify-center gap-1.5">
-                        <span class="w-2.5 h-2.5 rounded-full bg-blue-500"></span>
-                        <span class="text-gray-600 dark:text-gray-400">复习中</span>
-                    </div>
-                    <p class="text-lg font-bold text-gray-800 dark:text-white mt-1">
-                        {{ progress.byStatus.REVIEW }}
-                    </p>
-                </div>
-                <div>
-                    <div class="flex items-center justify-center gap-1.5">
-                        <span class="w-2.5 h-2.5 rounded-full bg-green-500"></span>
-                        <span class="text-gray-600 dark:text-gray-400">已掌握</span>
-                    </div>
-                    <p class="text-lg font-bold text-gray-800 dark:text-white mt-1">
-                        {{ progress.byStatus.MATURE }}
+                    <p class="text-xs text-gray-400 dark:text-gray-500">
+                        {{ percent(item.key).toFixed(0) }}%
                     </p>
                 </div>
             </div>
         </div>
 
-        <div class="card p-6 mb-4">
+        <!-- ✅ 今日复习进度 -->
+        <div class="card p-6 mb-6">
             <div class="flex items-center justify-between mb-3">
-                <h3 class="text-lg font-semibold text-gray-900 dark:text-white">📅 今日复习</h3>
-                <span class="text-sm text-gray-500 dark:text-gray-400">
+                <h3 class="text-base font-semibold text-gray-900 dark:text-white">📅 今日复习</h3>
+                <span class="text-xs text-gray-500 dark:text-gray-400">
                     {{ progress.todayDone }} / {{ progress.todayDone + progress.todayPending }}
                 </span>
             </div>
 
-            <!-- 进度条 -->
-            <div class="h-3 bg-gray-100 dark:bg-gray-700 rounded-full overflow-hidden">
+            <div class="h-2.5 bg-gray-100 dark:bg-gray-700 rounded-full overflow-hidden mb-3">
                 <div class="h-full bg-gradient-to-r from-indigo-500 to-purple-600 transition-all duration-500"
                     :style="{ width: todayPercent + '%' }"></div>
             </div>
 
-            <div class="flex justify-between mt-2 text-xs text-gray-500 dark:text-gray-400">
-                <span>已完成 {{ progress.todayDone }}</span>
-                <span>待复习 {{ progress.todayPending }}</span>
+            <div class="flex justify-between text-xs text-gray-500 dark:text-gray-400">
+                <span>✅ 已完成 {{ progress.todayDone }}</span>
+                <span>⏳ 待复习 {{ progress.todayPending }}</span>
             </div>
         </div>
 
-        <div class="card p-4 text-center">
-            <div class="text-4xl">🔥</div>
-            <p class="text-2xl font-bold text-gray-900 dark:text-white mt-1">
-                {{ progress.streak }}
-            </p>
-            <p class="text-xs text-gray-500 dark:text-gray-400">连续学习天数</p>
-        </div>
-
+        <!-- ✅ 操作按钮 -->
         <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
             <router-link to="/review"
                 class="btn-primary flex items-center justify-center gap-2 py-3 text-sm whitespace-nowrap">
@@ -176,7 +150,6 @@
             </router-link>
         </div>
     </div>
-
 </template>
 
 <script setup lang="ts">
@@ -196,6 +169,13 @@ async function loadStats() {
         router.push('/login');
     }
 }
+
+const statusItems: { key: ReviewStatus; label: string; color: string }[] = [
+    { key: 'NEW', label: '新句子', color: 'bg-gray-400 dark:bg-gray-500' },
+    { key: 'LEARNING', label: '学习中', color: 'bg-yellow-400' },
+    { key: 'REVIEW', label: '复习中', color: 'bg-blue-500' },
+    { key: 'MATURE', label: '已掌握', color: 'bg-green-500' },
+];
 
 type ReviewStatus = 'NEW' | 'LEARNING' | 'REVIEW' | 'MATURE';
 
