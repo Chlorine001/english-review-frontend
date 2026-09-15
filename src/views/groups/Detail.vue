@@ -72,18 +72,18 @@
             <div class="card p-4">
                 <!-- 成员列表 -->
                 <GroupMember v-if="activeTab === 'members'" :members="group.members || []" :is-owner="group.isOwner"
-                    :group-id="group.id" @refresh="loadGroupDetail" />
+                    :group-id="group.id" @refresh="refreshAll" />
 
                 <!-- 小组句子 -->
                 <GroupSentence v-else-if="activeTab === 'sentences'" :sentences="sentences" :group-id="group.id"
-                    @refresh="loadSentences" />
+                    :is-member="group.isMember" @refresh="refreshAll" />
 
                 <!-- 动态 -->
                 <GroupActivity v-else-if="activeTab === 'activities'" :activities="activities" />
 
                 <!-- 管理 -->
                 <GroupSetting v-else-if="activeTab === 'setting'" :group="group" :is-owner="group.isOwner"
-                    @refresh="loadGroupDetail" />
+                    @refresh="refreshAll" />
             </div>
 
             <!-- 加入小组按钮（非成员且非组长） -->
@@ -117,11 +117,19 @@ const activities = ref<any[]>([]);
 const activeTab = ref('members');
 const joining = ref(false);
 
+async function refreshAll() {
+    await Promise.all([
+        loadGroupDetail(),
+        loadSentences(),
+        loadActivities(),
+    ]);
+}
+
 const tabs = computed(() => [
     { key: 'members', label: '👤成员', count: group.value?.member_count || 0 },
     { key: 'sentences', label: '句子', count: sentences.value.length },
     { key: 'activities', label: '动态', count: activities.value.length },
-    { key: 'setting', label: '管理'},
+    { key: 'setting', label: '管理' },
 ]);
 
 async function loadGroupDetail() {
@@ -137,8 +145,7 @@ async function loadGroupDetail() {
 
 async function loadSentences() {
     try {
-        // TODO: 实现获取小组句子的 API
-        // sentences.value = await api.getGroupSentences(groupId);
+        sentences.value = await api.getGroupSentences(groupId);
     } catch (e) {
         console.error('加载句子失败', e);
     }

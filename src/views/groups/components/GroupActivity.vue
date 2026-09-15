@@ -47,10 +47,12 @@ function getIcon(type: string): string {
         create: '✨',    // 创建小组
         join: '👋',      // 加入小组
         share: '📤',     // 分享句子
+        unshare: '🗑️',      // 取消分享
         like: '❤️',      // 点赞
         review: '📚',    // 完成复习
         leave: '🚪',     // 退出小组
         // owner: '🎉',     // 成为组长
+        set_admin: '🛡️',
         transfer: '👑',  // 转让小组
         kick: '🚫',      // 移除成员
         update: '✏️',    // 更新信息

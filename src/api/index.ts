@@ -258,6 +258,32 @@ export const api = {
       method: 'POST',
       body: JSON.stringify({ userId, isAdmin }),
     }),
+  
+  // 获取小组句子
+  getGroupSentences: (groupId: number) =>
+    request<any[]>(`/groups/${groupId}/sentences`),
+
+  // 分享句子到小组
+  shareSentenceToGroup: (groupId: number, sentenceId: number) =>
+    request<{ success: boolean; id: number }>(`/groups/${groupId}/sentences`, {
+      method: 'POST',
+      body: JSON.stringify({ sentenceId }),
+    }),
+
+  // 删除小组句子
+  deleteGroupSentence: (groupId: number, sentenceId: number) =>
+    request<{ success: boolean }>(`/groups/${groupId}/sentences/${sentenceId}`, {
+      method: 'DELETE',
+    }),
+
+  // 点赞
+  likeGroupSentence: (groupId: number, sentenceId: number) =>
+    request<{ success: boolean }>(`/groups/${groupId}/sentences/${sentenceId}/like`, {
+      method: 'POST',
+    }),
+  
+  getProfile: () =>
+    request<{ id: number; email: string; nickname: string | null; created_at: string }>('/user/profile'),
 };
 
 
