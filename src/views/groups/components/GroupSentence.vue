@@ -21,12 +21,12 @@
                 class="p-4 border border-gray-200 dark:border-gray-700 rounded-lg hover:border-indigo-300 dark:hover:border-indigo-700 transition-colors">
                 <!-- 英文句子 -->
                 <p class="text-gray-900 dark:text-white font-medium break-words">
-                    {{ item.content }}
+                    原文： {{ item.content }}
                 </p>
 
                 <!-- 中文翻译 -->
                 <p v-if="item.translation" class="text-gray-600 dark:text-gray-300 text-sm mt-1 break-words">
-                    {{ item.translation }}
+                    翻译： {{ item.translation }}
                 </p>
 
                 <!-- 音标 -->
@@ -36,8 +36,14 @@
 
                 <!-- 来源 -->
                 <p v-if="item.source" class="text-xs text-gray-400 dark:text-gray-500 mt-1">
-                    📚 {{ item.source }}
+                    来源： {{ item.source }}
                 </p>
+                <!-- ✅ 媒体播放器
+                <div v-if="item.media_path" class="flex items-start justify-between">
+                    <MediaPlayer :src="mediaUrls[item.id]" :file-format="item.media_format || ''" show-info
+                        video-class="max-h-48" />
+                </div> -->
+                <!-- <div v-if="item.media_path" class="mt-3">-->
 
                 <!-- 底部：贡献者 + 时间 + 操作 -->
                 <div class="flex items-center justify-between mt-3 pt-2 border-t border-gray-100 dark:border-gray-700">
@@ -47,6 +53,11 @@
                         <span>{{ formatDate(item.created_at) }}</span>
                     </div>
                     <div class="flex items-center gap-3">
+                        <button v-if="item.media_path" @click="openMediaModal(item)"
+                            class="text-xs text-gray-400 hover:text-indigo-500 transition-colors flex items-center gap-1"
+                            title="播放媒体">
+                            {{ isVideo(item.media_format) ? '🎬' : '🎵' }}
+                        </button>
                         <!-- 点赞 -->
                         <button @click="likeSentence(item.id)"
                             class="text-xs text-gray-400 hover:text-red-500 transition-colors flex items-center gap-1">
@@ -101,6 +112,27 @@
                 </div>
             </div>
         </div>
+        <!-- ✅ 媒体播放弹窗 -->
+        <div v-if="showMediaModal" class="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4"
+            @click.self="closeMediaModal">
+            <div class="bg-white dark:bg-gray-800 rounded-lg p-4 max-w-2xl w-full">
+                <!-- 标题 -->
+                <div class="flex items-center justify-between mb-3">
+                    <h3 class="text-base font-semibold text-gray-900 dark:text-white truncate pr-4">
+                        {{ currentMedia?.content }}
+                    </h3>
+                    <button @click="closeMediaModal"
+                        class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 text-xl leading-none flex-shrink-0"
+                        title="关闭">
+                        ✕
+                    </button>
+                </div>
+
+                <!-- 播放器 -->
+                <MediaPlayer v-if="currentMedia" :src="mediaUrls[currentMedia.sentence_id]"
+                    :file-format="currentMedia.media_format || ''" show-info video-class="max-h-[60vh]" />
+            </div>
+        </div>
     </div>
 </template>
 
@@ -109,12 +141,45 @@ import { ref, onMounted } from 'vue';
 import { api } from '@/api';
 import { confirm } from '@/utils/verifyCheck';
 import { formatBeijingTime } from '@/utils/time';
+import MediaPlayer from '@/composables/MediaPlayer.vue';
 
 const props = defineProps<{
     sentences: any[];
     groupId: number;
     isMember: boolean;
 }>();
+
+// 在 Review.vue 的 script 中
+const mediaUrls = ref<Record<number, string>>({});
+
+// 加载音频 URL 的函数
+function loadMediaUrl(sentenceId: number) {
+    if (mediaUrls.value[sentenceId]) return; // 已缓存则跳过
+    // 直接使用 API 路径
+    const baseURL = import.meta.env.VITE_API_BASE_URL;
+    mediaUrls.value[sentenceId] = `${baseURL}/api/sentences/${sentenceId}/media`;
+}
+// 媒体弹窗状态
+const showMediaModal = ref(false);
+const currentMedia = ref<any>(null);
+
+function openMediaModal(item: any) {
+    currentMedia.value = item;
+    showMediaModal.value = true;
+    // 确保 URL 已加载
+    loadMediaUrl(item.sentence_id);
+}
+
+function closeMediaModal() {
+    showMediaModal.value = false;
+    currentMedia.value = null;
+}
+
+// 判断是否为视频
+function isVideo(format: string | null): boolean {
+    if (!format) return false;
+    return ['mp4', 'webm', 'mov'].includes(format.toLowerCase());
+}
 
 const emit = defineEmits(['refresh']);
 
