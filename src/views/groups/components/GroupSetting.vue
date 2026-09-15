@@ -184,9 +184,11 @@
                     </div>
                 </div>
 
-                <p v-if="transferableMembers.length === 0" class="text-center text-sm text-gray-400 py-4">
-                    没有可以转让的成员
-                </p>
+                <div v-if="transferableMembers.length === 0" class="flex items-center justify-center h-40">
+                    <p class="text-sm text-gray-400">
+                        没有可以转让的成员
+                    </p>
+                </div>
 
                 <!-- 按钮 -->
                 <div class="grid grid-cols-2 gap-3">
@@ -237,9 +239,6 @@
                         没有可以移除的成员
                     </p>
                 </div>
-                <!-- <p v-if="removableMembers.length === 0" class="text-center text-sm text-gray-400 py-4">
-                    没有可以移除的成员
-                </p> -->
 
                 <div class="grid grid-cols-2 gap-3">
                     <button @click="showRemoveModal = false"
@@ -262,6 +261,12 @@
                 <p class="text-sm text-gray-500 dark:text-gray-400 mb-4">
                     管理员可以管理成员、修改小组信息，但不能解散小组或转让小组。
                 </p>
+
+                <div v-if="adminCandidates.length === 0" class="flex items-center justify-center h-40">
+                    <p class="text-sm text-gray-400">
+                        没有可以设置的管理员
+                    </p>
+                </div>
 
                 <div class="space-y-2 max-h-64 overflow-y-auto mb-4">
                     <div v-for="member in adminCandidates" :key="member.id"
