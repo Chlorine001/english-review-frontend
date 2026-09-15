@@ -289,6 +289,15 @@ export const api = {
     request<{ success: boolean; id: number }>(`/groups/${groupId}/sentences/${shareId}/copy`, {
       method: 'POST',
     }),
+  
+  getProgressStats: () =>
+    request<{
+      total: number;
+      byStatus: Record<string, number>;
+      todayPending: number;
+      todayDone: number;
+      streak: number;
+    }>('/stats/progress'),
 };
 
 
