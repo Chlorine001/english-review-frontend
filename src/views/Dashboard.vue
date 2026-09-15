@@ -70,6 +70,93 @@
             </div>
         </div>
 
+        <div class="card p-6 mb-4">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-lg font-semibold text-gray-900 dark:text-white">📊 学习进度</h3>
+                <span class="text-sm text-gray-500 dark:text-gray-400">
+                    总计 {{ progress.total }} 个句子
+                </span>
+            </div>
+
+            <!-- 进度条：各状态占比 -->
+            <div class="h-3 rounded-full overflow-hidden flex bg-gray-100 dark:bg-gray-700 mb-3">
+                <div class="bg-gray-400 dark:bg-gray-500 transition-all" :style="{ width: percent('NEW') + '%' }"
+                    title="新句子"></div>
+                <div class="bg-yellow-400 transition-all" :style="{ width: percent('LEARNING') + '%' }" title="学习中">
+                </div>
+                <div class="bg-blue-500 transition-all" :style="{ width: percent('REVIEW') + '%' }" title="复习中"></div>
+                <div class="bg-green-500 transition-all" :style="{ width: percent('MATURE') + '%' }" title="已掌握"></div>
+            </div>
+
+            <!-- 图例 -->
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 text-center text-sm">
+                <div>
+                    <div class="flex items-center justify-center gap-1.5">
+                        <span class="w-2.5 h-2.5 rounded-full bg-gray-400"></span>
+                        <span class="text-gray-600 dark:text-gray-400">新句子</span>
+                    </div>
+                    <p class="text-lg font-bold text-gray-800 dark:text-white mt-1">
+                        {{ progress.byStatus.NEW }}
+                    </p>
+                </div>
+                <div>
+                    <div class="flex items-center justify-center gap-1.5">
+                        <span class="w-2.5 h-2.5 rounded-full bg-yellow-400"></span>
+                        <span class="text-gray-600 dark:text-gray-400">学习中</span>
+                    </div>
+                    <p class="text-lg font-bold text-gray-800 dark:text-white mt-1">
+                        {{ progress.byStatus.LEARNING }}
+                    </p>
+                </div>
+                <div>
+                    <div class="flex items-center justify-center gap-1.5">
+                        <span class="w-2.5 h-2.5 rounded-full bg-blue-500"></span>
+                        <span class="text-gray-600 dark:text-gray-400">复习中</span>
+                    </div>
+                    <p class="text-lg font-bold text-gray-800 dark:text-white mt-1">
+                        {{ progress.byStatus.REVIEW }}
+                    </p>
+                </div>
+                <div>
+                    <div class="flex items-center justify-center gap-1.5">
+                        <span class="w-2.5 h-2.5 rounded-full bg-green-500"></span>
+                        <span class="text-gray-600 dark:text-gray-400">已掌握</span>
+                    </div>
+                    <p class="text-lg font-bold text-gray-800 dark:text-white mt-1">
+                        {{ progress.byStatus.MATURE }}
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <div class="card p-6 mb-4">
+            <div class="flex items-center justify-between mb-3">
+                <h3 class="text-lg font-semibold text-gray-900 dark:text-white">📅 今日复习</h3>
+                <span class="text-sm text-gray-500 dark:text-gray-400">
+                    {{ progress.todayDone }} / {{ progress.todayDone + progress.todayPending }}
+                </span>
+            </div>
+
+            <!-- 进度条 -->
+            <div class="h-3 bg-gray-100 dark:bg-gray-700 rounded-full overflow-hidden">
+                <div class="h-full bg-gradient-to-r from-indigo-500 to-purple-600 transition-all duration-500"
+                    :style="{ width: todayPercent + '%' }"></div>
+            </div>
+
+            <div class="flex justify-between mt-2 text-xs text-gray-500 dark:text-gray-400">
+                <span>已完成 {{ progress.todayDone }}</span>
+                <span>待复习 {{ progress.todayPending }}</span>
+            </div>
+        </div>
+
+        <div class="card p-4 text-center">
+            <div class="text-4xl">🔥</div>
+            <p class="text-2xl font-bold text-gray-900 dark:text-white mt-1">
+                {{ progress.streak }}
+            </p>
+            <p class="text-xs text-gray-500 dark:text-gray-400">连续学习天数</p>
+        </div>
+
         <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
             <router-link to="/review"
                 class="btn-primary flex items-center justify-center gap-2 py-3 text-sm whitespace-nowrap">
@@ -93,7 +180,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
+import { ref, computed, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { api } from '../api';
 
@@ -110,6 +197,43 @@ async function loadStats() {
     }
 }
 
+type ReviewStatus = 'NEW' | 'LEARNING' | 'REVIEW' | 'MATURE';
+
+const progress = ref<{
+    total: number;
+    byStatus: Record<ReviewStatus, number>;
+    todayPending: number;
+    todayDone: number;
+    streak: number;
+}>({
+    total: 0,
+    byStatus: { NEW: 0, LEARNING: 0, REVIEW: 0, MATURE: 0 },
+    todayPending: 0,
+    todayDone: 0,
+    streak: 0,
+});
+
+// 各状态百分比
+function percent(status: ReviewStatus): number {
+    if (progress.value.total === 0) return 0;
+    return (progress.value.byStatus[status] / progress.value.total) * 100;
+}
+
+// 今日复习完成率
+const todayPercent = computed(() => {
+    const total = progress.value.todayDone + progress.value.todayPending;
+    if (total === 0) return 100;
+    return (progress.value.todayDone / total) * 100;
+});
+
+async function loadProgress() {
+    try {
+        progress.value = await api.getProgressStats();
+    } catch (e) {
+        console.error('加载学习进度失败', e);
+    }
+}
+
 const showWelcome = ref(false);
 
 function closeWelcome() {
@@ -119,6 +243,7 @@ function closeWelcome() {
 
 onMounted(() => {
     loadStats();
+    loadProgress();
     // 检查是否已显示过欢迎弹窗
     const hasShown = localStorage.getItem('lexiscribe_welcome_shown');
     if (!hasShown) {
