@@ -59,10 +59,19 @@
 
                     <!-- 评分按钮 -->
                     <div class="mt-6 grid grid-cols-4 gap-2">
-                        <button @click="handleRating('again')" class="btn-rating btn-rating-again">Again</button>
-                        <button @click="handleRating('hard')" class="btn-rating btn-rating-hard">Hard</button>
-                        <button @click="handleRating('good')" class="btn-rating btn-rating-good">Good</button>
-                        <button @click="handleRating('easy')" class="btn-rating btn-rating-easy">Easy</button>
+                        <!-- 提交遮罩 -->
+                        <div v-if="submitting"
+                            class="absolute inset-0 bg-white/60 dark:bg-black/40 flex items-center justify-center rounded-lg z-10">
+                            <span class="text-sm text-gray-600 dark:text-gray-300">提交中...</span>
+                        </div>
+                        <button @click="handleRating('again')" class="btn-rating btn-rating-again"
+                            :disabled="submitting">Again</button>
+                        <button @click="handleRating('hard')" class="btn-rating btn-rating-hard"
+                            :disabled="submitting">Hard</button>
+                        <button @click="handleRating('good')" class="btn-rating btn-rating-good"
+                            :disabled="submitting">Good</button>
+                        <button @click="handleRating('easy')" class="btn-rating btn-rating-easy"
+                            :disabled="submitting">Easy</button>
                     </div>
                 </div>
 
@@ -102,8 +111,7 @@ import { confirm } from '@/utils/verifyCheck';
 // 路由
 const router = useRouter();
 
-// // TTS 发音
-// const { speak } = useTTS();
+const submitting = ref(false);
 
 // 复习数据
 const reviews = ref<any[]>([]);
@@ -145,9 +153,10 @@ function loadMediaUrl(sentenceId: number) {
 
 // 提交评分
 async function handleRating(rating: string) {
+    if (submitting.value) return; // 防止重复提交
     const review = reviews.value[currentIndex.value];
     if (!review) return;
-
+    submitting.value = true;
     try {
         await api.submitAnswer(review.review_id, rating);
         // 移动到下一个
@@ -161,15 +170,13 @@ async function handleRating(rating: string) {
             confirmText: '我知道了',
             onlyOne: true,
         });
+    } finally {
+        submitting.value = false;
     }
 }
 
 onMounted(() => {
     loadReviews();
-    // // 预加载语音
-    // if (window.speechSynthesis && window.speechSynthesis.getVoices().length === 0) {
-    //     window.speechSynthesis.onvoiceschanged = () => window.speechSynthesis.getVoices();
-    // }
 });
 
 </script>
