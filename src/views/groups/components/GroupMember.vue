@@ -11,14 +11,15 @@
                 <div class="flex items-center gap-3 min-w-0">
                     <div
                         class="w-9 h-9 rounded-full bg-indigo-500 text-white flex items-center justify-center text-xs font-bold flex-shrink-0">
-                        {{ getInitial(member.nickname || member.email) }}
+                        {{ getInitial(member.nickname, member.email) }}
                     </div>
                     <div class="min-w-0">
                         <p class="text-sm font-medium text-gray-900 dark:text-white truncate text-left"
                             :title="member.nickname || member.email">
                             {{ member.nickname || member.email }}
                         </p>
-                        <p v-if="member.nickname" class="text-xs text-gray-400 truncate text-left" :title="member.email">
+                        <p v-if="member.nickname" class="text-xs text-gray-400 truncate text-left"
+                            :title="member.email">
                             {{ member.email }}
                         </p>
                     </div>
@@ -53,8 +54,12 @@ const props = defineProps<{
 
 const emit = defineEmits(['refresh']);
 
-function getInitial(name: string): string {
-    return name?.charAt(0)?.toUpperCase() || '?';
+function getInitial(name: string, email: string): string {
+    if (name) {
+        const firstChar = Array.from(name)[0] || '?';
+        return firstChar.toUpperCase();
+    }
+    return (email || 'U').charAt(0).toUpperCase();
 }
 
 import { formatDateOnly } from '@/utils/time';

@@ -22,7 +22,7 @@
                 <span class="text-sm text-gray-500 dark:text-gray-400 w-16 flex-shrink-0">昵称</span>
                 <!-- flex items-center gap-2-->
                 <input v-model="nickName" class="input-field py-1 px-2 text-sm w-full "
-                    style="width: 180px; max-width: 100%;" placeholder={{ nickName }} @keydown.enter="updateNickname"
+                    style="width: 180px; max-width: 100%;" :placeholder="nickName" @keydown.enter="updateNickname"
                     @keydown.esc="cancelEdit" autofocus :disabled="!isEditingNickname" />
             </div>
             <div class="flex items-center gap-2  flex-shrink-0">
@@ -69,7 +69,7 @@ import { api } from '@/api';
 // const email = inject('userEmail') || '';
 const email = localStorage.getItem('userEmail') || 'U';
 
-const nickName = ref(localStorage.getItem('nickName') || ' ');
+const nickName = ref(localStorage.getItem('nickName') || '');
 const isVerified = ref(localStorage.getItem('isVerified') === 'true');
 const savingNickname = ref(false);
 const isEditingNickname = ref(false);

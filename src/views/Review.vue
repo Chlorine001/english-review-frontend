@@ -2,8 +2,17 @@
     <div class="max-w-xl mx-auto p-4">
         <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-4">今日复习</h2>
 
+        <!-- 加载中 -->
+        <div v-if="loading" class="text-center py-20">
+            <div
+                class="inline-block animate-spin rounded-full h-12 w-12 border-4 border-indigo-500 border-t-transparent">
+            </div>
+            <p class="mt-4 text-gray-500 dark:text-gray-400 text-lg">正在加载复习内容...</p>
+            <p class="text-sm text-gray-400 dark:text-gray-500 mt-1">请稍候</p>
+        </div>
+
         <!-- 无复习内容 -->
-        <div v-if="reviews.length === 0" class="text-center py-10">
+        <div v-else-if="reviews.length === 0" class="text-center py-10">
             <div v-if="reviews.length === 0" class="text-center py-10">
                 <div class="text-6xl mb-4">🎯</div>
                 <p class="text-gray-500 dark:text-gray-400 text-lg">今天没有需要复习的句子</p>
@@ -50,10 +59,19 @@
 
                     <!-- 评分按钮 -->
                     <div class="mt-6 grid grid-cols-4 gap-2">
-                        <button @click="handleRating('again')" class="btn-rating btn-rating-again">Again</button>
-                        <button @click="handleRating('hard')" class="btn-rating btn-rating-hard">Hard</button>
-                        <button @click="handleRating('good')" class="btn-rating btn-rating-good">Good</button>
-                        <button @click="handleRating('easy')" class="btn-rating btn-rating-easy">Easy</button>
+                        <!-- 提交遮罩 -->
+                        <div v-if="submitting"
+                            class="absolute inset-0 bg-white/60 dark:bg-black/40 flex items-center justify-center rounded-lg z-10">
+                            <span class="text-sm text-gray-600 dark:text-gray-300">提交中...</span>
+                        </div>
+                        <button @click="handleRating('again')" class="btn-rating btn-rating-again"
+                            :disabled="submitting">Again</button>
+                        <button @click="handleRating('hard')" class="btn-rating btn-rating-hard"
+                            :disabled="submitting">Hard</button>
+                        <button @click="handleRating('good')" class="btn-rating btn-rating-good"
+                            :disabled="submitting">Good</button>
+                        <button @click="handleRating('easy')" class="btn-rating btn-rating-easy"
+                            :disabled="submitting">Easy</button>
                     </div>
                 </div>
 
@@ -93,19 +111,19 @@ import { confirm } from '@/utils/verifyCheck';
 // 路由
 const router = useRouter();
 
-// // TTS 发音
-// const { speak } = useTTS();
+const submitting = ref(false);
 
 // 复习数据
 const reviews = ref<any[]>([]);
 const currentIndex = ref(0);
 const showAnswer = ref(false);
-
+const loading = ref(true); // 加载状态
 // 当前句子
 const currentSentence = computed(() => reviews.value[currentIndex.value] || {});
 
 // 加载今日复习列表
 async function loadReviews() {
+    loading.value = true;
     try {
         reviews.value = await api.getTodayReviews();
         // 为每个有音频的句子缓存 URL
@@ -117,6 +135,8 @@ async function loadReviews() {
     } catch (e) {
         // 如果 token 失效或其他错误，跳回登录页
         router.push('/login');
+    } finally {
+        loading.value = false;
     }
 }
 
@@ -133,9 +153,10 @@ function loadMediaUrl(sentenceId: number) {
 
 // 提交评分
 async function handleRating(rating: string) {
+    if (submitting.value) return; // 防止重复提交
     const review = reviews.value[currentIndex.value];
     if (!review) return;
-
+    submitting.value = true;
     try {
         await api.submitAnswer(review.review_id, rating);
         // 移动到下一个
@@ -149,15 +170,13 @@ async function handleRating(rating: string) {
             confirmText: '我知道了',
             onlyOne: true,
         });
+    } finally {
+        submitting.value = false;
     }
 }
 
 onMounted(() => {
     loadReviews();
-    // // 预加载语音
-    // if (window.speechSynthesis && window.speechSynthesis.getVoices().length === 0) {
-    //     window.speechSynthesis.onvoiceschanged = () => window.speechSynthesis.getVoices();
-    // }
 });
 
 </script>
