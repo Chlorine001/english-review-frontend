@@ -47,6 +47,7 @@ import { ref, computed, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { api } from '../../api';
 import { confirm } from '@/utils/verifyCheck';
+import ConfirmDialog from '@/composables/ConfirmDialog.vue';
 
 const router = useRouter();
 const email = ref('');
