@@ -27,7 +27,11 @@ interface ListResponse<T> {
   total: number;
 }
 
+const DELAY = Number(import.meta.env.VITE_API_DELAY ?? 0);
+const delay = (ms: number) => new Promise(r => setTimeout(r, ms));
+
 async function request<T>(endpoint: string, options: RequestInit = {}, skipAuthRedirect: boolean = false): Promise<T> {
+  if (import.meta.env.DEV && DELAY > 0) await delay(DELAY);
   const headers: HeadersInit = {
     'Content-Type': 'application/json',
     ...(options.headers || {}),
