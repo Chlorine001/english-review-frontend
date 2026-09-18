@@ -19,7 +19,7 @@ const routes = [
   // 公开页面（未登录可访问）
   { path: '/login', component: Login, meta: { requiresAuth: false, guestOnly: true } },
   { path: '/register', component: Register, meta: { requiresAuth: false, guestOnly: true } },
-  { path: '/verify-email', component: VerifyEmail, meta: { requiresAuth: false, guestOnly: true } },
+  { path: '/verify-email', component: VerifyEmail, meta: { requiresAuth: false } },
 
   // 需要登录的页面
   { path: '/', component: Dashboard, meta: { requiresAuth: true } },
@@ -52,7 +52,7 @@ router.beforeEach((to, _from, next) => {
     return;
   }
 
-  // 2. 已登录但访问游客专用页面（登录/注册/验证） → 跳转首页
+  // 2. 已登录但访问游客专用页面（登录/注册） → 跳转首页
   if (to.meta.guestOnly && isLoggedIn) {
     next('/');
     return;
@@ -63,3 +63,4 @@ router.beforeEach((to, _from, next) => {
 });
 
 export default router;
+export { router };  // ✅ 额外导出 router 实例
