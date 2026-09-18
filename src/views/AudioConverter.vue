@@ -330,9 +330,11 @@ async function loadFFmpeg() {
             console.log('[FFmpeg]', message);
         });
 
+        const baseURL = 'https://unpkg.com/@ffmpeg/core@0.12.6/dist/esm';
+        
         await instance.load({
-            coreURL: await toBlobURL('/ffmpeg-core/ffmpeg-core.js', 'text/javascript'),
-            wasmURL: await toBlobURL('/ffmpeg-core/ffmpeg-core.wasm', 'application/wasm'),
+            coreURL: await toBlobURL(`${baseURL}/ffmpeg-core.js`, 'text/javascript'),
+            wasmURL: await toBlobURL(`${baseURL}/ffmpeg-core.wasm`, 'application/wasm'),
         });
 
         ffmpeg.value = instance;
