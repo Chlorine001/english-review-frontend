@@ -46,7 +46,7 @@
                 <MediaPlayer v-if="mediaUrl" :src="mediaUrl" ref="mediaRef" :file-format="fileFormat"
                     :file-name="fileName" show-info @loaded="onLoadedMetadata" video-class="max-h-64" />
                 <!-- ✅ 用区间滑块组件 -->
-                <RangeSlider v-model="trimRange" :max="duration" :step="0.1" label="剪辑区间" class="mb-3" />
+                <RangeSlider v-model="trimRange" :max="duration" :step="0.01" label="剪辑区间" class="mb-3" />
 
                 <div class="flex gap-2">
                     <button @click="playSelection" class="btn-secondary text-sm px-4 py-2">
