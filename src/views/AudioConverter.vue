@@ -43,9 +43,8 @@
                 </div>
 
                 <!-- 播放器 -->
-                <audio ref="audioRef" :src="audioUrl" controls class="w-full mb-4"
-                    @loadedmetadata="onLoadedMetadata"></audio>
-
+                <MediaPlayer v-if="mediaUrl" :src="mediaUrl" ref="mediaRef" :file-format="fileFormat"
+                    :file-name="fileName" show-info @loaded="onLoadedMetadata" video-class="max-h-64" />
                 <!-- ✅ 用区间滑块组件 -->
                 <RangeSlider v-model="trimRange" :max="duration" :step="0.1" label="剪辑区间" class="mb-3" />
 
@@ -132,13 +131,15 @@ import { fetchFile, toBlobURL } from '@ffmpeg/util';
 import { ALLOWED_MEDIA_TYPES, ALLOWED_MEDIA_EXTS, DEFAULT_CHANGE_MAX_FILE_SIZE, MEDIA_ACCEPT } from '@/constants';
 import { confirm } from '@/utils/verifyCheck';
 import RangeSlider from '@/components/RangeSlider.vue';
+import MediaPlayer from '@/components/MediaPlayer.vue';
+import { toBeijingISOString } from '../utils/time';
 
 // ===== 状态 =====
 const fileInput = ref<HTMLInputElement | null>(null);
-const audioRef = ref<HTMLAudioElement | null>(null);
+const mediaRef = ref<InstanceType<typeof MediaPlayer> | null>(null);
 
 const file = ref<File | null>(null);
-const audioUrl = ref('');
+const mediaUrl = ref('');
 const duration = ref(0);
 
 const outputFormat = ref('mp3');
@@ -157,13 +158,20 @@ const errorMessage = ref('');
 function selectFile() {
     fileInput.value?.click();
 }
+// 从文件名推断格式（用于 MediaPlayer 显示图标/类型）
+const fileFormat = computed(() => {
+    if (!file.value) return '';
+    return file.value.name.split('.').pop()?.toLowerCase() || '';
+});
+
+// 文件名
+const fileName = computed(() => file.value?.name || '');
 
 async function handleFileChange(e: Event) {
     const input = e.target as HTMLInputElement;
     if (!input.files || input.files.length === 0) return;
 
     const selectedFile = input.files[0];
-
     // 1️⃣ 校验扩展名
     const ext = selectedFile.name.split('.').pop()?.toLowerCase();
     if (!ext || !ALLOWED_MEDIA_EXTS.includes(ext)) {
@@ -174,7 +182,6 @@ async function handleFileChange(e: Event) {
             confirmText: '我知道了',
             onlyOne: true,
         });
-        input.value = '';
         return;
     }
 
@@ -187,7 +194,6 @@ async function handleFileChange(e: Event) {
             confirmText: '我知道了',
             onlyOne: true,
         });
-        input.value = '';
         return;
     }
 
@@ -200,7 +206,6 @@ async function handleFileChange(e: Event) {
             confirmText: '我知道了',
             onlyOne: true,
         });
-        input.value = '';
         return;
     }
 
@@ -236,25 +241,14 @@ async function handleDrop(e: DragEvent) {
         });
         return;
     }
-    if (droppedFile && droppedFile.type.startsWith('audio/')) {
-        loadFile(droppedFile);
-
-    } else {
-        alert('请上传音频文件');
-    }
-}
-
-function loadFile(f: File) {
-    resetFile();
-    file.value = f;
-    audioUrl.value = URL.createObjectURL(f);
+    loadFile(droppedFile);
 }
 
 function resetFile() {
-    if (audioUrl.value) URL.revokeObjectURL(audioUrl.value);
+    if (mediaUrl.value) URL.revokeObjectURL(mediaUrl.value);
     if (downloadUrl.value) URL.revokeObjectURL(downloadUrl.value);
     file.value = null;
-    audioUrl.value = '';
+    mediaUrl.value = '';
     downloadUrl.value = '';
     duration.value = 0;
     progress.value = 0;
@@ -263,32 +257,37 @@ function resetFile() {
     outputFileName.value = '';
 }
 
+function loadFile(f: File) {
+    resetFile();
+    file.value = f;
+    mediaUrl.value = URL.createObjectURL(f);
+}
+
 const trimRange = ref<[number, number]>([0, 0]);
 // 计算属性：起止时间
 const trimStart = computed(() => trimRange.value[0]);
 const trimEnd = computed(() => trimRange.value[1]);
 
 // ===== 音频元数据 =====
-function onLoadedMetadata() {
-    if (audioRef.value) {
-        const d = audioRef.value.duration;
-        duration.value = d;
-        trimRange.value = [0, d];  // ✅ 初始化为完整区间
-    }
+function onLoadedMetadata({ duration: d }: { duration: number }) {
+    duration.value = d;
+    trimRange.value = [0, d];  // ✅ 初始化为完整区间
 }
 
 // ===== 剪辑 =====
 function playSelection() {
-    if (!audioRef.value) return;
-    audioRef.value.currentTime = trimStart.value;
-    audioRef.value.play();
+    const player = mediaRef.value;
+    if (!player) return;
+    const [start, end] = trimRange.value;
+    player.seek(start);
+    player.play();
     const checkEnd = () => {
-        if (audioRef.value && audioRef.value.currentTime >= trimEnd.value) {
-            audioRef.value.pause();
-            audioRef.value.removeEventListener('timeupdate', checkEnd);
+        if (player.getCurrentTime() >= end) {
+            player.pause();
+            player.offTimeUpdate(checkEnd);
         }
     };
-    audioRef.value.addEventListener('timeupdate', checkEnd);
+    player.onTimeUpdate(checkEnd);
 }
 
 // 重置
@@ -370,7 +369,10 @@ async function startConvert() {
 
         // 剪辑
         if (trimStart.value > 0) args.push('-ss', String(trimStart.value));
-        if (trimEnd.value < duration.value) args.push('-to', String(trimEnd.value - trimStart.value));
+        const clipDuration = trimEnd.value - trimStart.value;
+        if (clipDuration > 0 && clipDuration < duration.value) {
+            args.push('-t', String(clipDuration));
+        }
 
         // 比特率
         if (outputFormat.value !== 'wav' && outputFormat.value !== 'flac') {
@@ -396,7 +398,8 @@ async function startConvert() {
 
         // 生成输出文件名
         const baseName = file.value.name.replace(/\.[^.]+$/, '');
-        outputFileName.value = `${baseName}.${outputFormat.value}`;
+        const timestamp = toBeijingISOString();
+        outputFileName.value = `${baseName}_${timestamp}.${outputFormat.value}`;
 
         progress.value = 100;
         statusText.value = '转换完成 ✅';
@@ -434,7 +437,7 @@ function getMimeType(format: string): string {
 }
 
 onBeforeUnmount(() => {
-    if (audioUrl.value) URL.revokeObjectURL(audioUrl.value);
+    if (mediaUrl.value) URL.revokeObjectURL(mediaUrl.value);
     if (downloadUrl.value) URL.revokeObjectURL(downloadUrl.value);
 });
 </script>

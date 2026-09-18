@@ -134,3 +134,16 @@ export function formatDateOnly(date: string | Date): string {
     });
     return parts.replace(/\//g, '-');
 }
+
+export function toBeijingISOString(date: Date = new Date()): string {
+    // 加 8 小时
+    const beijingTime = new Date(date.getTime() + 8 * 60 * 60 * 1000);
+    // 用 UTC 方法读取（避免本地时区干扰）
+    const year = beijingTime.getUTCFullYear();
+    const month = String(beijingTime.getUTCMonth() + 1).padStart(2, '0');
+    const day = String(beijingTime.getUTCDate()).padStart(2, '0');
+    const hours = String(beijingTime.getUTCHours()).padStart(2, '0');
+    const minutes = String(beijingTime.getUTCMinutes()).padStart(2, '0');
+    const seconds = String(beijingTime.getUTCSeconds()).padStart(2, '0');
+    return `${year}_${month}_${day}_${hours}_${minutes}_${seconds}`;
+}

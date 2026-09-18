@@ -1,4 +1,3 @@
-<!-- src/components/MediaPlayer.vue -->
 <template>
     <div class="media-player">
         <!-- 根据媒体类型渲染不同标签 -->
@@ -68,8 +67,11 @@ const mediaRef = ref<HTMLAudioElement | HTMLVideoElement | null>(null);
 
 // 加载完成时触发（可用于记录时长等）
 const emit = defineEmits(['loaded']);
+const duration = ref(0);
+
 function handleLoaded(event: Event) {
     const target = event.target as HTMLAudioElement | HTMLVideoElement;
+    duration.value = target.duration;
     emit('loaded', {
         duration: target.duration,
         currentSrc: target.currentSrc,
@@ -79,8 +81,19 @@ function handleLoaded(event: Event) {
 // ---------- 暴露方法给父组件（可选） ----------
 defineExpose({
     mediaRef,
+    duration,
     play: () => mediaRef.value?.play(),
     pause: () => mediaRef.value?.pause(),
+    seek: (time: number) => {
+        if (mediaRef.value) mediaRef.value.currentTime = time;
+    },
+    getCurrentTime: () => mediaRef.value?.currentTime ?? 0,
+    onTimeUpdate: (callback: () => void) => {
+        mediaRef.value?.addEventListener('timeupdate', callback);
+    },
+    offTimeUpdate: (callback: () => void) => {
+        mediaRef.value?.removeEventListener('timeupdate', callback);
+    },
 });
 </script>
 
