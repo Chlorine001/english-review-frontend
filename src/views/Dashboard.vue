@@ -119,6 +119,9 @@
                     class="btn-secondary flex items-center justify-center gap-2 py-3 text-sm whitespace-nowrap">
                     📖 句子库
                 </router-link>
+                <router-link to="/audio-converter" class="btn-secondary">
+                    🎵 音频转换
+                </router-link>
             </div>
         </div>
     </div>

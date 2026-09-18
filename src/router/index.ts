@@ -13,6 +13,7 @@ import MyGroups from '@/views/groups/MyGroups.vue';
 import GroupCreate from '@/views/groups/Create.vue';
 import GroupDetail from '@/views/groups/Detail.vue';
 import GroupJoin from '@/views/groups/Join.vue';
+import AudioConverter from '@/views/AudioConverter.vue';
 
 const routes = [
   // 公开页面（未登录可访问）
@@ -31,6 +32,7 @@ const routes = [
   { path: '/groups/create', component: GroupCreate, meta: { requiresAuth: true } },
   { path: '/groups/:id', component: GroupDetail, meta: { requiresAuth: true } },
   { path: '/groups/join', component: GroupJoin, meta: { requiresAuth: true } },
+  { path: '/audio-converter', component: AudioConverter, meta: { requiresAuth: true } },
 
   // Catch all route for 404 errors
   { path: '/:pathMatch(.*)*', name: 'NotFound', component: NotFound }
