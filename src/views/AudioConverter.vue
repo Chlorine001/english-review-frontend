@@ -46,21 +46,8 @@
                 <audio ref="audioRef" :src="audioUrl" controls class="w-full mb-4"
                     @loadedmetadata="onLoadedMetadata"></audio>
 
-                <!-- 剪辑区间 -->
-                <div class="mb-3">
-                    <div class="flex justify-between text-xs text-gray-500 dark:text-gray-400 mb-1">
-                        <span>剪辑区间</span>
-                        <span>{{ formatDuration(trimStart) }} → {{ formatDuration(trimEnd) }}</span>
-                    </div>
-                    <div class="flex gap-2 items-center">
-                        <span class="text-xs text-gray-500 w-8">起</span>
-                        <input v-model.number="trimStart" type="range" min="0" :max="duration" step="0.1"
-                            class="flex-1" />
-                        <span class="text-xs text-gray-500 w-8">止</span>
-                        <input v-model.number="trimEnd" type="range" min="0" :max="duration" step="0.1"
-                            class="flex-1" />
-                    </div>
-                </div>
+                <!-- ✅ 用区间滑块组件 -->
+                <RangeSlider v-model="trimRange" :max="duration" :step="0.1" label="剪辑区间" class="mb-3" />
 
                 <div class="flex gap-2">
                     <button @click="playSelection" class="btn-secondary text-sm px-4 py-2">
@@ -144,6 +131,7 @@ import { FFmpeg } from '@ffmpeg/ffmpeg';
 import { fetchFile, toBlobURL } from '@ffmpeg/util';
 import { ALLOWED_MEDIA_TYPES, ALLOWED_MEDIA_EXTS, DEFAULT_CHANGE_MAX_FILE_SIZE, MEDIA_ACCEPT } from '@/constants';
 import { confirm } from '@/utils/verifyCheck';
+import RangeSlider from '@/components/RangeSlider.vue';
 
 // ===== 状态 =====
 const fileInput = ref<HTMLInputElement | null>(null);
@@ -152,8 +140,6 @@ const audioRef = ref<HTMLAudioElement | null>(null);
 const file = ref<File | null>(null);
 const audioUrl = ref('');
 const duration = ref(0);
-const trimStart = ref(0);
-const trimEnd = ref(0);
 
 const outputFormat = ref('mp3');
 const bitrate = ref(192);
@@ -271,19 +257,23 @@ function resetFile() {
     audioUrl.value = '';
     downloadUrl.value = '';
     duration.value = 0;
-    trimStart.value = 0;
-    trimEnd.value = 0;
     progress.value = 0;
     statusText.value = '';
     errorMessage.value = '';
     outputFileName.value = '';
 }
 
+const trimRange = ref<[number, number]>([0, 0]);
+// 计算属性：起止时间
+const trimStart = computed(() => trimRange.value[0]);
+const trimEnd = computed(() => trimRange.value[1]);
+
 // ===== 音频元数据 =====
 function onLoadedMetadata() {
     if (audioRef.value) {
-        duration.value = audioRef.value.duration;
-        trimEnd.value = duration.value;
+        const d = audioRef.value.duration;
+        duration.value = d;
+        trimRange.value = [0, d];  // ✅ 初始化为完整区间
     }
 }
 
@@ -301,9 +291,9 @@ function playSelection() {
     audioRef.value.addEventListener('timeupdate', checkEnd);
 }
 
+// 重置
 function resetTrim() {
-    trimStart.value = 0;
-    trimEnd.value = duration.value;
+    trimRange.value = [0, duration.value];
 }
 
 // ===== 预计大小 =====
