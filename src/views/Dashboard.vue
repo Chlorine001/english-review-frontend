@@ -1,13 +1,13 @@
 <template>
     <div class="relative min-h-[calc(100vh-4rem)]">
-        <Transition name="fade">
-            <div v-if="pageLoading"
-                class="fixed top-16 inset-x-0 bottom-0 inset-0 z-20 flex flex-col items-center justify-center bg-slate-50 dark:bg-[#1a1b2e] pb-16">
-                <div class="text-5xl mb-4 animate-pulse">✒️</div>
-                <div class="text-sm text-gray-500 dark:text-gray-400">正在加载你的学习数据…</div>
-            </div>
-        </Transition>
-        <div v-if="!pageLoading" class="max-w-2xl mx-auto p-4">
+        <div class="absolute inset-0 z-20 transition-opacity duration-300
+         flex flex-col items-center justify-center
+         bg-slate-50 dark:bg-[#1a1b2e] pb-48" :class="pageLoading ? 'opacity-100' : 'opacity-0 pointer-events-none'">
+            <div class="text-5xl mb-4 animate-pulse">✒️</div>
+            <div class="text-sm text-gray-500 dark:text-gray-400">正在加载你的学习数据…</div>
+        </div>
+        <div class="max-w-2xl mx-auto p-4 transition-opacity duration-300"
+            :class="pageLoading ? 'opacity-0 pointer-events-none' : 'opacity-100'">
             <div v-if="!isVerified"
                 class="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-300 dark:border-yellow-700 rounded-lg p-3 mb-4 text-sm text-yellow-800 dark:text-yellow-300">
                 ⚠️ 邮箱未验证，<router-link :to="{ path: '/verify-email', query: { email: userEmail } }"
