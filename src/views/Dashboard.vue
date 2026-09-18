@@ -131,7 +131,7 @@
 import { ref, computed, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { api } from '../api';
-import WelcomeModal from '@/composables/WelcomeModel.vue';
+import WelcomeModal from '@/components/WelcomeModel.vue';
 
 const title = import.meta.env.VITE_HOME_TITLE || '📚 LexiScribe';
 const isVerified = localStorage.getItem('isVerified') === 'true';

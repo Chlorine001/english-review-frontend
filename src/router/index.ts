@@ -7,7 +7,7 @@ import AddSentence from '../views/AddSentence.vue';
 import Library from '../views/Library.vue';
 import VerifyEmail from '../views/auth/VerifyEmail.vue';
 import Profile from '../views/profile/index.vue';
-import NotFound from '@/composables/404.vue';
+import NotFound from '@/components/404.vue';
 import Groups from '@/views/groups/Groups.vue';
 import MyGroups from '@/views/groups/MyGroups.vue';
 import GroupCreate from '@/views/groups/Create.vue';

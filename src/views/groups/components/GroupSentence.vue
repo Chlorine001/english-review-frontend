@@ -146,7 +146,7 @@ import { ref, onMounted } from 'vue';
 import { api } from '@/api';
 import { confirm } from '@/utils/verifyCheck';
 import { formatBeijingTime } from '@/utils/time';
-import MediaPlayer from '@/composables/MediaPlayer.vue';
+import MediaPlayer from '@/components/MediaPlayer.vue';
 
 const props = defineProps<{
     sentences: any[];

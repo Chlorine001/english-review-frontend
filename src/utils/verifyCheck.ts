@@ -1,5 +1,5 @@
 import { createApp } from 'vue';
-import ConfirmDialog from '@/composables/ConfirmDialog.vue';
+import ConfirmDialog from '@/components/ConfirmDialog.vue';
 
 //---------引用-------
 // ✅ 检查邮箱是否已验证

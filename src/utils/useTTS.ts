@@ -1,4 +1,3 @@
-// composables/useTTS.ts
 import { ref } from 'vue';
 
 export function useTTS() {
