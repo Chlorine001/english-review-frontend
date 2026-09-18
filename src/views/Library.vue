@@ -198,7 +198,7 @@
 <script setup lang="ts">
 import { ref, onMounted, computed } from 'vue';
 import { api } from '@/api';
-import MediaPlayer from '@/composables/MediaPlayer.vue';
+import MediaPlayer from '@/components/MediaPlayer.vue';
 import { ALLOWED_MEDIA_TYPES, ALLOWED_MEDIA_EXTS, DEFAULT_MAX_FILE_SIZE, MEDIA_ACCEPT } from '@/constants';
 import { confirm } from '@/utils/verifyCheck';
 

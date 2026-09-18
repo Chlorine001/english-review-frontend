@@ -119,6 +119,9 @@
                     class="btn-secondary flex items-center justify-center gap-2 py-3 text-sm whitespace-nowrap">
                     📖 句子库
                 </router-link>
+                <router-link to="/audio-converter" class="btn-secondary">
+                    🎵 音频转换
+                </router-link>
             </div>
         </div>
     </div>
@@ -128,7 +131,7 @@
 import { ref, computed, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { api } from '../api';
-import WelcomeModal from '@/composables/WelcomeModel.vue';
+import WelcomeModal from '@/components/WelcomeModel.vue';
 
 const title = import.meta.env.VITE_HOME_TITLE || '📚 LexiScribe';
 const isVerified = localStorage.getItem('isVerified') === 'true';

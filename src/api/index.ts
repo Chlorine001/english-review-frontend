@@ -1,12 +1,7 @@
-import axios from 'axios';
-
 const baseURL = import.meta.env.VITE_API_BASE_URL;
 const API_BASE = baseURL + '/api';
 
-const axiosInstance = axios.create({
-  baseURL: API_BASE,
-  withCredentials: true,
-});
+import axiosInstance from './axios';
 
 // 句子数据结构（与你的后端字段一致）
 interface Sentence {
@@ -293,7 +288,7 @@ export const api = {
     request<{ success: boolean; id: number }>(`/groups/${groupId}/sentences/${shareId}/copy`, {
       method: 'POST',
     }),
-  
+
   getProgressStats: () =>
     request<{
       total: number;
@@ -303,6 +298,22 @@ export const api = {
       streak: number;
       hasReviewedToday: boolean;
     }>('/stats/progress'),
+
+  // AI 识别媒体
+  analyzeMedia: (file: File, onProgress?: (percent: number) => void) => {
+    const formData = new FormData();
+    formData.append('media', file);
+    return axiosInstance
+      .post<{ text: string; translation?: string }>('/ai/analyze', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+        onUploadProgress: (e) => {
+          if (e.total && onProgress) {
+            onProgress(Math.round((e.loaded * 100) / e.total));
+          }
+        },
+      })
+      .then((res) => res.data);
+  },
 };
 
 

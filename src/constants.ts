@@ -17,5 +17,6 @@ export const ALLOWED_MEDIA_EXTS = ['mp3', 'm4a', 'wav', 'mp4', 'webm', 'mov'];
 
 // 默认文件大小限制（单位：字节），可由环境变量覆盖
 export const DEFAULT_MAX_FILE_SIZE = 50 * 1024 * 1024; // 50MB
+export const DEFAULT_CHANGE_MAX_FILE_SIZE = 300 * 1024 * 1024; // 300MB
 
 export const MEDIA_ACCEPT = '.mp3,.m4a,.wav,.mp4,.webm,.mov,audio/*,video/*';

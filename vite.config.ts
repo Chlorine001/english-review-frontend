@@ -6,9 +6,11 @@ const __dirname = import.meta.dirname; // 直接使用
 export default defineConfig(({ mode }) => {
   // 加载环境变量（第三个参数 '' 表示加载所有变量，不限前缀）
   const env = loadEnv(mode, process.cwd(), '')
-
   return {
     plugins: [vue()],
+    optimizeDeps: {
+      exclude: ['@ffmpeg/ffmpeg', '@ffmpeg/util'],
+    },
     resolve: {
       alias: {
         '@': path.resolve(__dirname, './src'),

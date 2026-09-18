@@ -104,8 +104,8 @@
 import { ref, onMounted, computed } from 'vue';
 import { useRouter } from 'vue-router';
 import { api } from '@/api';
-// import { useTTS } from '@/composables/useTTS';
-import MediaPlayer from '@/composables/MediaPlayer.vue';
+//  import { useTTS } from '../utils/useTTS';
+import MediaPlayer from '@/components/MediaPlayer.vue';
 import { confirm } from '@/utils/verifyCheck';
 
 // 路由

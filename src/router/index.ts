@@ -7,18 +7,19 @@ import AddSentence from '../views/AddSentence.vue';
 import Library from '../views/Library.vue';
 import VerifyEmail from '../views/auth/VerifyEmail.vue';
 import Profile from '../views/profile/index.vue';
-import NotFound from '@/composables/404.vue';
+import NotFound from '@/components/404.vue';
 import Groups from '@/views/groups/Groups.vue';
 import MyGroups from '@/views/groups/MyGroups.vue';
 import GroupCreate from '@/views/groups/Create.vue';
 import GroupDetail from '@/views/groups/Detail.vue';
 import GroupJoin from '@/views/groups/Join.vue';
+import AudioConverter from '@/views/AudioConverter.vue';
 
 const routes = [
   // 公开页面（未登录可访问）
   { path: '/login', component: Login, meta: { requiresAuth: false, guestOnly: true } },
   { path: '/register', component: Register, meta: { requiresAuth: false, guestOnly: true } },
-  { path: '/verify-email', component: VerifyEmail, meta: { requiresAuth: false, guestOnly: true } },
+  { path: '/verify-email', component: VerifyEmail, meta: { requiresAuth: false } },
 
   // 需要登录的页面
   { path: '/', component: Dashboard, meta: { requiresAuth: true } },
@@ -31,6 +32,7 @@ const routes = [
   { path: '/groups/create', component: GroupCreate, meta: { requiresAuth: true } },
   { path: '/groups/:id', component: GroupDetail, meta: { requiresAuth: true } },
   { path: '/groups/join', component: GroupJoin, meta: { requiresAuth: true } },
+  { path: '/audio-converter', component: AudioConverter, meta: { requiresAuth: true } },
 
   // Catch all route for 404 errors
   { path: '/:pathMatch(.*)*', name: 'NotFound', component: NotFound }
@@ -50,7 +52,7 @@ router.beforeEach((to, _from, next) => {
     return;
   }
 
-  // 2. 已登录但访问游客专用页面（登录/注册/验证） → 跳转首页
+  // 2. 已登录但访问游客专用页面（登录/注册） → 跳转首页
   if (to.meta.guestOnly && isLoggedIn) {
     next('/');
     return;
@@ -61,3 +63,4 @@ router.beforeEach((to, _from, next) => {
 });
 
 export default router;
+export { router };  // ✅ 额外导出 router 实例
