@@ -1,5 +1,12 @@
 # LexiScribe
 
+[![Vue](https://img.shields.io/badge/Vue-3-42b883.svg)](https://vuejs.org/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5-3178c6.svg)](https://www.typescriptlang.org/)
+[![Vite](https://img.shields.io/badge/Vite-5-646cff.svg)](https://vitejs.dev/)
+[![Tailwind CSS](https://img.shields.io/badge/Tailwind-3-38bdf8.svg)](https://tailwindcss.com/)
+[![PWA](https://img.shields.io/badge/PWA-Ready-5a0fc8.svg)](https://web.dev/progressive-web-apps/)
+[![License](https://img.shields.io/badge/License-CC%20BY--NC%204.0-lightgrey.svg)](LICENSE)
+
 > 智能英语句子间隔复习系统 —— 把你真正想记住的英语，在快要忘记的时候再次呈现
 
 一个面向个人英语学习的轻量级 Web 应用。用户保存喜欢的英语句子，系统根据每次复习的表现自动安排下一次复习时间，形成个人化的英语语料库。
