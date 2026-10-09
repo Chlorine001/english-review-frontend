@@ -101,7 +101,7 @@
 
                 <div class="mb-4">
                     <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">中文含义</label>
-                    <textarea v-model="form.translation" rows="3" class="input-field" /></textarea>
+                    <textarea v-model="form.translation" rows="3" class="input-field" ></textarea>
                 </div>
 
                 <!-- 发音/音标 -->
