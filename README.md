@@ -5,7 +5,7 @@
 [![Vite](https://img.shields.io/badge/Vite-5-646cff.svg)](https://vitejs.dev/)
 [![Tailwind CSS](https://img.shields.io/badge/Tailwind-3-38bdf8.svg)](https://tailwindcss.com/)
 [![PWA](https://img.shields.io/badge/PWA-Ready-5a0fc8.svg)](https://web.dev/progressive-web-apps/)
-[![License](https://img.shields.io/badge/License-CC%20BY--NC%204.0-lightgrey.svg)](LICENSE)
+[![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 
 > 智能英语句子间隔复习系统 —— 把你真正想记住的英语，在快要忘记的时候再次呈现
 
